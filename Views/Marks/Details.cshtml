@@ -1,0 +1,53 @@
+@model ResourcesWebApplication.Models.Documents.BookMark
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Mark</h4>
+    <hr />
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Document
+                </div>
+                <div class="card-body">
+                    <dl>
+                        <dt  class="bg-dark text-white">Title:</dt>
+                        <dd><a href="@Model.Document.Url" class="bg-dark text-white">@Model.Document.Title</a></dd>
+                    </dl>
+                </div>
+                <div class="card-footer">
+                    <pre class="bg-dark text-white" style="font-size: 140%;">@Model.Document.CreatedAT</pre>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    BookMark
+                </div>
+                <div class="card-body">
+                    <dl>
+                        <dt  class="bg-dark text-white">Search String:</dt>
+                        <dd  class="bg-dark text-white">@Model.Mark.Search</dd>
+                        <hr>
+                        <dt  class="bg-dark text-white">Stopped AT Page:</dt>
+                        <dd  class="bg-dark text-white">@Model.Mark.Page</dd>
+                    </dl>
+                </div>
+                <div class="card-footer">
+                    <pre class="bg-dark text-white" style="font-size: 140%;">@Model.Mark.CreatedAT</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Mark.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

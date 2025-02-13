@@ -1,0 +1,30 @@
+@model ResourcesWebApplication.Models.Accounting.Enancee
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Article</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.NoExercice)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.NoExercice)      
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Information)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Information)          
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="EditEnancee" asp-route-id="@Model.Id">Edit Travail à faire</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

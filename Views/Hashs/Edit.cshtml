@@ -1,0 +1,81 @@
+@model ResourcesWebApplication.Models.Servers.Users.Hash
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Hash</h4>
+<hr />
+<div class="card">
+    <div class="card-header bg-dark text-white table-hover">
+        <h3>Create Hash String.</h3>
+    </div>
+    <div class="card-body bg-light text-dark">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Value" class="control-label"></label>
+                <input asp-for="Value" class="form-control-plaintext bg-light text-dark" spellcheck="false" autocomplete="off" />
+                <span asp-validation-for="Value" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Hashed" class="control-label"></label>
+                <textarea asp-for="Hashed" id="hashed" cols="30" rows="3" class="form-control-plaintext bg-light text-dark" spellcheck="false" readonly></textarea>
+                <span asp-validation-for="Hashed" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedAT" class="control-label"></label>
+                <input asp-for="CreatedAT" id="createdAT" readonly class="form-control-plaintext bg-light text-dark"  />
+                <span asp-validation-for="CreatedAT" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-dark text-white btn-lg btn-block" />
+            </div>
+        </form>
+        <hr>
+        <div class="row">
+            <div class="col-md-4 form-group">
+                <button class="btn btn-dark text-white btn-lg btn-block" onclick="hashPassword()">Hash</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script type="text/javascript">
+    function hashPassword()
+    {
+        var clear = document.getElementById('value');
+        var hashed = document.getElementById('hashed');
+        if(clear.value)
+        {
+            fetch(`/Hashs/HashPassword?value=${encodeURIComponent(clear.value)}`)
+                .then(response => {
+                    if(!response.ok)
+                    {
+                        throw new Error('Network response was not ok.');
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    hashed.value = data;
+                })
+                .catch(error => {
+                    console.error(`Error hashing string: ${error}`);
+                })
+        } else {
+            console.log("No clear string was in input to hash.");
+        }
+    }
+    function setCreateAT()
+    {
+        var createdATInput = document.getElementById('createdAT');
+        var currentDate = new Date();
+        createdATInput.value = currentDate.toISOString();
+    }
+    setCreateAT();
+</script>

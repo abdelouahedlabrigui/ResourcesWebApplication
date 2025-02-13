@@ -1,0 +1,64 @@
+@* @model IEnumerable<@model ResourcesWebApplication.Models.Accounting.PlanComptable>
+
+@* @{
+    ViewData["Title"] = "Figure Index";
+} 
+
+<h1>Index</h1>
+
+
+<table class="table bg-white text-dark table-stripped">
+    <thead class="table bg-primary text-white">
+        <tr>
+            <th>No Exercice</th>
+            <th>Title</th>
+            <th>-</th>
+        </tr>
+    </thead>
+    <tbody id="figuresTableBody">
+
+    </tbody>
+</table>
+<script>
+    function getFigures()
+    {
+        const tableBody = document.getElementById('figuresTableBody');
+        tableBody.innerHTML = '';
+        if (noExercice && title)
+        {
+            fetch(`/PlanComptableMarocain/GetFigures`) // Replace 'ControllerName' with the name of your controller
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {                    
+                    data.forEach(item => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = item.noExercice;
+                        row.insertCell().textContent = item.title;
+                        const edit = document.createElement('a');
+                        edit.href = `/PlanComptableMarocain/Edit/${item.id}`;
+                        edit.textContent = 'Edit';
+                        const details = document.createElement('a');
+                        details.href = `/PlanComptableMarocain/Details/${item.id}`;
+                        details.textContent = 'Details';
+                        const deleteItem = document.createElement('a');
+                        deleteItem.href = `/PlanComptableMarocain/Delete/${item.id}`;
+                        deleteItem.textContent = 'Delete';
+                        const actionCell = row.insertCell();
+                        actionCell.appendChild(edit);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(details);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(deleteItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    getFigures();
+</script> *@

@@ -1,0 +1,155 @@
+@model ResourcesWebApplication.Models.Games.TwoPlayers.Rule
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Rule: | <input  type="text" id="currentTimeInput" class="form-control-plaintext bg-dark text-white" readonly/></h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form >
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Sum" class="control-label"></label>
+                <input asp-for="Sum" id="sum" type="number" class="form-control-plaintext bg-dark text-white" />
+                <span asp-validation-for="Sum" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Choice" class="control-label"></label>
+                <input asp-for="Choice" id="choice" class="form-control-plaintext bg-dark text-white" autocomplete="off" spellcheck="false" type="text"  />
+                <span asp-validation-for="Choice" class="text-danger"></span>
+            </div>
+            @* <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div> *@
+        </form>
+    </div>
+    <div class="col">
+        <div class="container card">
+            <div class="card-header bg-dark">
+                <div class="row">
+                    <div class="col">
+                        <button class="btn bg-white text-dark" onclick="addRules()">Add</button>
+                    </div>
+                    <div class="col">
+                        <button class="btn bg-white text-dark" onclick="postData()">Fetch</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <table class="table bg-white text-dark" id="rulesTable">
+                    <thead class="table bg-dark text-white">
+                        <tr>
+                            <th>Sum</th>
+                            <th>Choice</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+    function addRules()
+    {
+        var sum = document.getElementById('sum');
+        var choice = document.getElementById('choice');
+        
+        if(sum && choice)
+        {
+            var tableBody = document.querySelector('#rulesTable tbody');
+            var row = tableBody.insertRow();
+
+            var sumCell = row.insertCell(0);
+            var choiceCell = row.insertCell(1);
+
+            sumCell.textContent = sum.value.toString();
+            choiceCell.textContent = choice.value.toString();
+
+            var actionCell = row.insertCell(2);
+            var deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.addEventListener('click', function(){
+                tableBody.removeChild(row);
+            });
+            actionCell.appendChild(deleteButton);
+        }
+    }
+    function postData()
+    {
+        var tableRows = document.querySelectorAll('#rulesTable tbody tr');
+        var dataToSend = [];
+
+
+        tableRows.forEach(row => {
+            var sum = row.cells[0].textContent.toString();
+            var choice = row.cells[1].textContent.toString();
+            
+            var rowData = {
+                Sum: sum,
+                Choice: choice,
+            };
+            dataToSend.push(rowData);            
+            console.log(rowData);
+        });
+
+
+        fetch('/Rules/PostRules', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dataToSend)
+        })
+        .then(response => {
+            if(!response.ok)
+            {
+                throw new Error('Network response was not ok.');
+            } else if (response.ok)
+            {
+                window.location.href = '/Rules';
+            } else {
+                return response.json();
+            }
+        })
+        .catch(error => {
+            document.getElementById('createMessageError').innerHTML = `Error sending data: ${error}`;
+        })
+    }
+    function updateCurrentTime()
+    {
+        var currentTimeInput = document.getElementById('currentTimeInput');
+        var currentTime = new Date();
+        var hours = currentTime.getHours();
+        var minutes = currentTime.getMinutes();
+        var seconds = currentTime.getSeconds();
+        var milliseconds = currentTime.getMilliseconds();
+
+        var formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}.${padZero(milliseconds, 3)}`;
+        currentTimeInput.value = formattedTime;
+    }
+    function padZero(number, width = 2)
+    {
+        var str = number.toString();
+        while(str.length < width)
+        {
+            str = '0' + str;
+        }
+        return str;
+    }
+    setInterval(updateCurrentTime, 100);
+    updateCurrentTime();
+    
+</script>

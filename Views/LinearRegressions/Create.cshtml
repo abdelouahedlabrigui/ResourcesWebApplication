@@ -1,0 +1,109 @@
+@model ResourcesWebApplication.Models.MachineLearning.LinearRegression
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>LinearRegression</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            <label class="control-label">File Name</label>
+            <input id="filename" class="form-control-plaintext" autocomplete="off" spellcheck="false" />
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label class="control-label">Dataset Name</label>
+                    <input id="datasetName" class="form-control-plaintext" autocomplete="off" spellcheck="false" />
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label class="control-label">X Label</label>
+                    <input id="xlabel" class="form-control-plaintext" autocomplete="off" spellcheck="false" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label class="control-label">Y Label</label>
+                    <input id="ylabel" class="form-control-plaintext" autocomplete="off" spellcheck="false" />
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label class="control-label">Title</label>
+                    <input id="title" class="form-control-plaintext" autocomplete="off" spellcheck="false" />
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="form-group">
+            <button value="Generate" class="btn btn-dark text-white lead btn-block btn-lg" onclick="generateCoefficients()">Generate</button>
+        </div>      
+    </div>
+    <div class="col">
+        <table class="table bg-dark text-white">
+            <thead class="table bg-danger text-white">
+                <tr>
+                    <th>Dataset Name</th>
+                    <th>Column</th>
+                    <th>Coefficent</th>
+                    <th>Created AT</th>
+                </tr>
+            </thead>
+            <tbody id="coefficientTableBody">
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+    function generateCoefficients()
+    {
+        const filename = document.getElementById('filename');
+        const datasetName = document.getElementById('datasetName');
+        const xlabel = document.getElementById('xlabel');
+        const ylabel = document.getElementById('ylabel');
+        const title = document.getElementById('title');
+        const tableBody = document.getElementById('coefficientTableBody');
+        tableBody.innerHTML = '';
+        if(filename.value && datasetName.value && xlabel.value && ylabel.value && title.value)
+        {
+            fetch(`/LinearRegressions/CoefficientAndPlotsPosts?filename=${encodeURIComponent(filename.value)}&datasetName=${encodeURIComponent(datasetName.value)}&xlabel=${encodeURIComponent(xlabel.value)}&ylabel=${encodeURIComponent(ylabel.value)}&title=${encodeURIComponent(title.value)}`) // Replace 'ControllerName' with the name of your controller
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {                 
+                    data.forEach(item => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = item.datasetName;
+                        row.insertCell().textContent = item.column;
+                        row.insertCell().textContent = item.coefficent,
+                        row.insertCell().textContent = item.createdAT;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                })
+                .finally(() => {
+                    setTimeout(() => {
+                        document.getElementById('getCoefficientID').disabled = true;
+                    }, 10000);
+                });
+        }
+    }
+</script>

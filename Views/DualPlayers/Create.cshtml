@@ -1,0 +1,653 @@
+@model ResourcesWebApplication.Models.Games.DualPlayers
+
+@{
+    ViewData["Title"] = "Create";
+}
+@{
+    string[] tables = {"Players","Preferences","Strategies","Rules"};
+}
+<h1>Create</h1>
+
+<h4>DualPlayers</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form>
+            <div class="row">
+                <div class="col">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group">
+                            <label asp-for="FthPlayerID" class="control-label"></label>
+                            <input asp-for="FthPlayerID" id="FthPlayerID" class="form-control-plaintext lead" readonly spellcheck="false" />
+                            <span asp-validation-for="FthPlayerID" class="text-danger"></span>
+                        </div>
+                    </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label asp-for="SndPlayerID" class="control-label"></label>
+                        <input asp-for="SndPlayerID" id="SndPlayerID" class="form-control-plaintext lead" readonly spellcheck="false" />
+                        <span asp-validation-for="SndPlayerID" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group">
+                            <label asp-for="FthStrategy" class="control-label"></label>
+                            <input asp-for="FthStrategy" id="FthStrategy" class="form-control-plaintext lead" readonly spellcheck="false" />
+                            <span asp-validation-for="FthStrategy" class="text-danger"></span>
+                        </div>
+                    </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label asp-for="SndStrategy" class="control-label"></label>
+                        <input asp-for="SndStrategy" id="SndStrategy" class="form-control-plaintext lead" readonly spellcheck="false" />
+                        <span asp-validation-for="SndStrategy" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label asp-for="Sum" class="control-label"></label>
+                        <input asp-for="Sum" id="Sum" class="form-control-plaintext lead" readonly spellcheck="false" />
+                        <span asp-validation-for="Sum" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label asp-for="FthPreference" class="control-label"></label>
+                        <input asp-for="FthPreference" id="FthPreference" class="form-control-plaintext lead" readonly spellcheck="false" />
+                        <span asp-validation-for="FthPreference" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label asp-for="SndPreference" class="control-label"></label>
+                        <input asp-for="SndPreference" id="SndPreference" class="form-control-plaintext lead" readonly spellcheck="false" />
+                        <span asp-validation-for="SndPreference" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label asp-for="CreatedAT" class="control-label"></label>
+                        <input asp-for="CreatedAT" id="CreatedAT" readonly class="form-control" />
+                        <span asp-validation-for="CreatedAT" class="text-danger"></span>
+                    </div>
+                </div>                
+            </div>
+            @* <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div> *@
+        </form>
+        <hr>
+        <div class="card bg-dark btn-hover shadow-sm" style="text-align: center; font-size: 180%;"><pre class="text-white" id="playerName"></pre></div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h4>Fetch.</h4>
+                <hr>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="Tables">Select a Table.</label>
+                            <select name="" id="tables" class="form-control-plaintext bg-dark text-white">
+                                @foreach(string table in tables){
+                                    <option value="@table">@table</option>
+                                }
+                            </select>
+                        </div>
+                    </div>              
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="filter">Filter</label>
+                            <input 
+                                type="text" 
+                                id="filter" 
+                                class="form-control-plaintext bg-dark text-white"
+                                                    
+                            />
+                        </div>
+                    </div>      
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <button class="btn btn-block btn-lg bg-dark text-white" onclick="populateTable()">GET Data.</button>
+                                </div>
+                                <hr>
+                                <button class="btn bg-white text-dark btn-sm" onclick="addGame()">Add</button> | <button class="btn bg-white text-dark btn-sm" onclick="postGame()">Fetch</button>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <button class="btn btn-block btn-lg bg-dark text-white" onclick="GetPlayerNameById()" style="font-size: small;">GET Player Name.</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>            
+        </div>
+        <hr>
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h3 class="bg-white text-dark" id="title"></h3> 
+            </div>
+            <div class="card-body">
+                <div class="container">
+                    <table class="table bg-white text-dark" id="tableID">
+                        <tbody style="font-size: smaller; color: hotpink;">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer bg-dark text-white">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="chronometer" class="bg-dark text-white">Chronometer</label>
+                            <input 
+                                type="text" 
+                                id="currentTimeInput" 
+                                class="form-control-plaintext bg-dark text-white"
+                                style="font-size: 240%;"                    
+                            />
+                            <button class="btn bg-white text-dark btn-sm" onclick="fetchPlayersDataset()">Fetch Players</button>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card-header bg-dark text-white table-bordered">
+                            <button class="btn bg-white text-dark btn-lg btn-block" onclick="fetchPlayersDataset()">Fetch Players</button>
+                        </div>
+                        <table class="table text-white lead" id="gameTable">
+                            <thead style="font-size: smaller;">
+                                <tr>
+                                    <th>1 Player</th>
+                                    <th>2 Player</th>
+                                    <th>1-strategy</th>
+                                    <th>2-strategy</th>
+                                    <th>sum</th>
+                                    <th>1 prefrence</th>
+                                    <th>2 prefrence</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        <div class="card-footer bg-white text-dark shadow-sm">
+            <pre id="createMessageError" class="text-dark"></pre>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+    function fetchPlayersDataset()
+    {
+        var tableRows = document.querySelectorAll('#gameTable tbody tr');
+        var dataToSend = [];
+
+
+        tableRows.forEach(row => {
+            var fthPlayer = row.cells[0].textContent.toString();
+            var sndPlayer = row.cells[1].textContent.toString();
+            var fthStrategy = row.cells[2].textContent.toString();
+            var sndStrategy = row.cells[3].textContent.toString();
+            var sum = row.cells[4].textContent.toString();
+            var fthPreference = row.cells[5].textContent.toString();
+            var sndPreference = row.cells[6].textContent.toString();
+
+            var rowData = {
+                FthPlayer: fthPlayer,
+                SndPlayer: sndPlayer,
+                FthStrategy: fthStrategy,
+                SndStrategy: sndStrategy,
+                Sum: sum,
+                FthPreference: fthPreference,
+                SndPreference: sndPreference
+            };
+            dataToSend.push(rowData);
+        });
+
+        console.log(dataToSend);
+
+        fetch('/DualPlayers/FetchPlayersDataset', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dataToSend)
+        })
+        .then(response => {
+            if(!response.ok)
+            {
+                throw new Error('Network response was not ok.');
+            } else if (response.ok)
+            {
+                window.location.href = '/DualPlayers/Plays';
+            } else {
+                return response.json();
+            }
+        })
+        .catch(error => {
+            document.getElementById('createMessageError').innerHTML = `Error sending data: ${error}`;
+        })
+    }
+    function postGame() {
+        const table = document.getElementById('gameTable');
+        const data = [];
+
+        // Loop through the rows starting from the second row (skipping headers)
+        for (let i = 1; i < table.rows.length; i++) {
+            const row = table.rows[i];
+            const rowData = [];
+
+            // Loop through the cells in the row
+            for (let j = 0; j < row.cells.length; j++) {
+                const cell = row.cells[j];
+                const cellData = cell.textContent.trim();
+                rowData.push(cellData);
+            }
+
+            // Push the row data
+            data.push(rowData);
+        }
+
+        // Prepare the postData object
+        const postData = {
+            fthPlayerID: data[0][0],
+            sndPlayerID: data[0][1],
+            preferenceId1: `${data[0][5]},${data[0][6]}`,
+            preferenceId2: `${data[1][5]},${data[1][6]}`,
+            preferenceId3: `${data[2][5]},${data[2][6]}`,
+            strategyId1: `${data[0][2]},${data[0][3]}`,
+            strategyId2: `${data[1][2]},${data[1][3]}`,
+            strategyId3: `${data[2][2]},${data[2][3]}`,
+            rule1: data[0][4],  // Assuming first row has rule1 values
+            rule2: data[1][4]
+        };
+
+        // Perform the fetch request
+        fetch(`/DualPlayers/PostGame?fthPlayerID=${encodeURIComponent(postData.fthPlayerID)}&sndPlayerID=${encodeURIComponent(postData.sndPlayerID)}&preferenceId1=${encodeURIComponent(postData.preferenceId1)}&preferenceId2=${encodeURIComponent(postData.preferenceId2)}&preferenceId3=${encodeURIComponent(postData.preferenceId3)}&strategyId1=${encodeURIComponent(postData.strategyId1)}&strategyId2=${encodeURIComponent(postData.strategyId2)}&strategyId3=${encodeURIComponent(postData.strategyId3)}&rule1=${encodeURIComponent(postData.rule1)}&rule2=${encodeURIComponent(postData.rule2)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok.');
+                } else {
+                    window.location.href = '/DualPlayers';
+                }
+            })
+            .catch(error => {
+                document.getElementById('createMessageError').innerHTML = `Error sending data: ${error}`;
+            });
+    }
+    function addGame()
+    {
+        
+        var FthPlayerID = document.getElementById('FthPlayerID');
+        var SndPlayerID = document.getElementById('SndPlayerID');
+
+        var FthStrategy = document.getElementById('FthStrategy');
+        var SndStrategy = document.getElementById('SndStrategy');
+
+        var Sum = document.getElementById('Sum');
+        var FthPreference = document.getElementById('FthPreference');
+
+        var SndPreference = document.getElementById('SndPreference');
+
+        if(FthPlayerID && SndPlayerID && FthStrategy && SndStrategy && Sum && FthPreference && SndPreference)
+        {
+            var tableBody = document.querySelector('#gameTable tbody');
+            var row = tableBody.insertRow();
+
+            var fthPlayerIDCell = row.insertCell(0);
+            var sndPlayerIDCell = row.insertCell(1);
+
+            var fthStrategyCell = row.insertCell(2);
+            var sndStrategyCell = row.insertCell(3);
+
+            var sumCell = row.insertCell(4);
+            var fthPreferenceCell = row.insertCell(5);
+
+            var sndPreferenceCell = row.insertCell(6);
+
+
+            fthPlayerIDCell.textContent = FthPlayerID.value;
+            sndPlayerIDCell.textContent = SndPlayerID.value;
+
+            fthStrategyCell.textContent = FthStrategy.value;
+            sndStrategyCell.textContent = SndStrategy.value;
+
+            sumCell.textContent = Sum.value;
+            fthPreferenceCell.textContent = FthPreference.value;
+
+            sndPreferenceCell.textContent = SndPreference.value;
+
+            
+            var actionCell = row.insertCell(7);
+            var deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.addEventListener('click', function(){
+                tableBody.removeChild(row);
+            });
+            actionCell.appendChild(deleteButton);
+        }
+    }
+    function GetPlayerNameById()
+    {
+        var filter = document.getElementById('filter');
+        if(filter.value)
+        {
+            fetch(`/DualPlayers/GetPlayerById?id=${encodeURIComponent(filter.value)}`)
+                .then(response => {
+                    if(!response.ok)
+                    {
+                        throw new Error('Network response was not ok.');
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    playerName.innerHTML = `${data}`;
+                })
+                .catch(error => {
+                    console.error(`Error loading file: ${error}`);
+                    playerName.innerHTML = 'Error loading player name.';
+                })
+        } else {
+            playerName.innerHTML = 'No player id filtered.';
+        }
+    }
+    function setCreateAT()
+    {
+        var createdATInput = document.getElementById('CreatedAT');
+        var currentDate = new Date();
+        createdATInput.value = currentDate.toISOString();
+    }
+    setCreateAT();
+    function filterEvent()
+    {
+        document.getElementById('filter').addEventListener('keyup', function(){
+            var input = this.value.toLowerCase();
+            var table = document.getElementById('tableID');
+            var rows = table.getElementsByTagName("tr");
+            for(var j = 0; j < rows.length; j++)
+            {
+                var cells = rows[j].getElementsByTagName("td");
+                var found = false;
+                for(var i = 0; i < cells.length; i++)
+                {
+                    var cellValue = cells[i].textContent || cells[i].innerHTML;
+                    if(cellValue.toLowerCase().indexOf(input) > -1)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                rows[j].style.display = found ? "" : "none";
+            }
+        });
+    }
+    filterEvent();
+    function updateCurrentTime()
+    {
+        var currentTimeInput = document.getElementById('currentTimeInput');
+        var currentTime = new Date();
+        var hours = currentTime.getHours();
+        var minutes = currentTime.getMinutes();
+        var seconds = currentTime.getSeconds();
+        var milliseconds = currentTime.getMilliseconds();
+
+        var formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}.${padZero(milliseconds, 3)}`;
+        currentTimeInput.value = formattedTime;
+    }
+    function padZero(number, width = 2)
+    {
+        var str = number.toString();
+        while(str.length < width)
+        {
+            str = '0' + str;
+        }
+        return str;
+    }
+    setInterval(updateCurrentTime, 100);
+    updateCurrentTime();
+
+    function populatePlayersTable() {
+        const title = document.getElementById('title');
+        title.innerHTML = 'Game frames and games. Players';
+        fetch('/DualPlayers/GetPlayers') // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {           
+                const tableBody = document.querySelector('#tableID tbody');
+
+                tableBody.innerHTML = '';
+                const th = tableBody.insertRow();
+                th.insertCell().textContent = 'ID';
+                th.insertCell().textContent = 'Name';
+                
+                data.forEach(player => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = player.id || 'N/A';
+                    row.insertCell().textContent = player.name || 'N/A';
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    function populateRulesTable() {
+        const title = document.getElementById('title');
+        title.innerHTML = 'Game frames and games. Rules.';
+        fetch('/DualPlayers/GetRules') // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+                const tableBody = document.querySelector('#tableID tbody'); 
+                
+                tableBody.innerHTML = '';
+                const th = tableBody.insertRow();
+                th.insertCell().textContent = 'ID';
+                th.insertCell().textContent = 'Sum';
+                th.insertCell().textContent = 'Action';
+                th.insertCell().textContent = 'Choice';
+                data.forEach(rule => {
+                    const row = tableBody.insertRow();  
+                    
+                    console.log(`${rule.Id}`);                  
+                    row.insertCell().textContent = rule.id || 'N/A';
+                    row.insertCell().textContent = rule.sum || 'N/A';
+                    const btn = row.insertCell();
+                    const buttonSum = document.createElement('button');
+                    buttonSum.textContent = "Copy"
+                    buttonSum.addEventListener('click', function() {
+                        document.getElementById('Sum').value = rule.sum;
+                    });
+                    btn.appendChild(buttonSum);
+                    row.insertCell().textContent = rule.choice || 'N/A';
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    function populateStrategiesTable() {
+        const title = document.getElementById('title');
+        title.innerHTML = 'Game frames and games. Strategies.';
+        fetch('/DualPlayers/GetStrategies') // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {                
+                const tableBody = document.querySelector('#tableID tbody');
+
+                tableBody.innerHTML = '';
+                
+                const th = tableBody.insertRow();
+                th.insertCell().textContent = 'ID';
+                th.insertCell().textContent = 'FthPlayerID';
+                th.insertCell().textContent = 'Action';
+                th.insertCell().textContent = 'SndPlayerID';
+                th.insertCell().textContent = 'Action';
+                th.insertCell().textContent = 'FthPlayerStrategy';
+                th.insertCell().textContent = 'Action';
+                th.insertCell().textContent = 'SndPlayerStrategy';
+                th.insertCell().textContent = 'Action';
+
+                data.forEach(strategy => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = strategy.id || 'N/A';
+                    row.insertCell().textContent = strategy.fthPlayerID || 'N/A';
+
+                    
+                    
+                    const btnFthPlayerID = row.insertCell();
+                    const buttonFthPlayerID = document.createElement('button');
+                    buttonFthPlayerID.textContent = "Copy"
+                    buttonFthPlayerID.addEventListener('click', function() {
+                        document.getElementById('FthPlayerID').value = strategy.fthPlayerID;
+                    });
+                    btnFthPlayerID.appendChild(buttonFthPlayerID);
+
+                    row.insertCell().textContent = strategy.sndPlayerID || 'N/A';
+
+                    const btnSndPlayerID = row.insertCell();
+                    const buttonSndPlayerID = document.createElement('button');
+                    buttonSndPlayerID.textContent = "Copy"
+                    buttonSndPlayerID.addEventListener('click', function() {
+                        document.getElementById('SndPlayerID').value = strategy.sndPlayerID;
+                    });
+                    btnSndPlayerID.appendChild(buttonSndPlayerID);
+
+                    row.insertCell().textContent = strategy.fthPlayerStrategy || 'N/A';
+
+                    const btnFthPlayerStrategy = row.insertCell();
+                    const buttonFthPlayerStrategy = document.createElement('button');
+                    buttonFthPlayerStrategy.textContent = "Copy"
+                    buttonFthPlayerStrategy.addEventListener('click', function() {
+                        document.getElementById('FthStrategy').value = strategy.fthPlayerStrategy;
+                    });
+                    btnFthPlayerStrategy.appendChild(buttonFthPlayerStrategy);
+
+
+                    row.insertCell().textContent = strategy.sndPlayerStrategy || 'N/A';
+
+                    const btnSndPlayerStrategy = row.insertCell();
+                    const buttonSndPlayerStrategy = document.createElement('button');
+                    buttonSndPlayerStrategy.textContent = "Copy"
+                    buttonSndPlayerStrategy.addEventListener('click', function() {
+                        document.getElementById('SndStrategy').value = strategy.sndPlayerStrategy;
+                    });
+                    btnSndPlayerStrategy.appendChild(buttonSndPlayerStrategy);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    function populatePreferencesTable() {
+        const title = document.getElementById('title');
+        title.innerHTML = 'Game frames and games. Preferences.';
+        fetch('/DualPlayers/GetPreferences') // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const tableBody = document.querySelector('#tableID tbody');
+                tableBody.innerHTML = '';
+                const th = tableBody.insertRow();
+                th.insertCell().textContent = 'ID';
+                th.insertCell().textContent = 'FthPlayerID';
+                th.insertCell().textContent = 'SndPlayerID';
+                th.insertCell().textContent = 'FthPlayerPreference';
+                th.insertCell().textContent = 'Action';
+                th.insertCell().textContent = 'SndPlayerPreference';
+                th.insertCell().textContent = 'Action';
+                data.forEach(preference => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = preference.id || 'N/A';
+                    row.insertCell().textContent = preference.fthPlayerID || 'N/A';
+                    row.insertCell().textContent = preference.sndPlayerID || 'N/A';
+
+                    row.insertCell().textContent = preference.fthPlayerPreference || 'N/A';
+
+                    const btnFthPlayerPreference = row.insertCell();
+                    const buttonFthPlayerPreference = document.createElement('button');
+                    buttonFthPlayerPreference.textContent = "Copy"
+                    btnFthPlayerPreference.addEventListener('click', function() {
+                        document.getElementById('FthPreference').value = preference.fthPlayerPreference;
+                    });
+                    btnFthPlayerPreference.appendChild(buttonFthPlayerPreference);
+
+
+                    row.insertCell().textContent = preference.sndPlayerPreference || 'N/A';
+
+                    const btnSndPlayerPreference = row.insertCell();
+                    const buttonSndPlayerPreference = document.createElement('button');
+                    buttonSndPlayerPreference.textContent = "Copy"
+                    btnSndPlayerPreference.addEventListener('click', function() {
+                        document.getElementById('SndPreference').value = preference.sndPlayerPreference;
+                    });
+                    btnSndPlayerPreference.appendChild(buttonSndPlayerPreference);
+                    
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    function populateTable()
+    {
+        const table = document.getElementById("tables");
+        if (table.value == "Players")
+        {
+            console.log(table.value);
+            populatePlayersTable();
+        } else if (table.value == "Rules")
+        {
+            console.log(table.value);
+            populateRulesTable();            
+        } else if (table.value == "Strategies")
+        {
+            console.log(table.value);
+            populateStrategiesTable();
+        } else if (table.value == "Preferences")
+        {
+            console.log(table.value);
+            populatePreferencesTable();
+        } else {
+            alert('May you select a table name.');
+        }
+    }
+    
+</script>

@@ -1,0 +1,143 @@
+@model IEnumerable<ResourcesWebApplication.Models.Chronometers.Chronometer>
+<style>
+    tbody{
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;        
+        color: black;
+        text-decoration: solid;
+        font-size: large;
+        background-color: rgb(245, 245, 243);
+    }
+    thead{
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        font-style: italic;
+    }
+    
+    
+</style>
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a> | <a asp-controller="NewsArticles"asp-action="Answers" class="badge bg-primary text-white">Questions</a>
+</p>
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header text-white" style="background-color: #810c47;">
+                Select TOP Number
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="InputSearch" name="Top"  class="bg-dark text-white">Top</label>
+                    <input type="text" id="top" class="form-control-plaintext" required autocomplete="off" spellcheck="false" />
+                </div>
+            </div>
+            <div class="card-footer form-group">
+                <button class="btn text-white" onclick="selectTaskByTOP()" style="background-color: #810c47;">SELECT</button>                    
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <table class="table table-light table-hover" id="tableID">
+            <thead class="thead text-white" style="background-color: #810c47;">
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Id)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Title)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Hour)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+        @foreach (var item in Model) {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Title)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Hour)
+                    </td>
+                    <td>
+                        <a class="text-dark" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a class="text-dark" asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                        <a class="text-dark" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+        }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@* @foreach (var item in Model) {    
+    <div class="row">
+        <div class="col">
+            @Html.DisplayFor(modelItem => item.Title)
+        </div>
+        <div class="col">
+            @Html.DisplayFor(modelItem => item.Hour)
+        </div>
+        <div class="col">
+            <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+            <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+            <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+        </div>
+    </div>
+} *@
+<script>
+    function selectTaskByTOP()
+    {
+        const top = document.getElementById('top');
+        const tableBody = document.querySelector('#tableID tbody');
+        tableBody.innerHTML = '';
+        if(top)
+        {
+            fetch(`/Chronometers/SELECTTasksByTOP?top=${encodeURIComponent(top.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {   
+                    const th = tableBody.insertRow();         
+                    data.forEach(task => {
+                        console.log(data);
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = task.id;
+                        row.insertCell().textContent = task.title;
+                        row.insertCell().textContent = task.hour;
+                        const edit = document.createElement('a');
+                        edit.href = `/Chronometers/Edit/${task.id}`;
+                        edit.textContent = 'Edit';
+                        const details = document.createElement('a');
+                        details.href = `/Chronometers/Details/${task.id}`;
+                        details.textContent = 'Details';
+                        const deleteItem = document.createElement('a');
+                        deleteItem.href = `/Chronometers/Delete/${task.id}`;
+                        deleteItem.textContent = 'Delete';
+                        const actionCell = row.insertCell();
+                        actionCell.appendChild(edit);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(details);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(deleteItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+</script>

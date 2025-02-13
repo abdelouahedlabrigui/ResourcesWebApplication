@@ -1,0 +1,116 @@
+@model IEnumerable<ResourcesWebApplication.Models.MachineLearning.Describe>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h3>Get Dataset Description by Dataset Name</h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="DatasetName">Dataset Name</label>
+                            <select id="datasetNamesId" class="form-control-plaintext" ></select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <button class="btn btn-lg btn-block bg-dark text-white" onclick="getClassifiedData()">Get Description</button>
+                        </div>
+                    </div>
+                </div>            
+            </div>
+            <div class="col">
+                <table class="table bg-white text-dark">
+                    <thead class="table bg-danger text-white">
+                        <tr>
+                            <th>Column</th>
+                            <th>Mean</th>
+                            <th>Std</th>
+                            <th>Min</th>
+                            <th>Max</th>
+                            <th colspan="4">Plot</th>
+                        </tr>
+                    </thead>
+                    <tbody id="describeDatasetTableBody">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getClassifiedData()
+    {
+        const dropdown1 = document.getElementById('datasetNamesId');
+        const tableBody = document.getElementById('describeDatasetTableBody');
+        tableBody.innerHTML = '';
+        if(dropdown1.value)
+        {
+            fetch(`/Describes/GetClassifiedData?datasetName=${encodeURIComponent(dropdown1.value)}`) // Replace 'ControllerName' with the name of your controller
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {                    
+                    data.forEach(item => {
+                        const row = tableBody.insertRow();
+                        if (item.column != "Unnamed: 0")
+                        {
+                            row.insertCell().textContent = item.column;
+                            row.insertCell().textContent = `Mean:\t${item.mean}`;
+                            row.insertCell().textContent = `Std:\t${item.std}`;
+                            row.insertCell().textContent = `Min:\t${item.min}`;
+                            row.insertCell().textContent = `Max:\t${item.max}`;
+                            const img = document.createElement('img');
+                            img.src = `data:image/png;base64, ${item.encoding}`;
+                            img.alt = 'Plot';
+                            const lastCell = row.insertCell();
+                            lastCell.appendChild(img);
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function getDatasetNames()
+    {
+        const dropdown1 = document.getElementById('datasetNamesId');
+        dropdown1.innerHTML = "";
+        fetch(`/Describes/GetDatasetNames`) // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {                
+                data.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item;
+                    option.textContent = item;
+                    dropdown1.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    getDatasetNames();
+</script>

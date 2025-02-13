@@ -1,0 +1,187 @@
+@model ResourcesWebApplication.Models.Plaintext
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Plaintext</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <h1 class="card-header bg-dark text-white" id="cardHeader" style="font-family: Arial, Helvetica, sans-serif; font-size: larger; text-align: center;"></h1>
+            <div class="card-body">
+            <div class="form-group">
+                <label asp-for="Content" class="control-label"></label>
+                @* <input asp-for="Content" class="form-control" /> *@
+                <textarea 
+                    asp-for="Content" 
+                    id="textInput" 
+                    cols="30" rows="4" 
+                    class="form-control-plaintext"
+                    readonly
+                ></textarea>
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+            </div>
+            <div class="card-body">
+                <div class="shadow-lg lead bg-white">
+                    <div class="form-group">
+                        <label for="rate">Rate:</label>
+                        <input class="form-control-plaintext" type="range" id="rate" min="0.1" max="10" step="1" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="volume">Volume:</label>
+                        <input class="form-control-plaintext" type="range" id="volume" min="0" max="1" step="0.01" value="1">
+                    </div>
+                    <select id="my_language" class="form-control-plaintext bg-dark text-white">
+                        <option value="fr-FR">fr-FR</option>
+                        <option value="en-EN">en-EN</option>
+                        <option value="es-ES">es-ES</option>
+                        <option value="de-DE">de-DE</option>  
+                        <option value="pt-BR">pt-PT</option>                                
+                    </select>
+                    <hr>
+                    <div class="form-group">
+                        <button id="speakButton" class="btn btn-primary text-white btn-block btn-lg form-control">Speak</button>
+                    </div>                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header bg-dark">
+                <strong class="form-control-plaintext text-white" id="currentTimeInput" style="font-size: 240%;"></strong>
+            </div>
+            <div class="card-body bg-light shadow-lg">
+                <strong style="text-align: justify; font-size:small;  font-family: Arial, Helvetica, sans-serif; background-image: linear-gradient(to right, purple, hotpink);
+                color: white;" id="sentence"></strong>                            
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script class="text/javascript">
+    function loadFileContent()
+    {
+        var fileInput = document.getElementById('fileInput');
+        var fileContentTextarea = document.getElementById('fileContent');
+        if(fileInput.value)
+        {
+            fetch(`/Plaintexts/LoadFile?filePath=${encodeURIComponent(fileInput.value)}`)
+                .then(response => {
+                    if(!response.ok)
+                    {
+                        throw new Error('Network response was not ok.');
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    fileContentTextarea.value = data;
+                })
+                .catch(error => {
+                    console.error(`Error loading file: ${error}`);
+                    fileContentTextarea.value = 'Error loading file.';
+                })
+        } else {
+            fileContentTextarea.value = 'No file selected.';
+        }
+    }
+    function cardHeader()
+    {
+        var header = document.getElementById('cardHeader');
+        header.innerHTML = new Date();
+    }
+
+    cardHeader();
+    @* function setCreateAT()
+    {
+        var createdATInput = document.getElementById('CreatedAT');
+        var currentDate = new Date();
+        createdATInput.value = currentDate.toISOString();
+    }
+    setCreateAT(); *@
+    function updateCurrentTime()
+    {
+        var currentTimeInput = document.getElementById('currentTimeInput');
+        var currentTime = new Date();
+        var hours = currentTime.getHours();
+        var minutes = currentTime.getMinutes();
+        var seconds = currentTime.getSeconds();
+        var milliseconds = currentTime.getMilliseconds();
+
+        var formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}.${padZero(milliseconds, 3)}`;
+        currentTimeInput.innerHTML = formattedTime;
+    }
+    function padZero(number, width = 2)
+    {
+        var str = number.toString();
+        while(str.length < width)
+        {
+            str = '0' + str;
+        }
+        return str;
+    }
+    setInterval(updateCurrentTime, 100);
+    updateCurrentTime();
+
+    const fileInput = document.getElementById('fileInput');
+    const textInput = document.getElementById('textInput');
+    const speakButton = document.getElementById('speakButton');
+    const rateInput = document.getElementById('rate');
+    const volumeInput = document.getElementById('volume');
+    const paragraph = document.getElementById('sentence');
+    const synth = window.speechSynthesis;
+
+    function speakText(text) {
+        const sentences = text.split('.');
+        const lang = document.getElementById("my_language").value;
+        const rate = parseFloat(rateInput.value);
+        const volume = parseFloat(volumeInput.value);
+        // const paragraph = document.getElementById('paragraph'); // Assuming you have a paragraph element with id 'paragraph'
+
+        let currentIndex = 0;
+
+        function speakNextSentence() {
+            if (currentIndex < sentences.length) {
+                const sentence = sentences[currentIndex].trim();
+                if (sentence) {
+                    const utterance = new SpeechSynthesisUtterance(sentence);
+                    utterance.rate = rate;
+                    utterance.volume = volume;
+                    utterance.lang = lang;
+                    paragraph.innerHTML = sentence;
+
+                    // Speak the sentence
+                    synth.speak(utterance);
+
+                    // Move to the next sentence after it's spoken
+                    utterance.onend = () => {
+                        currentIndex++;
+                        speakNextSentence(); // Call the next sentence
+                    };
+                } else {
+                    currentIndex++; // Skip empty sentences
+                    speakNextSentence(); // Call the next sentence
+                }
+            }
+        }
+
+        speakNextSentence(); // Start speaking the first sentence
+    }
+
+
+    speakButton.addEventListener('click', () => {
+        const textToSpeak = textInput.value.trim() || '';
+        if (textToSpeak) {
+            speakText(textToSpeak);
+        }
+    });
+</script>

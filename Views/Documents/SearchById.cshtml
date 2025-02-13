@@ -1,0 +1,51 @@
+@model IEnumerable<ResourcesWebApplication.Models.Documents.Document>
+
+@{
+    ViewData["Title"] = "Document By Id";
+}
+
+<h1>Index</h1>
+<p>
+    <a asp-action="Create">Create New</a> | <a asp-action="Performance" class="lead bg-dark text-white">Performance</a> | <strong> <a asp-action="MLInfo" class="lead bg-dark text-white">Datasets Info.</a></strong> | <strong> <a asp-action="MLDescribe" class="lead bg-dark text-white">Datasets Description.</a> | <strong> <a asp-action="RegressionPlot" class="lead bg-dark text-white">Regression Plot.</a></strong> | <strong> <a asp-action="LinearRegressionPlot" class="lead bg-dark text-white">Linear Regression Plot.</a></strong> | <strong> <a asp-action="Conceptual" class="lead bg-dark text-white">Conceptual Dataset Information.</a> | <strong> <a asp-action="ColumnDescription" class="lead bg-dark text-white">Dataset Column Descriptions.</a></strong> | <strong> <a asp-action="Execute" class="lead bg-dark text-white">Linguistic Features.</a></strong>
+</p>
+<table class="table table-light table-hover" id="documentsTable">
+    <thead class="thead text-white" style="background-color: #ff2c96;">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedAT)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                <a 
+                    style="color: black;"
+                    href="@Html.DisplayFor(modelItem => item.Url)">@Html.DisplayFor(modelItem => item.Title)</a>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedAT)
+            </td>
+            <td>
+                <a class="text-dark" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a class="text-dark" asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a class="text-dark" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>

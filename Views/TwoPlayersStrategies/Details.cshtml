@@ -1,0 +1,42 @@
+@model ResourcesWebApplication.Models.Games.TwoPlayers.Strategy
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Strategy</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.FthPlayerID)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.FthPlayerID)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.SndPlayerID)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.SndPlayerID)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.FthPlayerStrategy)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.FthPlayerStrategy)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.SndPlayerStrategy)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.SndPlayerStrategy)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

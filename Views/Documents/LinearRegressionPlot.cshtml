@@ -1,0 +1,389 @@
+@model ResourcesWebApplication.Models.Documents.Document
+<style>
+    thead {
+        background-color:#ff2c96;        
+        font-style: italic;
+        font-size: medium;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+    #btnId
+    {
+        background-color: #ff2c96;        
+        font-style: italic;
+        font-size: large;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+    tbody {
+        background-color:  rgb(253, 246, 250);
+        font-style: oblique;
+        font-size: medium;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+    select {
+        background-color:  rgb(253, 246, 250);
+        font-style: oblique;
+        font-size: large;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+    #chatID {
+        background-color: #ff2c96;
+    }
+</style>
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Document </h4>
+<hr />
+<div class="row">
+    <div class="col">        
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label class="control-label">Dataset File Name</label>
+                    <select id="datasetNames" class="text-dark lead" onchange="loadInfos()" required style="font-size: small;"></select>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label class="control-label">Title</label>
+                    <input id="title" class="form-control-plaintext" autocomplete="off" spellcheck="false" required />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label class="control-label">Dataset Full Address</label>
+                    <input id="datasetFullAddress" readonly class="form-control-plaintext" autocomplete="off" spellcheck="false" required />
+                </div>
+            </div>
+        </div>
+        <div class="row">            
+            <div class="col">
+                <div class="form-group">
+                    <label class="control-label">X Column</label>
+                    <input id="fthColumn" class="form-control-plaintext" autocomplete="off" spellcheck="false" required />
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label class="control-label">Y Column</label>
+                    <input id="sndColumn" class="form-control-plaintext" autocomplete="off" spellcheck="false" required />
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label class="control-label">Created AT</label>
+                    <input id="createdAT" type="datetime" class="form-control" autocomplete="off" readonly />
+                </div>
+            </div>
+        </div>        
+        <div class="form-group">
+            <input type="submit" value="Create" id="btnId" onclick="showPlot()" class="btn btn-dark text-white" />
+        </div>    
+        <div class="card">
+            <div class="card-header">
+                <strong>Regression Plot: </strong>
+            </div>
+            <div class="card-body" id="plotContainer" style="background-color: #ff2c96;">
+
+            </div>
+        </div>    
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                <div class="form-group">
+                    <label for="chronometer" class="bg-dark text-white">Chrono.</label>
+                    <input 
+                        type="text" 
+                        id="currentTimeInput" 
+                        class="form-control-plaintext"
+                        style="font-size: 240%; color: rgb(255, 253, 255); background-color: #ff2c96;"                  
+                    />
+                </div>
+            </div>
+            <div class="card-header bg-primary text-white">
+                <strong>Dataset Linear Regression e.g. Indicators.</strong>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead class="table text-white" style="background-color: #ff2c96;">
+                        <tr>
+                            <th>Dataset Name</th>
+                            <th>Intercept</th>
+                            <th>Coefficient</th>
+                            <th>Score</th>
+                            <th>CreatedAT</th>
+                        </tr>
+                    </thead>
+                    <tbody id="indicatorsTableBody" class="table text-dark bg-white table-stripped">
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-header bg-primary text-white">
+                <strong>Dataset Information</strong>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead class="table text-white" style="background-color: #ff2c96;">
+                        <tr>
+                            <th>Information</th>
+                        </tr>
+                    </thead>
+                    <tbody id="infosTableBody" class="table text-dark bg-white table-stripped">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+<script>
+    function updateCurrentTime()
+    {
+        var currentTimeInput = document.getElementById('currentTimeInput');
+        var currentTime = new Date();
+        var hours = currentTime.getHours();
+        var minutes = currentTime.getMinutes();
+        var seconds = currentTime.getSeconds();
+        var milliseconds = currentTime.getMilliseconds();
+
+        var formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}.${padZero(milliseconds, 3)}`;
+        currentTimeInput.value = formattedTime;
+    }
+    function padZero(number, width = 2)
+    {
+        var str = number.toString();
+        while(str.length < width)
+        {
+            str = '0' + str;
+        }
+        return str;
+    }
+    setInterval(updateCurrentTime, 100);
+    updateCurrentTime();
+    function setCreateAT()
+    {
+        var createdATInput = document.getElementById('createdAT');
+        var currentDate = new Date();
+        createdATInput.value = currentDate.toISOString();
+    }
+    setCreateAT();
+    function showPlot()
+    {
+        title = document.getElementById('title');
+        xColumn = document.getElementById('fthColumn');
+        yColumn = document.getElementById('sndColumn');
+
+        const datasetName = document.getElementById('datasetFullAddress');
+        @* const plotTableId = document.getElementById('plotTableId'); *@
+        const plotContainer = document.getElementById('plotContainer');
+        plotContainer.innerHTML = '';
+        if(datasetName && title && xColumn && yColumn)
+        {
+            fetch(`/Documents/ExecuteLinearRegressionPlotPyScript?datasetName=${encodeURIComponent(datasetName.value)}&title=${encodeURIComponent(title.value)}&xColumn=${encodeURIComponent(xColumn.value)}&yColumn=${encodeURIComponent(yColumn.value)}`) // Replace 'ControllerName' with the name of your controller
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {                    
+                    data.forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        const cardHeader = document.createElement('div');
+                        cardHeader.className = 'card-header bg-primary text-white';
+                        cardHeader.innerHTML = `<h3>${item.title || 'N/A'}</h3> | <i>Created AT: ${item.createdAT || 'N/A'}</i> <p>Dataset Name: ${item.datasetName || 'N/A'}</p>`;
+                        card.appendChild(cardHeader);
+
+                        const cardBody = document.createElement('div');
+                        cardBody.className = 'card-body shadow-sm';
+                        const img = document.createElement('img');
+                        img.src = `data:image/png;base64, ${item.encoding}`;
+                        img.alt = 'Plot';
+                        cardBody.appendChild(img);
+
+                        card.appendChild(cardBody);
+                        plotContainer.appendChild(card);
+                        const newline = document.createElement('br');
+                        card.appendChild(newline);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function getDatasetNames()
+    {
+        const datasetNames = document.getElementById('datasetNames');
+        datasetNames.innerHTML = "";
+        fetch(`/Documents/GetRegressionPlotyDatasetNames`) // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {                
+                data.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    datasetNames.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    getDatasetNames();
+    function loadInfos()
+    {
+        const tableBody = document.getElementById('infosTableBody');
+        const info = document.getElementById('datasetNames');
+        tableBody.innerHTML = "";
+        if(info)
+        {
+            fetch(`/Documents/GetDocumentInfos?datasetName=${encodeURIComponent(info.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    data.forEach(info => {
+                        const row = tableBody.insertRow();                    
+                        row.insertCell().textContent = info.information;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+            loadDatasetFullPath();
+            loadRegressionPlot();
+            loadDatasetIndicators();
+        }
+    }
+    function loadDatasetIndicators()
+    {
+        const tableBody = document.getElementById('indicatorsTableBody');
+        const indicator = document.getElementById('datasetNames');
+        
+        tableBody.innerHTML = "";
+        if(indicator)
+        {
+            fetch(`/Documents/GetDocumentIndicators?datasetName=${encodeURIComponent(indicator.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    data.forEach(info => {
+                        const row = tableBody.insertRow();                    
+                        row.insertCell().textContent = info.datasetName;
+                        row.insertCell().textContent = info.intercept;
+                        row.insertCell().textContent = info.coefficient;
+                        row.insertCell().textContent = info.score;
+                        row.insertCell().textContent = info.createdAT;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function loadDatasetFullPath()
+    {
+        const tableBody = document.getElementById('infosTableBody');
+        const info = document.getElementById('datasetNames');
+        const datasetFullAddress = document.getElementById('datasetFullAddress');
+        tableBody.innerHTML = "";
+        if(info)
+        {
+            fetch(`/Documents/GetDatasetFullAddress?filename=${encodeURIComponent(info.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    datasetFullAddress.value = data;
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function loadRegressionPlot()
+    {
+        const tableBody = document.getElementById('infosTableBody');
+        const dataset = document.getElementById('datasetNames');
+        tableBody.innerHTML = "";
+        if(dataset)
+        {
+            fetch(`/Documents/GetPlotByDatasetName?datasetName=${encodeURIComponent(dataset.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    data.forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        const cardHeader = document.createElement('div');
+                        cardHeader.className = 'card-header bg-primary text-white';
+                        cardHeader.innerHTML = `<h3>${item.title || 'N/A'}</h3> | <i>Created AT: ${item.createdAT || 'N/A'}</i> <p>Dataset Name: ${item.datasetName || 'N/A'}</p>`;
+                        card.appendChild(cardHeader);
+
+                        const cardBody = document.createElement('div');
+                        cardBody.className = 'card-body shadow-sm bg-white';
+
+                        const img = document.createElement('img');
+                        img.src = `data:image/png;base64, ${item.encoding}`;
+                        img.alt = 'Plot';
+                        cardBody.appendChild(img);
+
+                        card.appendChild(cardBody);
+                        plotContainer.appendChild(card);
+                        const newline = document.createElement('br');
+                        card.appendChild(newline);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+</script>

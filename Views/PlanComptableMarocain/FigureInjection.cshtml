@@ -1,0 +1,566 @@
+@model ResourcesWebApplication.Models.Accounting.Figure
+<style>
+    #enanceeStringTableBody
+    {
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        color: navy;
+        font-size: large;
+        background-color: rgb(253, 243, 244);
+    }
+    #figuresStringsTableBody
+    {
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        color: rgb(194, 21, 107);
+        font-size: larger;
+        font-style: italic oblique;
+        background-color: rgb(231, 246, 255);
+    }
+    #travailTableBody
+    {
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        color: black;
+        font-size: larger;
+        font-style: oblique;
+        background-color: rgb(240, 240, 240);
+    }
+</style>
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>PlanComptable</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">        
+        <div class="form-group">
+            <label asp-for="NoExercice" class="control-label"></label>
+            <input asp-for="NoExercice" id="noExercice" class="form-control-plaintext lead" autocomplete="off" spellcheck="false" />
+            <span asp-validation-for="NoExercice" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Title" class="control-label"></label>
+            <input asp-for="Title" id="title" class="form-control-plaintext lead" autocomplete="off" spellcheck="false" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Create" class="btn btn-dark text-white btn-lg btn-block" onclick="figureRunPost()" />
+        </div>
+        <hr />
+        <input type="hidden" asp-for="Id" />
+        <div class="form-group">
+            <label class="control-label">No Exercice</label>
+            <input id="noExerciceTravail" class="form-control-plaintext lead" autocomplete="off" spellcheck="false"/>
+            <span class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label class="control-label">Instruction</label>
+            <input id="instructionTravail" class="form-control-plaintext lead" autocomplete="off" spellcheck="false"/>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Create" class="btn btn-dark text-white btn-lg btn-block" onclick="travailAFaireRunPost()" />
+        </div>
+        <hr />
+        <input type="hidden" asp-for="Id" />
+        <div class="form-group">
+            <label class="control-label">No Exercice</label>
+            <input id="noExerciceEnancee" class="form-control-plaintext lead" autocomplete="off" spellcheck="false"/>
+            <span class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label class="control-label">Information</label>
+            <input id="information" class="form-control-plaintext lead" autocomplete="off" spellcheck="false"/>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Create" class="btn btn-dark text-white btn-lg btn-block" onclick="enanceeRunPost()" />
+        </div>
+    </div>
+    <div class="col">
+        <table class="table bg-white text-dark table-stripped">
+            <thead class="table bg-primary text-white">
+                <tr>
+                    <th>No Exercice</th>
+                    <th>Title</th>
+                    <th>-</th>
+                </tr>
+            </thead>
+            <tbody id="figuresTableBody">
+
+            </tbody>
+        </table>
+        <hr>
+        <table class="table bg-white text-dark table-stripped">
+            <thead class="table bg-primary text-white">
+                <tr>
+                    <th>No Exercice</th>
+                    <th>Instruction</th>
+                    <th>-</th>
+                </tr>
+            </thead>
+            <tbody id="travailAFaireTableBody">
+
+            </tbody>
+        </table>
+        <hr>
+        <table class="table bg-white text-dark table-stripped">
+            <thead class="table bg-primary text-white">
+                <tr>
+                    <th>No Exercice</th>
+                    <th>Information</th>
+                    <th>-</th>
+                </tr>
+            </thead>
+            <tbody id="enanceeTableBody">
+
+            </tbody>
+        </table>
+        <hr>
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <div class="row">
+                    <div class="col">
+                        <strong>Générer Exercice:</strong>
+                    </div>
+                    <div class="col">
+                        <select id="idExercise" class="form-control-plaintext bg-dark text-white lead"></select>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <input type="submit" value="Fetch" class="btn btn-dark text-white btn-lg btn-block" onclick="fetchExercie()" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table bg-white text-dark table-stripped">                
+                    <tbody id="enanceeStringTableBody">
+
+                    </tbody>
+                </table>
+                <table class="table bg-white text-dark table-stripped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="figuresStringsTableBody" class="shadow-sm">
+
+                    </tbody>
+                </table>
+                <table class="table bg-white text-dark table-stripped">
+                    <tbody id="travailTableBody">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+    async function fetchExercie()
+    {
+        fetchEnancee();
+        await fetchFigureExtraitEtFiche();
+        fetchTravauxAFaire();
+    }
+    function fetchEnancee()
+    {
+        const tableBody = document.getElementById('enanceeStringTableBody');
+        const idExercise = document.getElementById('idExercise');
+        
+        tableBody.innerHTML = '';
+        if (idExercise)
+        {
+            fetch(`/PlanComptableMarocain/GenerateExercise_1_1?name=${encodeURIComponent(idExercise.value)}&identifier=${encodeURIComponent("GetEnanceeByExercise")}`) // Replace 'ControllerName' with the name of your controller
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {                    
+                    data.forEach(item => {
+                        const row = tableBody.insertRow(); 
+                        row.insertCell().textContent = item.information.toString();
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function fetchTravauxAFaire()
+    {
+        const tableBody = document.getElementById('travailTableBody');
+        const idExercise = document.getElementById('idExercise');
+        
+        tableBody.innerHTML = '';
+        if (idExercise)
+        {
+            fetch(`/PlanComptableMarocain/GenerateExercise_1_1?name=${encodeURIComponent(idExercise.value)}&identifier=${encodeURIComponent("TravauxAFaire")}`) // Replace 'ControllerName' with the name of your controller
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {      
+                    console.log(data);              
+                    data.forEach(item => {
+                        const row = tableBody.insertRow(); 
+                        row.insertCell().textContent = item.instruction.toString();
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    async function fetchFigureExtraitEtFiche() {
+        const tableBody = document.getElementById('figuresStringsTableBody');
+        const idExercise = document.getElementById('idExercise');
+
+        tableBody.innerHTML = '';
+
+        if (!idExercise) return;
+
+        try {
+            // Fetch data for Figure Extrait Dela Balance Avant Inventaire
+            const figureExtraitResponse = await fetch(`/PlanComptableMarocain/GenerateExercise_1_1?name=${encodeURIComponent(idExercise.value)}&identifier=${encodeURIComponent("FigureExtraitDelaBalanceAvantInventaire")}`);
+            if (!figureExtraitResponse.ok) throw new Error('Network response was not ok');
+            const figureExtraitData = await figureExtraitResponse.json();
+            console.log('Figure Extrait Data:', figureExtraitData);
+            figureExtraitData.forEach(item => {
+                const row = tableBody.insertRow(); 
+                row.insertCell().textContent = item.title;
+                row.insertCell().textContent = "";
+                row.insertCell().textContent = "";
+            });
+
+            // Fetch data for Extrait Dela Balance Avant Inventaire
+            const extraitBalanceResponse = await fetch(`/PlanComptableMarocain/GenerateExercise_1_1?name=${encodeURIComponent(idExercise.value)}&identifier=${encodeURIComponent("ExtraitDelaBalanceAvantInventaire")}`);
+            if (!extraitBalanceResponse.ok) throw new Error('Network response was not ok');
+            const extraitBalanceData = await extraitBalanceResponse.json();
+            console.log('Extrait Balance Data:', extraitBalanceData);
+            extraitBalanceData.forEach(item => {
+                const row = tableBody.insertRow();
+                row.insertCell().textContent = item.nombre.toString();
+                row.insertCell().textContent = item.compte.toString();
+                row.insertCell().textContent = item.montant.toString();
+            });
+
+            // Fetch data for Figure Fiche DelInventaireExtraComptable
+            const figureFicheResponse = await fetch(`/PlanComptableMarocain/GenerateExercise_1_1?name=${encodeURIComponent(idExercise.value)}&identifier=${encodeURIComponent("FigureFicheDelInventaireExtraComptable")}`);
+            if (!figureFicheResponse.ok) throw new Error('Network response was not ok');
+            const figureFicheData = await figureFicheResponse.json();
+            console.log('Figure Fiche Data:', figureFicheData);
+            figureFicheData.forEach(item => {
+                const row = tableBody.insertRow(); 
+                row.insertCell().textContent = item.title;
+                row.insertCell().textContent = "";
+                row.insertCell().textContent = "";
+            });
+
+            // Fetch data for Fiche DelInventaireExtraComptable
+            const ficheInventaireResponse = await fetch(`/PlanComptableMarocain/GenerateExercise_1_1?name=${encodeURIComponent(idExercise.value)}&identifier=${encodeURIComponent("FicheDelInventaireExtraComptable")}`);
+            if (!ficheInventaireResponse.ok) throw new Error('Network response was not ok');
+            const ficheInventaireData = await ficheInventaireResponse.json();
+            console.log('Fiche Inventaire Data:', ficheInventaireData);
+            ficheInventaireData.forEach(item => {
+                const row = tableBody.insertRow(); 
+                row.insertCell().textContent = item.nombre.toString();
+                row.insertCell().textContent = item.compte.toString();
+                row.insertCell().textContent = item.montant.toString();
+            });
+        } catch (error) {
+            console.error('There was a problem with your fetch operation:', error);
+        }
+    }
+
+    
+    
+    function distictByExercise()
+    {
+        const idExercise = document.getElementById('idExercise');
+        
+        fetch(`/PlanComptableMarocain/ExerciseNamesDistinct`) // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                
+                data.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    idExercise.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+        
+    }
+    distictByExercise();
+    function getEnancees()
+    {
+        const tableBody = document.getElementById('enanceeTableBody');
+        tableBody.innerHTML = '';        
+        fetch(`/PlanComptableMarocain/GetEnancees`) // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {                    
+                data.forEach(item => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = item.noExercice;
+                    row.insertCell().textContent = item.information;
+                    const edit = document.createElement('a');
+                    edit.href = `/PlanComptableMarocain/EditEnancee/${item.id}`;
+                    edit.textContent = 'Edit';
+                    const details = document.createElement('a');
+                    details.href = `/PlanComptableMarocain/DetailsEnancee/${item.id}`;
+                    details.textContent = 'Details';
+                    const deleteItem = document.createElement('a');
+                    deleteItem.href = `/PlanComptableMarocain/DeleteEnancee/${item.id}`;
+                    deleteItem.textContent = 'Delete';
+                    const actionCell = row.insertCell();
+                    actionCell.appendChild(edit);
+                    actionCell.appendChild(document.createTextNode(' | '));
+                    actionCell.appendChild(details);
+                    actionCell.appendChild(document.createTextNode(' | '));
+                    actionCell.appendChild(deleteItem);
+                });
+            })
+            
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });        
+    }
+    getEnancees();
+
+    function enanceeRunPost()
+    {
+        const tableBody = document.getElementById('enanceeTableBody');
+        const noExercice = document.getElementById('noExerciceEnancee');
+        const information = document.getElementById('information');
+        tableBody.innerHTML = '';
+        if (noExercice && information)
+        {
+            fetch(`/PlanComptableMarocain/EnanceeRunPost?noExercise=${encodeURIComponent(noExercice.value)}&information=${encodeURIComponent(information.value)}`) // Replace 'ControllerName' with the name of your controller
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {                    
+                    data.forEach(item => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = item.noExercice;
+                        row.insertCell().textContent = item.information;
+                        const edit = document.createElement('a');
+                        edit.href = `/PlanComptableMarocain/EditEnancee/${item.id}`;
+                        edit.textContent = 'Edit';
+                        const details = document.createElement('a');
+                        details.href = `/PlanComptableMarocain/DetailsEnancee/${item.id}`;
+                        details.textContent = 'Details';
+                        const deleteItem = document.createElement('a');
+                        deleteItem.href = `/PlanComptableMarocain/DeleteEnancee/${item.id}`;
+                        deleteItem.textContent = 'Delete';
+                        const actionCell = row.insertCell();
+                        actionCell.appendChild(edit);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(details);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(deleteItem);
+                    });
+                })
+                
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function figureRunPost()
+    {
+        const tableBody = document.getElementById('figuresTableBody');
+        const noExercice = document.getElementById('noExercice');
+        const title = document.getElementById('title');
+        tableBody.innerHTML = '';
+        if (noExercice && title)
+        {
+            fetch(`/PlanComptableMarocain/FigureRunPost?noExercise=${encodeURIComponent(noExercice.value)}&title=${encodeURIComponent(title.value)}`) // Replace 'ControllerName' with the name of your controller
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {                    
+                    data.forEach(item => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = item.noExercice;
+                        row.insertCell().textContent = item.title;
+                        const edit = document.createElement('a');
+                        edit.href = `/PlanComptableMarocain/EditFigure/${item.id}`;
+                        edit.textContent = 'Edit';
+                        const details = document.createElement('a');
+                        details.href = `/PlanComptableMarocain/DetailsFigure/${item.id}`;
+                        details.textContent = 'Details';
+                        const deleteItem = document.createElement('a');
+                        deleteItem.href = `/PlanComptableMarocain/DeleteFigure/${item.id}`;
+                        deleteItem.textContent = 'Delete';
+                        const actionCell = row.insertCell();
+                        actionCell.appendChild(edit);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(details);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(deleteItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function getFigures()
+    {
+        const tableBody = document.getElementById('figuresTableBody');
+        tableBody.innerHTML = '';
+        if (noExercice && title)
+        {
+            fetch(`/PlanComptableMarocain/GetFigures`) // Replace 'ControllerName' with the name of your controller
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {                    
+                    data.forEach(item => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = item.noExercice;
+                        row.insertCell().textContent = item.title;
+                        const edit = document.createElement('a');
+                        edit.href = `/PlanComptableMarocain/EditFigure/${item.id}`;
+                        edit.textContent = 'Edit';
+                        const details = document.createElement('a');
+                        details.href = `/PlanComptableMarocain/DetailsFigure/${item.id}`;
+                        details.textContent = 'Details';
+                        const deleteItem = document.createElement('a');
+                        deleteItem.href = `/PlanComptableMarocain/DeleteFigure/${item.id}`;
+                        deleteItem.textContent = 'Delete';
+                        const actionCell = row.insertCell();
+                        actionCell.appendChild(edit);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(details);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(deleteItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    getFigures();
+    function travailAFaireRunPost()
+    {
+        const tableBody = document.getElementById('travailAFaireTableBody');
+        const noExercice = document.getElementById('noExerciceTravail');
+        const instruction = document.getElementById('instructionTravail');
+        tableBody.innerHTML = '';
+        if (noExercice && instruction)
+        {
+            fetch(`/PlanComptableMarocain/TravailAFaireRunPost?noExercise=${encodeURIComponent(noExercice.value)}&instuction=${encodeURIComponent(instruction.value)}`) // Replace 'ControllerName' with the name of your controller
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {                    
+                    data.forEach(item => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = item.noExercice;
+                        row.insertCell().textContent = item.instruction;
+                        const edit = document.createElement('a');
+                        edit.href = `/PlanComptableMarocain/EditTravailAFaire/${item.id}`;
+                        edit.textContent = 'Edit';
+                        const details = document.createElement('a');
+                        details.href = `/PlanComptableMarocain/DetailsTravailAFaire/${item.id}`;
+                        details.textContent = 'Details';
+                        const deleteItem = document.createElement('a');
+                        deleteItem.href = `/PlanComptableMarocain/DeleteTravailAFaire/${item.id}`;
+                        deleteItem.textContent = 'Delete';
+                        const actionCell = row.insertCell();
+                        actionCell.appendChild(edit);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(details);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(deleteItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function getTravauxAFaire()
+    {
+        const tableBody = document.getElementById('travailAFaireTableBody');
+        tableBody.innerHTML = '';
+        if (noExercice && title)
+        {
+            fetch(`/PlanComptableMarocain/GetTravaux`) // Replace 'ControllerName' with the name of your controller
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {                    
+                    data.forEach(item => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = item.noExercice;
+                        row.insertCell().textContent = item.instruction;
+                        const edit = document.createElement('a');
+                        edit.href = `/PlanComptableMarocain/EditTravailAFaire/${item.id}`;
+                        edit.textContent = 'Edit';
+                        const details = document.createElement('a');
+                        details.href = `/PlanComptableMarocain/DetailsTravailAFaire/${item.id}`;
+                        details.textContent = 'Details';
+                        const deleteItem = document.createElement('a');
+                        deleteItem.href = `/PlanComptableMarocain/DeleteTravailAFaire/${item.id}`;
+                        deleteItem.textContent = 'Delete';
+                        const actionCell = row.insertCell();
+                        actionCell.appendChild(edit);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(details);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(deleteItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    getTravauxAFaire();
+    
+</script>

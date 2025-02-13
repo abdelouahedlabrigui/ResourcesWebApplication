@@ -1,0 +1,57 @@
+@model ResourcesWebApplication.Models.Accounting.RegularisationDesStocks.Information_ex1
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete</h1>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Information_ex1</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Entreprise)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Entreprise)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.DateAu)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.DateAu)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Elements)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Elements)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Marchandises)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Marchandises)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.MatieresPremieres)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.MatieresPremieres)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ProduitFinis)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ProduitFinis)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>

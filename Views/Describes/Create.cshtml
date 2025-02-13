@@ -1,0 +1,80 @@
+@model ResourcesWebApplication.Models.MachineLearning.Describe
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Describe</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="DatasetName" class="control-label"></label>
+                <input asp-for="DatasetName" class="form-control" />
+                <span asp-validation-for="DatasetName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Column" class="control-label"></label>
+                <input asp-for="Column" class="form-control" />
+                <span asp-validation-for="Column" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Count" class="control-label"></label>
+                <input asp-for="Count" class="form-control" />
+                <span asp-validation-for="Count" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Mean" class="control-label"></label>
+                <input asp-for="Mean" class="form-control" />
+                <span asp-validation-for="Mean" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Std" class="control-label"></label>
+                <input asp-for="Std" class="form-control" />
+                <span asp-validation-for="Std" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Min" class="control-label"></label>
+                <input asp-for="Min" class="form-control" />
+                <span asp-validation-for="Min" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TwentyFivePercent" class="control-label"></label>
+                <input asp-for="TwentyFivePercent" class="form-control" />
+                <span asp-validation-for="TwentyFivePercent" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FiftyPercent" class="control-label"></label>
+                <input asp-for="FiftyPercent" class="form-control" />
+                <span asp-validation-for="FiftyPercent" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SeventyFivePercent" class="control-label"></label>
+                <input asp-for="SeventyFivePercent" class="form-control" />
+                <span asp-validation-for="SeventyFivePercent" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Max" class="control-label"></label>
+                <input asp-for="Max" class="form-control" />
+                <span asp-validation-for="Max" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedAT" class="control-label"></label>
+                <input asp-for="CreatedAT" class="form-control" />
+                <span asp-validation-for="CreatedAT" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

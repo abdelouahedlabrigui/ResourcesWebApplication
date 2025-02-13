@@ -1,0 +1,158 @@
+@model ResourcesWebApplication.Models.Tenses.Tense
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Tense</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" id="name" class="form-control"  spellcheck="false"  autocomplete="off" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedAT" class="control-label"></label>
+                <input asp-for="CreatedAT" class="form-control" id="createdAT" readonly />
+                <span asp-validation-for="CreatedAT" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <pre id="createMessageError"></pre>
+            </div>
+            @* <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div> *@
+        </form>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                <div class="form-group">
+                    <label for="chronometer" class="bg-dark text-white">Chronometer</label>
+                    <input 
+                        type="text" 
+                        id="currentTimeInput" 
+                        class="form-control-plaintext"
+                        style="font-size: 240%; color: rgb(70, 0, 70);"                    
+                    />
+                    <button class="btn bg-dark text-white" onclick="startChronometer()">Add</button>
+                    <button class="btn bg-danger text-white" onclick="postData()" >Fetch</button>
+                </div>
+            </div>
+            <div class="card-footer">
+                <table class="table bg-dark text-white" id="tensesTable">
+                    <thead class="bg-dark text-white">
+                        <tr>
+                            <th>Name</th>
+                            <th>Created AT</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+    function updateCurrentTime()
+    {
+        var currentTimeInput = document.getElementById('currentTimeInput');
+        var currentTime = new Date();
+        var hours = currentTime.getHours();
+        var minutes = currentTime.getMinutes();
+        var seconds = currentTime.getSeconds();
+        var milliseconds = currentTime.getMilliseconds();
+
+        var formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}.${padZero(milliseconds, 3)}`;
+        currentTimeInput.value = formattedTime;
+    }
+    function padZero(number, width = 2)
+    {
+        var str = number.toString();
+        while(str.length < width)
+        {
+            str = '0' + str;
+        }
+        return str;
+    }
+    setInterval(updateCurrentTime, 100);
+    updateCurrentTime();
+    function startChronometer()
+    {
+        var chronometer = document.getElementById('currentTimeInput');
+        var name = document.getElementById('name');
+        var createdAT = document.getElementById('createdAT');
+        
+        if(chronometer.value && name.value && createdAT.value)
+        {
+            var tableBody = document.querySelector('#tensesTable tbody');
+            var row = tableBody.insertRow();
+
+            var nameCell = row.insertCell(0);
+            var createdATCell = row.insertCell(1);
+
+            nameCell.textContent = name.value;
+            createdATCell.textContent = createdAT.value;
+        } else {
+            alert('Please fill-in Name.');
+        }
+    }
+    function postData()
+    {
+        var tableRows = document.querySelectorAll('#tensesTable tbody tr');
+        var dataToSend = [];
+
+
+        tableRows.forEach(row => {
+            var name = row.cells[0].textContent;
+            var createdAT = row.cells[1].textContent.toString();
+            var rowData = {
+                Name: name,
+                CreatedAT: createdAT
+            };
+            dataToSend.push(rowData);
+        });
+
+        console.log(dataToSend);
+
+        fetch('/Tenses/PostTensesData', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dataToSend)
+        })
+        .then(response => {
+            if(!response.ok)
+            {
+                throw new Error('Network response was not ok.');
+            } else if (response.ok)
+            {
+                window.location.href = '/Tenses';
+            } else {
+                return response.json();
+            }
+        })
+        .catch(error => {
+            document.getElementById('createMessageError').innerHTML = `Error sending data: ${error}`;
+        })
+    }
+    function setCreateAT()
+    {
+        var createdATInput = document.getElementById('createdAT');
+        var currentDate = new Date();
+        createdATInput.value = currentDate.toISOString();
+    }
+    setCreateAT();
+</script>

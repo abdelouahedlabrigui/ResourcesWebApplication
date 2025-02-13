@@ -1,0 +1,108 @@
+@model ResourcesWebApplication.Models.Documents.Mark
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Mark</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="DocumentID" class="control-label"></label>
+                <input asp-for="DocumentID" class="form-control" id="documentID" autocomplete="off"/>
+                <span asp-validation-for="DocumentID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Search" class="control-label"></label>
+                <input asp-for="Search" class="form-control" autocomplete="off" />
+                <span asp-validation-for="Search" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Page" class="control-label"></label>
+                <input asp-for="Page" class="form-control" autocomplete="off" />
+                <span asp-validation-for="Page" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedAT" class="control-label"></label>
+                <input asp-for="CreatedAT" class="form-control" autocomplete="off" id="CreatedAT" />
+                <span asp-validation-for="CreatedAT" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                Document | <button class="btn bg-white text-dark btn-sm" onclick="loadDocument()">Mark</button> 
+            </div>
+            <div class="card-body">
+                <dl>
+                    <dt  class="text-dark">Title:</dt>
+                    <dd><a href="" class="text-dark" id="documentTitle"></a></dd>
+                </dl>
+            </div>
+            <div class="card-footer bg-dark text-white">
+                <pre class="bg-dark text-white" style="font-size: 140%;" id="documentCreatedAT"></pre>
+            </div>
+            <div class="card-footer">
+                <pre id="displayedDocumentError"></pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script type="text/javascript">
+    function loadDocument()
+    {
+        var id = document.getElementById("documentID");
+        var displayedDocumentError = document.getElementById('displayedDocumentError');
+        var documentTitle = document.getElementById('documentTitle');
+        var documentCreatedAT = document.getElementById('documentCreatedAT');
+
+        if(id.value)
+        {
+            fetch(`/Marks/FetchDocument?id=${encodeURIComponent(id.value)}`)
+                .then(response => {
+                    if(!response.ok)
+                    {
+                        throw new Error('Network response was not ok.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayDocument(data);
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.error(`Error loading document: ${error}`);
+                    displayedDocumentError.value = 'Error loading file.';
+                })
+        } else {
+            displayedDocumentError.innerHTML = 'No document selected.';
+        }
+    }
+    function displayDocument(data)
+    {
+        documentTitle.href = data.url;
+        documentTitle.innerHTML = data.title;
+        documentCreatedAT.innerHTML = data.createdAT;
+    }
+    function setCreateAT()
+    {
+        var createdATInput = document.getElementById('CreatedAT');
+        var currentDate = new Date();
+        createdATInput.value = currentDate.toISOString();
+    }
+    setCreateAT();
+</script>

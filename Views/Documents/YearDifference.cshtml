@@ -1,0 +1,205 @@
+@{
+    ViewData["Title"] = "Year Difference";
+}
+
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h1>Year Difference, e.g. (Plot & Data)</h1>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="control-label">Centuries</label>
+                    <select id="centuries" class="form-control-plaintext bg-dark text-white" onchange="selectYearDifferencesPlot()">
+
+                    </select>
+                </div>        
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-lg btn-block bg-white text-dark" id="btnId" onclick="generatePLOT(event)">Generate Year Difference Plot</button>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header bg-dark text-white">
+                        <h2>Year Difference Plot.</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="plotContainer">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <div class="card-header bg-dark text-white">
+                        <h2>Year Difference Query Result.</h2>
+                    </div>
+                    <div class="card-body">
+                        <table class="table bg-white text-dark table-stripped">
+                            <thead class="thead bg-dark text-white">
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Year</th>
+                                    <th>Count</th>
+                                    <th>Difference</th>
+                                    <th>Created AT</th>
+                                </tr>
+                            </thead>
+                            <tbody id="yearDifferenceTABLE">
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function executeYearDifferencePyScript(event)
+    {
+        const centuries = document.getElementById('centuries');
+        event.preventDefault();
+        document.querySelector('.btn').disabled = true;
+        document.getElementById('btnId').disabled = true;
+        if(centuries)
+        {
+            fetch(`/Documents/ExecuteYearDifferencePyScript?century=${centuries.value}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    data.forEach(yearDifference => {
+                        const row = tableBody.insertRow();                    
+                        row.insertCell().textContent = yearDifference.id;
+                        row.insertCell().textContent = yearDifference.year;
+                        row.insertCell().textContent = yearDifference.count;
+                        row.insertCell().textContent = yearDifference.difference;
+                        row.insertCell().textContent = yearDifference.createdAT;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function populateYearDifferenceTable()
+    {
+        const plotContainer = document.getElementById('plotContainer');
+        plotContainer.innerHTML = '';
+        const tableBody = document.getElementById('yearDifferenceTABLE');
+        tableBody.innerHTML = "";
+        const centuries = document.getElementById('centuries');
+        if(centuries)
+        {
+            fetch(`/MachineLearning/GroupByCOUNTYears?century=${centuries.value}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    data.forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        const cardHeader = document.createElement('div');
+                        cardHeader.className = 'card-header bg-dark text-white';
+                        cardHeader.innerHTML = `<h3>${item.title || 'N/A'}</h3> | <i>Created AT: ${item.createdAT || 'N/A'}</i> <p>Dataset Name: ${item.datasetName || 'N/A'}</p>`;
+                        card.appendChild(cardHeader);
+
+                        const cardBody = document.createElement('div');
+                        cardBody.className = 'card-body bg-white';
+
+                        const img = document.createElement('img');
+                        img.src = `data:image/png;base64, ${item.encoding}`;
+                        img.alt = 'Plot';
+                        cardBody.appendChild(img);
+
+                        card.appendChild(cardBody);
+                        plotContainer.appendChild(card);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function populateCenturiesDropdown() {
+        const centuries = document.getElementById('centuries');
+        fetch('/MachineLearning/GetMainCenturies') // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                data.forEach(century => {
+                    const option = document.createElement('option');
+                    option.value = century.YearCluster;
+                    option.textContent = century.YearCluster;
+                    centuries.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    populateCenturiesDropdown();
+    function selectYearDifferencesPlot() {
+        const plotContainer = document.getElementById('plotContainer');
+        plotContainer.innerHTML = '';
+        const centuries = document.getElementById('centuries');
+        if(centuries)
+        {            
+            fetch(`/MachineLearning/GetPlotsByCenturyURL?id=${encodeURIComponent(centuries.value)}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {                    
+                        data.forEach(item => {
+                            const card = document.createElement('div');
+                            card.className = 'card';
+                            const cardHeader = document.createElement('div');
+                            cardHeader.className = 'card-header bg-dark text-white';
+                            cardHeader.innerHTML = `<h3>${item.title || 'N/A'}</h3> | <i>Created AT: ${item.createdAT || 'N/A'}</i> <p>Dataset Name: ${item.datasetName || 'N/A'}</p>`;
+                            card.appendChild(cardHeader);
+
+                            const cardBody = document.createElement('div');
+                            cardBody.className = 'card-body bg-white';
+
+                            const img = document.createElement('img');
+                            img.src = `data:image/png;base64, ${item.encoding}`;
+                            img.alt = 'Plot';
+                            cardBody.appendChild(img);
+
+                            card.appendChild(cardBody);
+                            plotContainer.appendChild(card);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('There was a problem with your fetch operation:', error);
+                    });
+        }
+    }
+</script>

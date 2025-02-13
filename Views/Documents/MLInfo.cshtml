@@ -1,0 +1,208 @@
+@model ResourcesWebApplication.Models.MachineLearning.Info
+
+<style>
+    thead {
+        background-color: rgb(105, 105, 196);        
+        font-style: italic;
+        font-size: medium;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+    #btnId
+    {
+        background-color: rgb(105, 105, 196);        
+        font-style: italic;
+        font-size: large;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+    tbody {
+        background-color:  rgb(253, 246, 250);
+        font-style: oblique;
+        font-size: medium;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+    select {
+        background-color:  rgb(253, 246, 250);
+        font-style: oblique;
+        font-size: large;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+</style>
+
+@{
+    ViewData["Title"] = "Info";
+}
+
+<div class="card">
+    <div class="card-header">
+        <strong>Datasets Information: e.g. ML.</strong> | <select id="infosID" class="text-dark lead" onchange="infos()" style="font-size: small;"></select> | <strong class="bg-danger text-white" id="message"></strong>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card-header">
+                <div class="form-group">
+                    <label for="datasetAddress" class="control-label">Dataset Address</label>
+                    <input id="addressID" class="form-control-plaintext bg-white text-danger" autocomplete="off" spellcheck="false" required />
+                </div>
+                <hr>
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-md text-white" id="btnId" onclick="executeInfoPyScript()" />
+                </div>    
+            </div>
+        </div>
+        <div class="col">
+            <div class="card-body">
+                <strong>Endpoints.</strong>
+                <hr>
+                <table class="table">
+                    <thead class="table text-white">
+                        <tr>
+                            <th>Information</th>
+                            <th>CreatedAT</th>
+                        </tr>
+                    </thead>
+                    <tbody id="infosTableBody" class="table text-dark">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+<script>
+    const btnId = document.getElementById('btnId');
+
+    btnId.addEventListener('click', async () => {
+        // Disable the button to prevent multiple clicks
+        btnId.disabled = true;
+
+        // Execute the script
+        await executeInfoPyScript();
+
+        // Re-enable the button after the operation is completed
+        btnId.disabled = false;
+
+    });
+
+    async function executeInfoPyScript() {
+        const tableBody = document.getElementById('infosTableBody');
+        const address = document.getElementById('addressID');
+
+        tableBody.innerHTML = "";
+        const message = document.getElementById('message');
+        if (address) {
+            fetch(`/Documents/ExecuteInfoPyScript?datasetName=${encodeURIComponent(address.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    data.forEach(info => {
+                        const row = tableBody.insertRow();                    
+                        row.insertCell().textContent = info.information;
+                        row.insertCell().textContent = info.createdAT;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+
+    function getDatasetNames()
+    {
+        const infos = document.getElementById('infosID');
+        infos.innerHTML = "";
+        fetch(`/Documents/GetDocumentInfoDatasetNames`) // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {                
+                data.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    infos.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    getDatasetNames();
+
+
+    function infos()
+    {
+        loadInfos();
+    }
+    function loadInfos()
+    {
+        const tableBody = document.getElementById('infosTableBody');
+        const info = document.getElementById('infosID');
+        tableBody.innerHTML = "";
+        if(info)
+        {
+            fetch(`/Documents/GetDocumentInfos?datasetName=${encodeURIComponent(info.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    data.forEach(info => {
+                        const row = tableBody.insertRow();                    
+                        row.insertCell().textContent = info.information;
+                        row.insertCell().textContent = info.createdAT;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }    
+    function getInfos()
+    {
+        const tableBody = document.getElementById('infosTableBody');
+        tableBody.innerHTML = "";
+        fetch(`/Documents/GetInfos`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    data.forEach(info => {
+                        const row = tableBody.insertRow();                    
+                        row.insertCell().textContent = info.information;
+                        row.insertCell().textContent = info.createdAT;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+    }
+    getInfos();
+</script>

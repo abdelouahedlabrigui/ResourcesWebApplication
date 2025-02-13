@@ -1,0 +1,51 @@
+@model ResourcesWebApplication.Models.Dictionaries.Dictionary
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Dictionary</h4>
+<hr />
+<form asp-action="Create">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="Concept" class="control-label"></label>
+        <input asp-for="Concept" class="form-control" autocomplete="off" />
+        <span asp-validation-for="Concept" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Definition" class="control-label"></label>
+        <textarea asp-for="Definition" cols="30" rows="7" class="form-control-plaintext" spellcheck="false"
+            style="background-color: lightpink; color: magenta; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; font-size: 120%"
+        ></textarea>
+        <span asp-validation-for="Definition" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Category" class="control-label"></label>
+        <input asp-for="Category" class="form-control" autocomplete="off" />
+        <span asp-validation-for="Category" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="CreatedAT" class="control-label"></label>
+        <input asp-for="CreatedAT" class="form-control" readonly />
+        <span asp-validation-for="CreatedAT" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Create" class="btn btn-primary" />
+    </div>
+</form>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+    function setCreateAT()
+    {
+        var createdATInput = document.getElementById('CreatedAT');
+        var currentDate = new Date();
+        createdATInput.value = currentDate.toISOString();
+    }
+    setCreateAT();
+</script>

@@ -1,0 +1,503 @@
+@model ResourcesWebApplication.Models.LanguageProcessing.EntityRecognition
+<style>
+    thead {
+        background-color:black;        
+        font-style: italic;
+        font-size: medium;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+
+    tbody {
+        background-color:  rgb(253, 246, 250);
+        font-style: oblique;
+        font-size: medium;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+</style>
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Plaintext</h4>
+<hr />
+<div class="card bg-white">
+    <div class="card">
+        <div class="card-header text-white" style="background-color: whitesmoke; text-align: center; font-size: 300%;">
+            <strong class="form-control-plaintext" id="currentTimeInput" style="color: rgb(155, 46, 100);"></strong>
+        </div>
+        <div class="card-body bg-white shadow-sm">
+            <strong style="text-align: justify; font-size:220%; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; background-color: black; " class="text-white" id="sentence"><strong>
+        </div>
+    </div>
+    <div class="card-body bg-white">        
+        <div class="row">
+            <div class="col">
+                <div class="container">
+                    <canvas id="idPosCountsEncoding"></canvas>
+                </div>
+            </div> 
+            <div class="col">
+                <div class="container">
+                    <canvas id="idShapeCountsEncoding"></canvas>
+                </div>
+            </div>
+            <div class="col">
+                <div class="container">
+                    <canvas id="idDepCountsEncoding"></canvas>
+                </div>
+            </div>  
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="container">
+                    <canvas id="idStopCountsEncoding"></canvas>
+                </div>
+            </div>
+            <div class="col">
+                <div class="container">
+                    <canvas id="idAlphaCountsEncoding"></canvas>
+                </div>
+            </div>   
+            <div class="col">
+                <div class="container">
+                    <canvas id="idTagCountsEncoding"></canvas>
+                </div>
+            </div>
+                     
+        </div>
+    </div>
+</div> 
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            <label  class="control-label" style="background-color: black; color: white;">Full Path: (*.txt)</label>
+            <input
+                type="text"                    
+                class="form-control-plaintext"
+                id="fileInput"
+                spellcheck="false"
+                autocomplete="off"
+                />
+        </div>
+        <hr>
+        <div class="form-group">
+            <label  class="control-label" style="background-color: black; color: white;">File Name: (*.txt)</label>
+            <input
+                type="text"                    
+                class="form-control-plaintext text-dark bg-white" readonly
+                id="sentenceCopy"
+                spellcheck="false"
+                autocomplete="off"
+                />
+        </div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header form-group">
+                <label for="directory" class="bg-dark text-white">Directory</label>
+                <input type="text" id="directory"  class="form-control-plaintext">
+                <button class="btn btn-dark text-white" onclick="loadDirectoryMetadata()">Load</button>
+            </div>
+            <div class="card-body container">
+                <table class="table" id="plaintextTable" style="font-size: large; height: 50%;">
+                    <thead class="thead text-white">
+                        <tr>
+                            <th>Name</th>
+                            <th>Last Write Time</th>
+                            <th>Last Access Time</th>
+                            <th>Length</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-dark">
+
+                    </tbody>
+                </table>
+                <div class="row">
+                    <div class="col">
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="rate" class="badge badge-dark text-white">Rate:</label>
+                                    <input class="form-control-plaintext" type="range" id="rate" min="0" max="10" step="1" value="1" onload="getRateValue()"> 
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="rate" style="background-color: black; color: white;">Rate value</label>: <strong id="rateValue" style="color: black;"></strong>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="volume" class="badge badge-dark text-white">Volume:</label>
+                            <input class="form-control-plaintext" type="range" id="volume" min="0" max="10" step="1" value="1">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="Language" class="badge badge-danger text-white">Language</label>
+                            <select id="my_language" class="form-control-plaintext bg-dark text-white">
+                                <option value="en-EN">en-EN</option>
+                                <option value="fr-FR">fr-FR</option>
+                                <option value="es-ES">es-ES</option>
+                                <option value="de-DE">de-DE</option>
+                                <option value="pt-BR">pt-PT</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group container">
+                            <button id="speakButton" class="btn btn-dark text-white btn-block btn-lg form-control">Speak</button>
+                            <hr>
+                            <button id="resumeButton" class="btn btn-dark text-white btn-block btn-lg form-control">Resume</button>
+                            <hr>
+                            <button id="pauseButton"  class="btn btn-dark text-white btn-block btn-lg form-control">Pause</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <pre id="directoryMetadataError"></pre>
+            </div>
+        </div>
+
+    </div>
+</div>
+<hr />
+
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script class="text/javascript">
+    const rateControl = document.getElementById('rate');
+    function getRateValue()
+    {
+        const rateValue = document.getElementById('rateValue');
+
+        rateValue.innerText = `${rateControl.value}%`;        
+    }
+    rateControl.addEventListener('click', () => {       
+        getRateValue(); 
+    });
+    function loadDirectoryMetadata()
+    {
+        var directory = document.getElementById('directory');
+        if(directory.value)
+        {
+            fetch(`/Plaintexts/FileMetadata?filePath=${encodeURIComponent(directory.value)}`)
+                .then(response => {
+                    if(!response.ok)
+                    {
+                        throw new Error('Network response was not ok.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayPlaintextsTable(data);
+                })
+                .catch(error => {
+                    console.error(`Error loading file: ${error}`);
+                    directoryMetadataError.innerHTML = 'Error loading files metadata.';
+                })
+        } else {
+            directoryMetadataError.innerHTML = 'No directory selected.';
+        }
+    }
+
+    function displayPlaintextsTable(data)
+    {
+        var tableBody = document.querySelector('#plaintextTable tbody');
+        tableBody.innerHTML = '';
+
+        data.forEach(plaintext => {
+            var row = tableBody.insertRow();
+            var name = row.insertCell(0);
+            var lastWriteTime = row.insertCell(1);
+            var lastAccessTime = row.insertCell(2);
+            var length = row.insertCell(3);
+
+
+            name.textContent = plaintext.name || 'N/A';
+            lastWriteTime.textContent = plaintext.lastWriteTime || 'N/A';
+            lastAccessTime.textContent = plaintext.lastAccessTime || 'N/A';
+            length.textContent = plaintext.length || 'N/A';
+        })
+    }
+
+    function updateCurrentTime()
+    {
+        var currentTimeInput = document.getElementById('currentTimeInput');
+        var currentTime = new Date();
+        var hours = currentTime.getHours();
+        var minutes = currentTime.getMinutes();
+        var seconds = currentTime.getSeconds();
+        var milliseconds = currentTime.getMilliseconds();
+
+        var formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}.${padZero(milliseconds, 3)}`;
+        currentTimeInput.innerHTML = formattedTime;
+    }
+    function padZero(number, width = 2)
+    {
+        var str = number.toString();
+        while(str.length < width)
+        {
+            str = '0' + str;
+        }
+        return str;
+    }
+    setInterval(updateCurrentTime, 100);
+    updateCurrentTime();
+    
+    const textInput = document.getElementById('fileContent');
+    const speakButton = document.getElementById('speakButton');
+    const rateInput = document.getElementById('rate');
+    const volumeInput = document.getElementById('volume');
+    const paragraph = document.getElementById('sentence');
+    const synth = window.speechSynthesis;
+
+    let isPaused = false; // Variable to track whether speech is paused
+    
+    
+
+    function getFileName(fullPath) {
+        // Split the fullPath using the appropriate separator (backslash for Windows, forward slash for Unix-like systems)
+        const separator = fullPath.includes('\\') ? '\\' : '/';
+        const parts = fullPath.split(separator);
+
+        // The last part of the split will be the filename
+        const fileName = parts[parts.length - 1];
+
+        return fileName;
+    }
+    function speakText() {
+        const lang = document.getElementById("my_language").value;
+        const rate = parseFloat(rateInput.value);
+        const volume = parseFloat(volumeInput.value);
+        const paragraph = document.getElementById('sentence');
+        const title = document.getElementById('title');
+        const sentenceCopy = document.getElementById('sentenceCopy');
+        // Assuming sentences are separated by periods followed by a space
+        const fileInput = document.getElementById('fileInput');
+        if(fileInput)
+        {
+            let currentIndex = 0;
+            fetch(`/Plaintexts/GetPosCOUNTsBySentence?jsonFileName=${encodeURIComponent(fileInput.value)}`)
+                .then(response => {
+                    if(!response.ok)
+                    {
+                        throw new Error('Network response was not ok.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    function speakNextSentence() {
+                        if (currentIndex < data.length) {
+                            const sentence = data[currentIndex];
+                            @* console.log(sentence); *@
+                            const utterance = new SpeechSynthesisUtterance(sentence);
+                            utterance.rate = rate;
+                            utterance.volume = volume;
+                            utterance.lang = lang;
+                            paragraph.innerHTML = sentence;
+                            sentenceCopy.value = sentence;
+                            createPlot(sentence);
+                            synth.speak(utterance);
+                            utterance.onend = () => {
+                                currentIndex++;
+                                speakNextSentence();
+                            };
+                        }
+                    }
+                    speakNextSentence();
+                })
+                .catch(error => {
+                    console.error(`Error loading file: ${error}`);
+                    directoryMetadataError.innerHTML = 'Error loading files metadata.';
+                })            
+        }        
+    }
+    function createIndividualPlot(data, element, title) {
+        // Removed redefinition of plotConfigurations array
+
+        const canvas = document.createElement('canvas');
+        element.appendChild(canvas);
+        
+        var chartData = {
+            labels: data.map(item => item.name),
+            datasets: [{
+                label: title,
+                backgroundColor: 'rgb(255, 99, 132)',
+                borderColor: 'rgb(255, 99, 132)',
+                data: data.map(item => item.count),
+                borderWidth: 1
+            }]
+        };
+        
+        var options = {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        };
+
+        new Chart(canvas.getContext('2d'), {
+            type: 'bar',
+            data: chartData,
+            options: options
+        });
+        
+    }
+    function getRandomRGBColor() {
+        const r = Math.floor(Math.random() * 256); // Random red value between 0 and 255
+        const g = Math.floor(Math.random() * 256); // Random green value between 0 and 255
+        const b = Math.floor(Math.random() * 256); // Random blue value between 0 and 255
+        return `rgb(${r}, ${g}, ${b})`; // Return the RGB color string
+    }
+
+    function createPlot(sentence, id) {
+        const fileInput = document.getElementById('fileInput');
+        const fileName = getFileName(fileInput.value);
+        const sentenceCopy = document.getElementById('sentenceCopy');
+        plotConfigurations = [
+            {
+                id: 'idStopCountsEncoding', 
+                key: 'STOP', 
+                title: 'Is Stop Count.'
+            },
+            {
+                id: 'idAlphaCountsEncoding', 
+                key: 'ALPHA', 
+                title: 'Is Alpha Count.'
+            },
+            {
+                id: 'idShapeCountsEncoding', 
+                key: 'SHAPE', 
+                title: 'Word Shape Count.'
+            },
+            {
+                id: 'idPosCountsEncoding', 
+                key: 'POS', 
+                title: 'Part of Speech Count.'
+            },
+            {
+                id: 'idDepCountsEncoding', 
+                key: 'DEP', 
+                title: 'Dependency Count.'
+            },
+            {
+                id: 'idTagCountsEncoding', 
+                key: 'TAG', 
+                title: 'Tag Count.'
+            } 
+        ];
+        if(fileInput && sentence)
+        {
+            // Destroy existing charts
+            plotConfigurations.forEach(plotConfig => {
+                const { id } = plotConfig;
+                if (window.myCharts && window.myCharts[id]) {
+                    window.myCharts[id].destroy();
+                }
+            });
+
+            // Iterate over each plot configuration
+            plotConfigurations.forEach(plotConfig => {
+                const { id, key, title } = plotConfig;
+
+                // Get the element corresponding to the plot container
+                const element = document.getElementById(id);
+                @* element.innerHTML = ''; *@
+                
+                // Make a fetch call for the current plot configuration
+                fetch(`/Plaintexts/GetPosCOUNTsByFeatureName?jsonFileName=${encodeURIComponent(fileInput.value)}&featureName=${encodeURIComponent(key)}&sentence=${sentence}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Check if data is empty
+                        if (data.length === 0) {
+                            console.log(`No data available for ${title}`);
+                            return;
+                        }
+                        
+                        console.log(data.map(d => parseFloat(d.count)));
+                        
+                        const chartContainer = document.getElementById(id);
+                        const canvas = document.createElement('canvas');
+                        chartContainer.appendChild(canvas);
+                        
+                        
+                        var options = {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        };
+                        const chart = new Chart(id, {
+                            type: 'bar',
+                            data: {
+                                labels: data.map(item => item.name),
+                                datasets: [{
+                                    label: title,
+                                    backgroundColor: getRandomRGBColor(),
+                                    borderColor: 'black',
+                                    data: data.map(item => parseFloat(item.count)),
+                                    borderWidth: 2
+                                }]
+                            },
+                            options: options
+                        });
+                        
+
+                        // Store the chart reference
+                        if (!window.myCharts) {
+                            window.myCharts = {};
+                        }
+                        window.myCharts[id] = chart;
+                    })
+                    .catch(error => {
+                        console.error('There was a problem with your fetch operation:', error);
+                    });                
+            });        
+        }
+    }
+
+
+    
+
+    
+    function speakAndVisualize()
+    {
+        speakText();
+        @* showPlots(); *@
+    }
+    speakButton.addEventListener('click', () => {
+        speakButton.disabled = true;
+        speakAndVisualize();
+    });
+
+    pauseButton.addEventListener('click', () => {
+        synth.pause();
+    });
+
+    resumeButton.addEventListener('click', () => {
+        synth.resume();
+    });
+
+    
+</script>

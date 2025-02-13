@@ -1,0 +1,84 @@
+<style>
+    h5 h3 tbody{
+        color: lightgoldenrodyellow;
+        background-color: whitesmoke;
+    }
+    thead {
+        background-color: #810c47;
+        color: lightgoldenrodyellow;
+    }
+</style>
+<div class="card">
+    <div class="card-header" style="background-color: #810c47;">
+        <h1 class=" text-white">Western's Time Zones.</h1>
+    </div>
+    <div class="card-body">
+        <table class="table bg-white table-hover table-striped">
+            <thead class="table text-white">
+                <tr>
+                    <th><strong>Location</strong></th>
+                    <th><strong>Timezone</strong></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><h5>Utc</h5></td>
+                    <td><h3 id="utc"></h3></td>
+                </tr>
+                <tr>
+                    <td><h5>Washington</h5></td>
+                    <td><h3 id="washington"></h3></td>
+                </tr>
+                <tr>
+                    <td><h5>Los Angeles</h5></td>
+                    <td><h3 id="losangeles"></h3></td>
+                </tr>
+                <tr>
+                    <td><h5>London</h5></td>
+                    <td><h3 id="london"></h3></td>
+                </tr>
+                <tr>
+                    <td><h5>Paris</h5></td>
+                    <td><h3 id="paris"></h3></td>
+                </tr>
+                <tr>
+                    <td><h5>Madrid</h5></td>
+                    <td><h3 id="madrid"></h3></td>
+                </tr>
+                <tr>
+                    <td><h5>Lisbon</h5></td>
+                    <td><h3 id="lisbon"></h3></td>
+                </tr>
+                <tr>
+                    <td><h5>Tokyo</h5></td>
+                    <td><h3 id="tokyo"></h3></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    function updateTimes() {
+        const timezones = [
+        { id: "utc", offset: 0 },
+        { id: "washington", offset: -5 }, // EST
+        { id: "losangeles", offset: -7 }, // PST
+        { id: "london", offset: 0 }, // GMT
+        { id: "paris", offset: 1 }, // CET
+        { id: "madrid", offset: 1 }, // CET
+        { id: "lisbon", offset: 0 }, // WET
+        { id: "tokyo", offset: 9 }, // JST
+        ];
+
+        for (let timezone of timezones) {
+        const element = document.getElementById(timezone.id);
+        const now = new Date();
+        const offsetHours = timezone.offset;
+        const time = new Date(now.getTime() + offsetHours * 60 * 60 * 1000);
+        element.textContent = `${time.toLocaleTimeString()}`;
+        }
+    }
+
+    // Update every second
+    setInterval(updateTimes, 1000);
+</script>

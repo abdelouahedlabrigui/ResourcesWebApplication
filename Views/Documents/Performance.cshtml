@@ -1,0 +1,261 @@
+@model IEnumerable<ResourcesWebApplication.Models.Documents.Document>
+
+@{
+    ViewData["Title"] = "Performance";
+}
+
+@{
+    string[] categories = {"Get Documents By Year","Get Documents By Month","Get Documents By Day","Get Documents By Year And Month","Get Documents By Month And Day","Get Documents By Day And Hour"};
+}
+
+
+<div class="card">
+    <div class="row">
+        <div class="col-md-4">  
+            <div class="card-header bg-primary text-white">
+                <h3>Select Documents Performance</h3>
+            </div>
+            <div class="card-header bg-dark text-white">
+                <select id="tables" class="form-control-plaintext bg-dark text-white lead">
+                    @foreach(string category in categories)
+                    {
+                        <option value="@category">@category</option>
+                    }
+                </select>
+            </div>
+            <br>
+            <hr>
+            <br>
+            <div class="card-header bg-dark text-white">
+                <div class="form-group">
+                    <button class="btn btn-block btn-lg bg-dark text-white lead" onclick="populateTable()">GET Data.</button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card-header bg-dark text-white">
+                <h3 id="title"></h3>
+            </div>
+            <div class="card-body" style="height: 400px; overflow-y: auto;">
+                <table class="table bg-white text-dark table-striped table sm" id="tableID">
+                    <tbody style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+    function getDocumentsByYearAndPopulateTable() {
+        const title = document.getElementById('title');
+        title.innerHTML = 'Documents By Year.';
+        fetch('/Documents/GetDocumentsByYear') // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {           
+                const tableBody = document.querySelector('#tableID tbody');
+
+                tableBody.innerHTML = '';
+                const th = tableBody.insertRow();
+                th.insertCell().textContent = 'Year';
+                th.insertCell().textContent = 'Number Of Documents By Year';
+                
+                data.forEach(d => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = d.year || 'N/A';
+                    row.insertCell().textContent = d.numberOfDocumentsByYear || 'N/A';
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    function getDocumentsByMonthAndPopulateTable() {
+        const title = document.getElementById('title');
+        title.innerHTML = 'Documents By Month.';
+        fetch('/Documents/GetDocumentsByMonth') // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {           
+                const tableBody = document.querySelector('#tableID tbody');
+
+                tableBody.innerHTML = '';
+                const th = tableBody.insertRow();
+                th.insertCell().textContent = 'Month';
+                th.insertCell().textContent = 'Number Of Documents By Month';
+                
+                data.forEach(d => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = d.month || 'N/A';
+                    row.insertCell().textContent = d.numberOfDocumentsByMonth || 'N/A';
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    function getDocumentsByDayAndPopulateTable() {
+        const title = document.getElementById('title');
+        title.innerHTML = 'Documents By Day.';
+        fetch('/Documents/GetDocumentsByDay') // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {           
+                const tableBody = document.querySelector('#tableID tbody');
+
+                tableBody.innerHTML = '';
+                const th = tableBody.insertRow();
+                th.insertCell().textContent = 'Day';
+                th.insertCell().textContent = 'Number Of Documents By Day';
+                
+                data.forEach(d => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = d.day || 'N/A';
+                    row.insertCell().textContent = d.numberOfDocumentsByDay || 'N/A';
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    function getDocumentsByYearAndMonthAndPopulateTable() {
+        const title = document.getElementById('title');
+        title.innerHTML = 'Documents By Year And Month';
+        fetch('/Documents/GetDocumentsByYearAndMonth') // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {           
+                const tableBody = document.querySelector('#tableID tbody');
+
+                tableBody.innerHTML = '';
+                const th = tableBody.insertRow();
+                th.insertCell().textContent = 'Year';
+                th.insertCell().textContent = 'Month';
+                th.insertCell().textContent = 'Number Of Documents By Year and Month';
+
+                
+                data.forEach(d => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = d.year || 'N/A';
+                    row.insertCell().textContent = d.month || 'N/A';
+                    row.insertCell().textContent = d.numberOfDocumentsByYearAndMonth || 'N/A';
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    function getDocumentsByMonthAndDayAndPopulateTable() {
+        const title = document.getElementById('title');
+        title.innerHTML = 'Documents By Month And Day.';
+        fetch('/Documents/GetDocumentsByMonthAndDay') // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {           
+                const tableBody = document.querySelector('#tableID tbody');
+
+                tableBody.innerHTML = '';
+                const th = tableBody.insertRow();
+                th.insertCell().textContent = 'Month';
+                th.insertCell().textContent = 'Day';
+                th.insertCell().textContent = 'Number Of Documents By Month and Day';
+                
+                data.forEach(d => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = d.month || 'N/A';
+                    row.insertCell().textContent = d.day || 'N/A';
+                    row.insertCell().textContent = d.numberOfDocumentsByMonthAndDay || 'N/A';
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    function getDocumentsByDayAndHourAndPopulateTable() {
+        const title = document.getElementById('title');
+        title.innerHTML = 'Documents By Day And Hour';
+        fetch('/Documents/GetDocumentsByDayAndHour') // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {           
+                const tableBody = document.querySelector('#tableID tbody');
+
+                tableBody.innerHTML = '';
+                const th = tableBody.insertRow();
+                th.insertCell().textContent = 'Day';
+                th.insertCell().textContent = 'Hour';
+                th.insertCell().textContent = 'Number Of Documents By Day and Hour';
+                
+                data.forEach(d => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = d.day || 'N/A';
+                    row.insertCell().textContent = d.hour || 'N/A';
+                    row.insertCell().textContent = d.numberOfDocumentsByDayAndHour || 'N/A';
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    function populateTable()
+    {
+        const table = document.getElementById("tables");
+        if (table.value == "Get Documents By Year")
+        {
+            console.log(table.value);
+            getDocumentsByYearAndPopulateTable();
+        } else if (table.value == "Get Documents By Month")
+        {
+            console.log(table.value);
+            getDocumentsByMonthAndPopulateTable();            
+        } else if (table.value == "Get Documents By Day")
+        {
+            console.log(table.value);
+            getDocumentsByDayAndPopulateTable();
+        } else if (table.value == "Get Documents By Year And Month")
+        {
+            console.log(table.value);
+            getDocumentsByYearAndMonthAndPopulateTable();
+        } else if (table.value == "Get Documents By Month And Day")
+        {
+            console.log(table.value);
+            getDocumentsByMonthAndDayAndPopulateTable();
+        } else if (table.value == "Get Documents By Day And Hour")
+        {
+            console.log(table.value);
+            getDocumentsByDayAndHourAndPopulateTable();
+        } else {
+            alert('May you select a table name.');
+        }
+    }
+</script>

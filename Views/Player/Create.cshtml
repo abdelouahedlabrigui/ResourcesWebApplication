@@ -1,0 +1,163 @@
+@model ResourcesWebApplication.Models.Games.TwoPlayers.Player
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Player</h4>
+<hr />
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-header bg-dark text-white form-control-plaintext btn-hover">                
+                <h3>Players i.e. (2 players), may be saved hear for (Game frames and games)</h3>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group">
+                            <label asp-for="Name" class="control-label"></label>
+                            <input asp-for="Name" id="name" class="form-control-plaintext" autocomplete="off" spellcheck="false" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        @* <div class="form-group">
+                            <input type="submit" value="Create" class="btn btn-primary" />
+                        </div> *@
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-mb-4">
+        <div class="card">
+            <div class="card-header bg-dark text-white">                
+                <div class="row">
+                    <div class="col-mb-4">
+                        <button class="btn btn-sm bg-dark text-white" onclick="addPlayers()">Add</button> | <button class="btn btn-sm bg-dark text-white" onclick="postData()">Fetch</button>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="chronometer" class="bg-dark text-white">Chronometer</label>
+                            <input 
+                                type="text" 
+                                id="currentTimeInput" 
+                                class="form-control-plaintext bg-dark text-white lead"
+                                style="font-size: 240%;"                    
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table bg-white text-dark table-hover table-stripped" id="playersTable">
+                    <thead class="table bg-dark text-white">
+                        <tr>
+                            <th>Names</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="playersTableBody" style="font-size: larger;">
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer bg-dark text-white">
+                <div class="form-group">
+                    <pre id="createMessageError" class="text-white">Errors may display hear.</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+    function updateCurrentTime()
+    {
+        var currentTimeInput = document.getElementById('currentTimeInput');
+        var currentTime = new Date();
+        var hours = currentTime.getHours();
+        var minutes = currentTime.getMinutes();
+        var seconds = currentTime.getSeconds();
+        var milliseconds = currentTime.getMilliseconds();
+
+        var formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}.${padZero(milliseconds, 3)}`;
+        currentTimeInput.value = formattedTime;
+    }
+    function padZero(number, width = 2)
+    {
+        var str = number.toString();
+        while(str.length < width)
+        {
+            str = '0' + str;
+        }
+        return str;
+    }
+    setInterval(updateCurrentTime, 100);
+    updateCurrentTime();
+    function addPlayers()
+    {
+        var name = document.getElementById('name');
+        
+        var tableBody = document.querySelector('#playersTable tbody');
+        var row = tableBody.insertRow();
+
+        var nameCell = row.insertCell(0);
+
+        nameCell.textContent = name.value;
+
+        var actionCell = row.insertCell(1);
+        var deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.addEventListener('click', function(){
+            tableBody.removeChild(row);
+        });
+        actionCell.appendChild(deleteButton);
+    }
+    function postData()
+    {
+        var tableRows = document.querySelectorAll('#playersTable tbody tr');
+        var dataToSend = [];
+
+
+        tableRows.forEach(row => {
+            var name = row.cells[0].textContent.toString();
+            var rowData = {
+                name: name,
+            };
+            dataToSend.push(rowData);            
+            console.log(rowData);
+        });
+
+
+        fetch('/Player/PostPlayers', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dataToSend)
+        })
+        .then(response => {
+            if(!response.ok)
+            {
+                throw new Error('Network response was not ok.');
+            } else if (response.ok)
+            {
+                window.location.href = '/Player';
+            } else {
+                return response.json();
+            }
+        })
+        .catch(error => {
+            document.getElementById('createMessageError').innerHTML = `Error sending data: ${error}`;
+        })
+    }
+</script>

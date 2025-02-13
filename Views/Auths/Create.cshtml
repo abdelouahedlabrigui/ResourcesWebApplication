@@ -1,0 +1,419 @@
+@model ResourcesWebApplication.Models.Devops.Auth
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Auth</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div class="row">
+                <div class="col">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group">
+                            <label asp-for="IPAddress" class="control-label"></label>                
+                            <select id="ip" asp-for="IPAddress" class="form-control-plaintext bg-dark text-white lead" style="font-size: large;">
+                                
+                            </select>
+                            <span asp-validation-for="IPAddress" class="text-danger"></span>
+                        </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label asp-for="Username" class="control-label"></label>
+                        <select id="username" asp-for="Username" class="form-control-plaintext bg-dark text-white lead" style="font-size: large;">
+                            
+                        </select>
+                        <span asp-validation-for="Username" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Password" class="control-label"></label>
+                        <select id="password" asp-for="Password" class="form-control-plaintext bg-dark text-white lead" style="font-size: large;">
+                            
+                        </select>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col">
+                    <table class="table bg-white text-dark table-striped">
+                        <tbody id="credentialCountsTableBody">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label asp-for="JwtToken" class="control-label"></label>
+                <textarea asp-for="JwtToken" id="jwtToken" rows="7" class="form-control-plaintext bg-light text-dark" style="font-size: large;" spellcheck="false" readonly></textarea>
+                <span asp-validation-for="JwtToken" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedAT" class="control-label"></label>
+                <input asp-for="CreatedAT" type="datatime" id="createdAT" class="form-control-plaintext" value="@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")" spellcheck="false" autocomplete="off" readonly />
+                <span asp-validation-for="CreatedAT" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-dark btn-block btn-lg" />
+            </div>
+        </form>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label class="control-label">VM IP for Windows OS Ping.</label>
+                            <input class="form-control-plaintext text-white" spellcheck="false" autocomplete="off" id="vmIP" />
+                        </div>
+                    </div>
+                    <div class="col">
+                        Select a service: 
+                        <select id="service" class="form-control-plaintext bg-dark text-white lead" style="font-size: large;">
+                            <option value="wazuh-indexer.service">wazuh-indexer.service</option>
+                            <option value="wazuh-manager.service">wazuh-manager.service</option>
+                            <option value="filebeat.service">filebeat.service</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <hr style="background-color: white; height: 1%;"/>
+                        <button class="btn btn block btn-lg bg-info text-white" onclick="getPingResult()">
+                            Get Linux ICMP Ping
+                        </button>
+                    </div>
+                    <div class="col">
+                        <hr style="background-color: white; height: 1%;"/>
+                        <button class="btn btn block btn-lg bg-info text-white" onclick="checkServiceStatusForLinuxDistro()">
+                            Get Linux Service status
+                        </button>
+                    </div>
+                    <div class="col">
+                        <hr style="background-color: white; height: 1%;"/>
+                        <button class="btn btn block btn-lg bg-info text-white" onclick="postWazuhAPIJwtToken()">
+                            Post Wazuh API Auths - Get JWT Token.
+                        </button>
+                    </div>
+                    <div class="col">
+                        <hr style="background-color: white; height: 1%;"/>
+                        <button class="btn btn block btn-lg bg-danger text-white" onclick="getStatusRestartWazuhServerService()">
+                            Restart Wazuh Server Service
+                        </button>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="card-body bg-white table-hover container">
+                <table class="table bg-white text-dark table-striped">
+                    <tbody id="icmpPingTableBody">
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-body bg-white table-hover container">
+                <table class="table bg-white text-dark table-striped">
+                    <tbody id="serviceStatusTableBody">
+
+                    </tbody>
+                </table>
+            </div>
+            @* <div class="card-body bg-white table-hover container">
+                <table class="table bg-white text-dark table-striped">
+                    <tbody id="authsTableBody">
+
+                    </tbody>
+                </table>
+            </div> *@
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+    function getStatusRestartWazuhServerService()
+    {
+        const ip = document.getElementById("ip");
+        const service = document.getElementById("service");
+        const createdAT = document.getElementById("createdAT");
+        if (ip && service && createdAT)
+        {
+            const tableBody = document.getElementById('serviceStatusTableBody');
+            tableBody.innerHTML = "";
+
+            fetch(`/Agents/GetStatusRestartWazuhServerService?ip=${encodeURIComponent(ip.value)}&service=${encodeURIComponent(service.value)}&createdAT=${encodeURIComponent(createdAT.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    const rowX = tableBody.insertRow();
+                    rowX.insertCell().textContent = "Id";
+                    rowX.insertCell().textContent = "IP Address";
+                    rowX.insertCell().textContent = "Service";
+                    rowX.insertCell().textContent = "Status";
+                    rowX.insertCell().textContent = "Created AT";
+
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = data.id;
+                    row.insertCell().textContent = data.ipAddress;
+                    row.insertCell().textContent = data.service;
+                    row.insertCell().textContent = data.status;
+                    row.insertCell().textContent = data.createdAT;
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });            
+        }
+    }    
+    function postWazuhAPIJwtToken()
+    {
+        const ip = document.getElementById("ip");
+        if(ip)
+        {
+            @* const tableBody = document.getElementById('authsTableBody'); *@
+            const jwtToken = document.getElementById('jwtToken');
+            @* tableBody.innerHTML = ""; *@
+            fetch(`/Agents/PostWazuhAPIJwtToken?auth_ip=${encodeURIComponent(ip.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    data.forEach(item => {
+                        jwtToken.value = item.jwtToken;
+                    }) 
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });        
+        }
+    }
+    function getCountCredentials()
+    {
+        const ip = document.getElementById("ip");
+        if(ip)
+        {
+            const tableBody = document.getElementById('credentialCountsTableBody');
+            tableBody.innerHTML = "";
+            fetch(`/Auths/CredentialsDropDownAccess`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    const rowX = tableBody.insertRow();
+                    rowX.insertCell().textContent = "Username";
+                    rowX.insertCell().textContent = "Counts";
+                    data.forEach(item => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = item.username;
+                        row.insertCell().textContent = item.counts;
+                    }); 
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });        
+        }
+    }
+    getCountCredentials();
+    function loadAgentsIPs()
+    {
+        const agentIPsList = document.getElementById('ip');
+        agentIPsList.innerHTML = "";
+        fetch(`/Agents/GetWazuhAgentsIPs`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                else if(response.ok)
+                {
+                    return response.json();
+                }
+            })
+            .then(data => {
+                console.log(data);
+                data.forEach(ip => {
+                    const option = document.createElement('option');
+                    option.value = ip.ip;
+                    option.textContent = ip.ip;
+                    agentIPsList.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            }); 
+    }
+    loadAgentsIPs();
+    function loadUsernames()
+    {
+        const username = document.getElementById('username');
+        username.innerHTML = "";
+        fetch(`/Auths/CredentialsDropDownAccess`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                else if(response.ok)
+                {
+                    return response.json();
+                }
+            })
+            .then(data => {
+                console.log(data);
+                data.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.username;
+                    option.textContent = user.username;
+                    username.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            }); 
+    }
+    loadUsernames();
+    function loadAgentsPassword()
+    {
+        const passw = document.getElementById('password');
+        passw.innerHTML = "";
+        fetch(`/Auths/CredentialsDropDownAccess`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                else if(response.ok)
+                {
+                    return response.json();
+                }
+            })
+            .then(data => {
+                console.log(data);
+                data.forEach(password => {
+                    const option = document.createElement('option');
+                    option.value = password.password;
+                    option.textContent = password.password;
+                    passw.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            }); 
+    }
+    loadAgentsPassword();
+    function getPingResult()
+    {
+        const agent_ip = document.getElementById("ip");
+        const vmIP = document.getElementById("vmIP");
+        const vmUsername = document.getElementById("username");
+        const vmPassword = document.getElementById("password");
+        if(agent_ip && vmUsername && vmPassword && vmIP)
+        {
+            const tableBody = document.getElementById('icmpPingTableBody');
+            tableBody.innerHTML = "";
+            fetch(`/Agents/GetPingResultFromLinuxDistro?vmIP=${encodeURIComponent(vmIP.value)}&agent_ip=${agent_ip.value}&username=${encodeURIComponent(vmUsername.value)}&password=${encodeURIComponent(vmPassword.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    const rowX = tableBody.insertRow();
+                    rowX.insertCell().textContent = "Id";
+                    rowX.insertCell().textContent = "IP Address";
+                    rowX.insertCell().textContent = "Packets Transmitted";
+                    rowX.insertCell().textContent = "Packets Received";
+                    rowX.insertCell().textContent = "Packet Loss";
+                    rowX.insertCell().textContent = "Round Trip Times";
+                    rowX.insertCell().textContent = "Status";
+                    rowX.insertCell().textContent = "Created AT";
+
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = data.id;
+                    row.insertCell().textContent = data.ipAddress;
+                    row.insertCell().textContent = data.packetsTransmitted;
+                    row.insertCell().textContent = data.packetsReceived;
+                    row.insertCell().textContent = data.packetLoss;
+                    row.insertCell().textContent = data.roundTripTimes;
+                    row.insertCell().textContent = data.status;
+                    row.insertCell().textContent = data.createdAT;
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });        
+        }
+    }
+    
+    function checkServiceStatusForLinuxDistro()
+    {        
+        const ip = document.getElementById("vmIP");
+        const service = document.getElementById("service");
+        const createdAT = document.getElementById("createdAT");
+        if (ip && service && createdAT)
+        {
+            const tableBody = document.getElementById('serviceStatusTableBody');
+            tableBody.innerHTML = "";
+
+            fetch(`/Agents/CheckServiceStatusForLinuxDistro?ip=${encodeURIComponent(ip.value)}&service=${encodeURIComponent(service.value)}&createdAT=${encodeURIComponent(createdAT.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    const rowX = tableBody.insertRow();
+                    rowX.insertCell().textContent = "Id";
+                    rowX.insertCell().textContent = "IP Address";
+                    rowX.insertCell().textContent = "Service";
+                    rowX.insertCell().textContent = "Status";
+                    rowX.insertCell().textContent = "Created AT";
+
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = data.id;
+                    row.insertCell().textContent = data.ipAddress;
+                    row.insertCell().textContent = data.service;
+                    row.insertCell().textContent = data.status;
+                    row.insertCell().textContent = data.createdAT;
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });            
+        }          
+    }
+</script>

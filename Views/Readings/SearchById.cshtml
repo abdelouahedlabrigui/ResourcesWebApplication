@@ -1,0 +1,60 @@
+@model IEnumerable<ResourcesWebApplication.Models.Documents.Reading>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<hr>
+<table class="table">
+    <thead class="thead bg-dark text-white">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.DocumentID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DateAT)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StartAT)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EndAT)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedAT)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.DocumentID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DateAT)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StartAT)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EndAT)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedAT)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

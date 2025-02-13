@@ -1,0 +1,241 @@
+@model ResourcesWebApplication.Models.Documents.Reading
+<style>
+    thead {
+        background-color: #ff2c96;
+        font-style: italic;
+        font-size: medium;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+    tbody {
+        background-color:  rgb(255, 255, 255);
+        font-style: oblique;
+        font-size: medium;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+</style>
+@{
+    ViewData["Title"] = "Delays";
+}
+
+@{
+    string date = DateTime.Now.ToString("ddd, dd MMM yyy HH':'ss 'GMT'");
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Mark</h4>
+    <hr />
+    <pre>
+        Readings ID: 
+        <select id="readingsID" class="bg-dark text-white lead">
+            <option value="@Model.Id">@Model.Id</option>
+        </select>
+    </pre>
+    <div class="card">
+        <div class="card-header bg-dark text-white">
+            Document vs. Reading Sessions
+        </div>
+        <div class="card-body bg-light shadow-lg">
+            <table class="table text-dark">
+                <thead class="table text-white">
+                    <tr>
+                        <th>Doc ID</th>
+                        <th>Doc Title</th>
+                        <th>Doc Created AT</th>
+                        <th>Read Date</th>
+                        <th>Read Start AT</th>
+                        <th>Read End AT</th>
+                        <th>Read Created AT</th>
+                    </tr>
+                </thead>
+                <tbody id="documentTableBody" class="table text-dark">
+
+                </tbody>
+            </table>
+        </div>
+        <div class="card-header bg-dark text-white">
+            Timeline Difference e.g. Document vs. Reading Timeline.
+        </div>
+        <div class="card-body bg-light shadow-lg">
+            <table class="table text-dark">
+                <thead class="table text-white">
+                    <tr>
+                        <th>Ticks</th>
+                        <th>Days</th>
+                        <th>Hours</th>
+                        <th>Milliseconds</th>
+                        <th>Minutes</th>
+                        <th>Seconds</th>
+                        <th>Days</th>
+                        <th>Hours</th>
+                        <th>Milliseconds</th>
+                        <th>Minutes</th>
+                        <th>Seconds</th>
+                    </tr>
+                </thead>
+                <tbody id="documentTimeLineTableBody" class="table text-dark">
+
+                </tbody>
+            </table>
+        </div>
+        <div class="card-header bg-dark text-white">
+            Timeline Difference e.g. Reading Timeline.
+        </div>
+        <div class="card-body bg-light shadow-lg">
+            <table class="table text-dark">
+                <thead class="table text-white">
+                    <tr>
+                        <th>Ticks</th>
+                        <th>Days</th>
+                        <th>Hours</th>
+                        <th>Milliseconds</th>
+                        <th>Minutes</th>
+                        <th>Seconds</th>
+                        <th>Days</th>
+                        <th>Hours</th>
+                        <th>Milliseconds</th>
+                        <th>Minutes</th>
+                        <th>Seconds</th>
+                    </tr>
+                </thead>
+                <tbody id="readingTimeLineTableBody" class="table text-dark">
+
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="bg-dark card-footer">
+            <strong class="text-white" style="font-size: 140%;" id="time">
+                @date
+            </strong>
+        </div>
+    </div>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+    window.onload = async function()
+    {
+        await documentTimeLine();
+        await readingTimeLine();
+        await readingVsDocument();
+    }
+    async function documentTimeLine() {
+        const tableBody = document.getElementById('documentTimeLineTableBody');
+        const readingsID = document.getElementById('readingsID');
+        tableBody.innerHTML = "";        
+        if (readingsID) {
+            fetch(`/Readings/GetDelays?id=${encodeURIComponent(readingsID.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    data.forEach(timeline => {
+                        const row = tableBody.insertRow();                    
+                        
+                        row.insertCell().textContent = timeline.timelineDifferenceCreatedAT.ticks;
+                        row.insertCell().textContent = timeline.timelineDifferenceCreatedAT.days;
+                        row.insertCell().textContent = timeline.timelineDifferenceCreatedAT.hours;
+                        row.insertCell().textContent = timeline.timelineDifferenceCreatedAT.milliseconds;
+                        row.insertCell().textContent = timeline.timelineDifferenceCreatedAT.minutes;
+                        row.insertCell().textContent = timeline.timelineDifferenceCreatedAT.seconds;
+                        row.insertCell().textContent = timeline.timelineDifferenceCreatedAT.totalDays;
+                        row.insertCell().textContent = timeline.timelineDifferenceCreatedAT.totalHours;
+                        row.insertCell().textContent = timeline.timelineDifferenceCreatedAT.totalMilliseconds;
+                        row.insertCell().textContent = timeline.timelineDifferenceCreatedAT.totalMinutes;
+                        row.insertCell().textContent = timeline.timelineDifferenceCreatedAT.totalSeconds;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });             
+        }
+    }
+    async function readingTimeLine() {
+        const tableBody = document.getElementById('readingTimeLineTableBody');
+        const readingsID = document.getElementById('readingsID');
+        tableBody.innerHTML = "";        
+        if (readingsID) {
+            fetch(`/Readings/GetDelays?id=${encodeURIComponent(readingsID.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    data.forEach(timeline => {
+                        const row = tableBody.insertRow();                    
+                        
+                        row.insertCell().textContent = timeline.timelineDifferenceReading.ticks;
+                        row.insertCell().textContent = timeline.timelineDifferenceReading.days;
+                        row.insertCell().textContent = timeline.timelineDifferenceReading.hours;
+                        row.insertCell().textContent = timeline.timelineDifferenceReading.milliseconds;
+                        row.insertCell().textContent = timeline.timelineDifferenceReading.minutes;
+                        row.insertCell().textContent = timeline.timelineDifferenceReading.seconds;
+                        row.insertCell().textContent = timeline.timelineDifferenceReading.totalDays;
+                        row.insertCell().textContent = timeline.timelineDifferenceReading.totalHours;
+                        row.insertCell().textContent = timeline.timelineDifferenceReading.totalMilliseconds;
+                        row.insertCell().textContent = timeline.timelineDifferenceReading.totalMinutes;
+                        row.insertCell().textContent = timeline.timelineDifferenceReading.totalSeconds;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });             
+        }
+    }
+    async function readingVsDocument() {
+        const tableBody = document.getElementById('documentTableBody');
+        const readingsID = document.getElementById('readingsID');
+        tableBody.innerHTML = "";        
+        if (readingsID) {
+            fetch(`/Readings/GetDelays?id=${encodeURIComponent(readingsID.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    data.forEach(timeline => {
+                        const row = tableBody.insertRow();                    
+                        
+                        row.insertCell().textContent = timeline.documentIDMeta;
+                        const url = document.createElement('a');
+                        url.href = timeline.documentUrl;
+                        url.textContent = timeline.documentTitle;
+                        const actionCell = row.insertCell();
+                        actionCell.appendChild(url);
+                        row.insertCell().textContent = timeline.documentCreatedAT;
+                        row.insertCell().textContent = timeline.readingDateAT;
+                        row.insertCell().textContent = timeline.readingStartAT;
+                        row.insertCell().textContent = timeline.readingEndAT;
+                        row.insertCell().textContent = timeline.readCreatedAT;                        
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });             
+        }
+    }
+</script>

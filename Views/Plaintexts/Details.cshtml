@@ -1,0 +1,102 @@
+@model ResourcesWebApplication.Models.Plaintext
+
+@{
+    ViewData["Title"] = "Details";
+}
+@{
+    // Get the content from the model
+    string content = Model.Content;
+
+    // Split the content by space
+    string[] tokens = content.Split(' ');
+
+    // Count the number of tokens
+    int tokenCount = tokens.Length;
+}
+
+<hr>
+<h1>Details</h1>
+
+<div>
+    <h4>Plaintext</h4>
+    <hr />
+    <div class="row">
+        <div class="col">
+            <dl class="row">        
+                <dt class = "col-sm-2">
+                    @Html.DisplayNameFor(model => model.ID)
+                </dt>
+                <dd class = "col-sm-10">
+                    <input type="text" id="Id" class="form-control-plaintext" value="@Html.DisplayFor(model => model.ID)" readonly>
+                </dd>
+                
+                <dt class = "col-sm-2">
+                    @Html.DisplayNameFor(model => model.Content)
+                </dt>
+                <dd class = "col-sm-10">
+                    <div class="form-group">
+                        
+                        <table class="table">
+                            <thead class="bg-dark text-white">
+                                <tr>
+                                    <th>COUNT</th>
+                                    <th>LENGTH</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="form-group">
+                                        <input type="number" value="@tokenCount" id="count" class="form-control-plaintext" readonly>
+                                    </td>
+                                    <td class="form-group">
+                                        <input type="number" value="@Html.DisplayFor(model => model.Content).ToString().Length.ToString()" id="length" class="form-control-plaintext" readonly>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>            
+                </dd>
+                <dt class = "col-sm-2">
+                    @Html.DisplayNameFor(model => model.CreatedAT)
+                </dt>
+                <dd class = "col-sm-10">
+                    @Html.DisplayFor(model => model.CreatedAT)
+                </dd>
+            </dl>
+        </div>
+        <div class="col bg-light">
+            
+            <div class="form-group card-footer shadow-lg">
+                <canvas id="lineChart" class="form-control-plaintext"></canvas>
+            </div>
+        </div>
+    </div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.ID">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script type="text/javascript">
+    
+    function displayIndicator()
+    {
+        var count = document.getElementById('count');
+        var length = document.getElementById('length');
+
+        var ctx = document.getElementById("lineChart").getContext('2d');
+        var lineChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Count', 'Length'],
+                datasets: [{
+                    label: 'Text File Counted Tokens & Length',
+                    backgroundColor: ['hotpink', 'purple'],
+                    borderColor: ['hotpink', 'purple'],
+                    borderWidth: 1,
+                    data: [count.value, length.value]
+                }]
+            }
+        })
+    }
+    displayIndicator();
+</script>

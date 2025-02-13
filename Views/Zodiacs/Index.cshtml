@@ -1,0 +1,30 @@
+@model IEnumerable<ResourcesWebApplication.Models.Astrology.Zodiac>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<ol>
+    @foreach (var item in Model) {
+        <li class="nav-tabs">
+            <div class="row">
+                <div class="col">
+                    @Html.DisplayFor(modelItem => item.Id)
+                </div>
+                <div class="col">
+                    @Html.DisplayFor(modelItem => item.Name)                    
+                </div>
+                <div class="col">
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </div>
+            </div>
+        </li>
+    }
+</ol>

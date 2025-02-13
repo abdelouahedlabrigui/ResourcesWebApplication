@@ -1,0 +1,107 @@
+<div class="row">        
+    <div class="col">
+        <div class="container">
+            <canvas id="orbitalChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <table>
+            <thead>
+                <tr>
+                    <th>theta</th>
+                    <th>angular Velocity</th>
+                    <th>angular Acceleration</th>
+                    <th>radial Velocity</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<script>
+    function kinematicEquations()
+    {
+        const tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '';
+        fetch(`https://localhost/api/OrbitalMechanicsAPI/CalculateData?altitude=10000&speed=250`) // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {                 
+                data.forEach(item => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = item.theta;
+                    row.insertCell().textContent = item.angularVelocity;
+                    row.insertCell().textContent = item.angularAcceleration,
+                    row.insertCell().textContent = item.radialVelocity;
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });        
+    }
+    kinematicEquations();
+    fetch('https://localhost/api/OrbitalMechanicsAPI/CalculateData?altitude=10000&speed=250')
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            const labels = data.map(d => d.theta);
+            const angularVelocityData = data.map(d => d.angularVelocity);
+            const angularAccelerationData = data.map(d => d.angularAcceleration);
+            const radialVelocityData = data.map(d => d.radialVelocity);
+
+            const ctx = document.getElementById('orbitalChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Angular Velocity (θ˙)',
+                            data: angularVelocityData,
+                            borderColor: 'blue',
+                            fill: false
+                        },
+                        {
+                            label: 'Angular Acceleration (θ¨)',
+                            data: angularAccelerationData,
+                            borderColor: 'red',
+                            fill: false
+                        },
+                        {
+                            label: 'Radial Velocity (r˙)',
+                            data: radialVelocityData,
+                            borderColor: 'green',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Angle θ (degrees)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Value'
+                            }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => console.error('Error:', error));
+</script>

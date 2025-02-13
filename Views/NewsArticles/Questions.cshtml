@@ -1,0 +1,159 @@
+@model ResourcesWebApplication.Models.News.Question
+
+@{
+    ViewData["Title"] = "Q/A";
+}
+
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h4 class="text-white">Selected Article, from /Index.cshtml</h4>
+                <hr>
+                <div class="col form-group">
+                    <select id="articleIds" class="form-control-plaintext bg-dark text-white lead" onchange="requestArticle()" style="font-size: small;"></select>
+                </div>
+                <div class="col form-group">
+                    <button class="btn btn-lg btn-block bg-white text-dark" onclick="generateAnswer()">Generate Answer.</button>
+                </div>
+            </div>
+            <div class="card-body bg-white text-dark">
+                <table class="table table-striped bg-white text-dark">
+                    <tbody id="newsArticleTableBody">
+                        
+                    </tbody>
+                </table>                
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h4 class="form-control-plaintext text-white">Save an article's related question, with answer to database.</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="CreateAnswer">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group">
+                        <label asp-for="ArticleTitle" class="control-label"></label>
+                        <input asp-for="ArticleTitle" class="form-control-plaintext" id="title" readonly spellcheck="false" autocomplete="off" />
+                        <span asp-validation-for="ArticleTitle" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="QuestionString" class="control-label"></label>
+                        <input asp-for="QuestionString" class="form-control-plaintext" id="question" spellcheck="false" autocomplete="off" />
+                        <span asp-validation-for="QuestionString" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Answer" class="control-label"></label>
+                        <textarea asp-for="Answer" id="answer" rows="15" class="form-control-plaintext bg-light text-dark" style="font-size: large;" spellcheck="false" readonly></textarea>
+                        <span asp-validation-for="Answer" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CreatedAT" class="control-label"></label>
+                        <input type="datetime" asp-for="CreatedAT" class="form-control-plaintext" value="@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")" spellcheck="false" autocomplete="off" readonly />
+                        <span asp-validation-for="CreatedAT" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Create" class="btn btn-dark text-white btn-lg btn-block" />
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer bg-dark text-white">
+                <strong class="form-control-plaintext text-white">@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")</strong>
+            </div>
+        </div>
+    </div>
+</div>
+<div class=""><a asp-action="Index">Back to List</a></div>
+<script>
+    function generateAnswer()
+    {
+        const title = document.getElementById("title");
+        const question = document.getElementById("question");
+        if(title && question)
+        {
+            fetch(`/NewsArticles/ExecuteGenerateAnswer?articleTitle=${encodeURIComponent(title.value)}&questionString=${encodeURIComponent(question.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function getArticlesIds()
+    {
+        const dropdown1 = document.getElementById('articleIds');
+        dropdown1.innerHTML = "";
+        fetch(`/NewsArticles/QuestionRecordsId`) // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+
+                data.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    dropdown1.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    getArticlesIds();
+    function getArticle(id)
+    {
+        if(id)
+        {
+            const tableBody = document.getElementById('newsArticleTableBody');
+            tableBody.innerHTML = "";
+            const newsArtile = document.getElementById("title");
+            fetch(`/NewsArticles/QuestionRecord?id=${encodeURIComponent(id)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    const row = tableBody.insertRow();                    
+                    // Insert the title cell with a link
+                    const title = document.createElement('a');
+                    title.href = data.url;
+                    title.textContent = data.title;
+                    newsArtile.value = data.title;
+                    const titleCell = row.insertCell();
+                    titleCell.appendChild(title);
+                    row.insertCell().textContent = data.createdAT;
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });        
+        }
+    }
+    function requestArticle()
+    {
+        const articleId = document.getElementById("articleIds");
+        if(articleId)
+        {
+            getArticle(articleId.value);
+        }
+    }    
+</script>

@@ -1,0 +1,35 @@
+@model IEnumerable<ResourcesWebApplication.Models.Jira.ForgeHelp>
+
+@{
+    ViewData["Title"] = "Jira Forge Help";
+}
+
+<h1>Jira Forge Help</h1>
+
+<div class="container">
+    <table class="table table-light table-hover table-striped">
+        <thead class="thead text-white" style="background-color: #ff2c96;">
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Command)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Description)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+    @foreach (var item in Model) {
+            <tr>
+                <td>
+                    <strong style="color: black;">@Html.DisplayFor(modelItem => item.Command)</strong>
+                </td>
+                <td>
+                    <i style="color: navy;">@Html.DisplayFor(modelItem => item.Description)</i>
+                </td>
+            </tr>
+    }
+        </tbody>
+    </table>
+</div>

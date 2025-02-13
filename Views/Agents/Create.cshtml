@@ -1,0 +1,188 @@
+@model ResourcesWebApplication.Models.Devops.Agent
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Agent</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-dark text-white table-hover">
+                <h3 class="text-white">Post Wazuh Agents.</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <button class="btn btn-block btn-lg bg-dark text-white" onclick="executePostWazuhAgents()">Execute Post Wazuh Agents</button>
+                </div>
+            </div>
+            <div class="card-footer bg-dark">
+                <strong class="bg-white text-dark form-control-plaintext">At: @DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")</strong>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header bg-dark text-white table-hover">
+                <h3 class="text-white">Get Wazuh Agents</h3> 
+                <hr>
+                <div class="form-group">
+                    <button class="btn btn-block btn-lg bg-dark text-white" onclick="loadAgentsData()">Get.</button>
+                </div>
+            </div>            
+            <div class="card-body">
+                <div class="card-header form-control-plaintext bg-dark">
+                    <h3 class="text-white">Windows Agents</h3>
+                </div>
+                <div class="card-body bg-white table-hover">
+                    <table class="table bg-white text-dark table-stiped">
+                        <thead class="table bg-dark text-white">
+                            <tr>
+                                <th>Build</th>
+                                <th>OSName</th>
+                                <th>Platform</th>
+                                <th>DateAdd</th>
+                                <th>Manager</th>
+                                <th>AgentId</th>
+                                <th>Status</th>
+                                <th>Ip</th>
+                                <th>Name</th>
+                            </tr>
+                        </thead>
+                        <tbody id="wazuhAgentsTableBody">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="card-header form-control-plaintext bg-dark">
+                    <h3 class="text-white">Linux Agents</h3>
+                </div>
+                <div class="card-body bg-white table-hover">
+                    <table class="table bg-white text-dark table-stiped">
+                        <thead class="table bg-dark text-white">
+                            <tr>
+                                <th>Arch</th>
+                                <th>OSName</th>
+                                <th>Platform</th>
+                                <th>DateAdd</th>
+                                <th>Manager</th>
+                                <th>AgentId</th>
+                                <th>Status</th>
+                                <th>Ip</th>
+                                <th>Name</th>
+                            </tr>
+                        </thead>
+                        <tbody id="wazuhLinuxAgentsTableBody">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+    function executePostWazuhAgents()
+    {
+        fetch(`/Agents/ExecutePostWazuhAgents`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                else if(response.ok)
+                {
+                    return response.json();
+                }
+            })
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }            
+    function getAgents()
+    {
+        const tableBody = document.getElementById('wazuhAgentsTableBody');
+        tableBody.innerHTML = "";
+        fetch(`/Agents/GetAgentsTop10Desc`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                else if(response.ok)
+                {
+                    return response.json();
+                }
+            })
+            .then(data => {
+                console.log(data);
+                data.forEach(item => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = item.build;
+                    row.insertCell().textContent = item.osName;
+                    row.insertCell().textContent = item.platform;
+                    row.insertCell().textContent = item.dateAdd;
+                    row.insertCell().textContent = item.manager;
+                    row.insertCell().textContent = item.agentId;
+                    row.insertCell().textContent = item.status;
+                    row.insertCell().textContent = item.ip;
+                    row.insertCell().textContent = item.name;
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    getAgents();
+    function getLinuxAgents()
+    {
+        const tableBody = document.getElementById('wazuhLinuxAgentsTableBody');
+        tableBody.innerHTML = "";
+        fetch(`/Agents/GetLinuxAgentsTop10Desc`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                else if(response.ok)
+                {
+                    return response.json();
+                }
+            })
+            .then(data => {
+                console.log(data);
+                data.forEach(item => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = item.arch;
+                    row.insertCell().textContent = item.osName;
+                    row.insertCell().textContent = item.platform;
+                    row.insertCell().textContent = item.dateAdd;
+                    row.insertCell().textContent = item.manager;
+                    row.insertCell().textContent = item.agentId;
+                    row.insertCell().textContent = item.status;
+                    row.insertCell().textContent = item.ip;
+                    row.insertCell().textContent = item.name;
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    getLinuxAgents();
+
+    function loadAgentsData()
+    {
+        getLinuxAgents();
+        getAgents();
+    }
+</script>

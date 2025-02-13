@@ -1,0 +1,51 @@
+@model IEnumerable<ResourcesWebApplication.Models.News.NewsArticle>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+
+<div class="">
+    <div class="card">
+        <div class="card-header bg-dark text-white">
+            <h1 class="text-white">Index</h1> | <a asp-action="Create" class="badge bg-white text-dark">Create New</a> | <a asp-controller="NewsArticles" asp-action="Answers" class="badge bg-white text-dark">Answers</a> | <a asp-controller="NewsArticles" asp-action="SpeechPartsCount" class="badge bg-white text-dark">Speech Parts Count</a>
+        </div>
+        <div class="card-body">
+            <table class="table bg-white table-striped">
+                <thead class="table bg-dark text-white">
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Title)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.CreatedAt)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+            @foreach (var item in Model) {
+                    <tr>
+                        <td>
+                            <a href="@Html.DisplayFor(modelItem => item.Url)" class="btn btn-lg btn-block form-control-plaintext bg-dark text-white">@Html.DisplayFor(modelItem => item.Title)</a>                
+                        </td>
+                        <td>
+                            <strong class="btn btn-lg btn-block form-control-plaintext bg-white text-dark">@Html.DisplayFor(modelItem => item.CreatedAt)</strong>
+                        </td>
+                        <td>
+
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="badge bg-white text-dark">Edit</a> |
+                            <a asp-action="Details" asp-route-id="@item.Id" class="badge bg-white text-dark">Details</a> |
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="badge bg-white text-dark">Delete</a> |
+                            <a asp-action="Questions" class="badge bg-primary text-white">Questions</a>
+                        </td>
+                    </tr>
+            }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+

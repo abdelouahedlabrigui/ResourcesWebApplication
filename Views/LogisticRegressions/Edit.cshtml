@@ -1,0 +1,71 @@
+@model ResourcesWebApplication.Models.MachineLearning.LogisticRegression
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>LogisticRegression</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="FileName" class="control-label"></label>
+                <input asp-for="FileName" class="form-control" />
+                <span asp-validation-for="FileName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AgeValues" class="control-label"></label>
+                <input asp-for="AgeValues" class="form-control" />
+                <span asp-validation-for="AgeValues" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DropColumn" class="control-label"></label>
+                <input asp-for="DropColumn" class="form-control" />
+                <span asp-validation-for="DropColumn" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DropColumns" class="control-label"></label>
+                <input asp-for="DropColumns" class="form-control" />
+                <span asp-validation-for="DropColumns" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DummyColumns" class="control-label"></label>
+                <input asp-for="DummyColumns" class="form-control" />
+                <span asp-validation-for="DummyColumns" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TargetColumn" class="control-label"></label>
+                <input asp-for="TargetColumn" class="form-control" />
+                <span asp-validation-for="TargetColumn" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AgePClassColumns" class="control-label"></label>
+                <input asp-for="AgePClassColumns" class="form-control" />
+                <span asp-validation-for="AgePClassColumns" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedAT" class="control-label"></label>
+                <input asp-for="CreatedAT" class="form-control" />
+                <span asp-validation-for="CreatedAT" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

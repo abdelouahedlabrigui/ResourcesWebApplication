@@ -1,0 +1,106 @@
+@model IEnumerable<ResourcesWebApplication.Models.Devops.Agent>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a> | <a asp-action="LinuxAgents" class="badge bg-primary text-white">Linux Agents</a> | <a class="badge bg-primary text-white" asp-area="" asp-controller="Auths" asp-action="Index">Auths</a> <a class="badge bg-primary text-white" asp-controller="ActiveConfigurations" asp-action="QueryActiveConfig">Active Configurations</a>
+</p>
+    <table class="table table-light table-hover" id="tableID">
+        <thead class="thead text-white" style="background-color: #810c47;">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Build)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.OSName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Platform)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Uname)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DateAdd)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Manager)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AgentId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Version)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Group)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Ip)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Node_name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Build)                
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OSName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Platform)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Uname)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DateAdd)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Manager)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AgentId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Version)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Group)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Ip)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Node_name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                <a asp-action="Details" class="badge bg-primary text-white" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" class="badge bg-primary text-white" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

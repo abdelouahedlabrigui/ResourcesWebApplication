@@ -1,0 +1,249 @@
+@model ResourcesWebApplication.Models.Games.TwoPlayers.Strategy
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Strategy: |  <input  type="text" id="currentTimeInput" class="form-control-plaintext bg-dark text-white" readonly/></h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form >
+            <div class="row">
+                <div class="col">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="FthPlayerID" class="control-label"></label>
+                        <select asp-for="FthPlayerID"  name="" id="idDropdown1" class="form-control-plaintext bg-dark text-white"></select>
+                        @* <input asp-for="FthPlayerID" class="form-control"  autocomplete="off" spellcheck="false" /> *@
+                        <span asp-validation-for="FthPlayerID" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label asp-for="SndPlayerID" class="control-label"></label>
+                        <select asp-for="SndPlayerID"  name="" id="idDropdown2" class="form-control-plaintext bg-dark text-white"></select>
+                        @* <input asp-for="SndPlayerID" class="form-control"  autocomplete="off" spellcheck="false" /> *@
+                        <span asp-validation-for="SndPlayerID" class="text-danger"></span>
+                    </div>
+                </div>
+            </div> 
+            <hr>           
+            <div class="form-group">
+                <label asp-for="FthPlayerStrategy" class="control-label"></label>
+                <input asp-for="FthPlayerStrategy" class="form-control" autocomplete="off" spellcheck="false" id="fthPlayerStratagy" type="number" />
+                <span asp-validation-for="FthPlayerStrategy" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SndPlayerStrategy" class="control-label"></label>
+                <input asp-for="SndPlayerStrategy" id="sndPlayerStrategy" class="form-control" autocomplete="off" spellcheck="false" type="number" />
+                <span asp-validation-for="SndPlayerStrategy" class="text-danger"></span>
+            </div>
+            @* <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div> *@
+        </form>
+    </div>
+    <div class="col-mb-4">
+        <table class="table bg-white text-dark">
+            <thead class="table bg-dark text-white">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                </tr>
+            </thead>
+            <tbody id="playerTableBody">
+
+            </tbody>
+        </table>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h4>Players Preferences.</h4> | <button class="btn bg-white text-dark" onclick="addStrategies()">Add</button> | <button class="btn bg-white text-dark" onclick="postData()">Fetch</button> 
+            </div>
+            <div class="card-body">
+                <table class="table bg-white text-dark" id="strategiesTable">
+                    <thead class="table bg-dark text-white">
+                        <tr>
+                            <th>Player ID 1</th>
+                            <th>Player ID 2</th>
+                            <th>Strategy 1</th>
+                            <th>Strategy 2</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer">
+                <div class="form-group">
+                    <pre id="createMessageError"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+    function addStrategies()
+    {
+        var idDropdown1 = document.getElementById('idDropdown1');
+        var idDropdown2 = document.getElementById('idDropdown2');
+
+        var fthPlayerStrategy = document.getElementById('fthPlayerStratagy');
+        var sndPlayerStrategy = document.getElementById('sndPlayerStrategy');
+        if(idDropdown1 && idDropdown2 && fthPlayerStrategy && sndPlayerStrategy)
+        {
+            var tableBody = document.querySelector('#strategiesTable tbody');
+            var row = tableBody.insertRow();
+
+            var idDropdown1Cell = row.insertCell(0);
+            var idDropdown2Cell = row.insertCell(1);
+            var fthPlayerStrategyCell = row.insertCell(2);
+            var sndPlayerStrategyCell = row.insertCell(3);
+
+            idDropdown1Cell.textContent = idDropdown1.value.toString();
+            idDropdown2Cell.textContent = idDropdown2.value.toString();
+            fthPlayerStrategyCell.textContent = fthPlayerStrategy.value.toString();
+            sndPlayerStrategyCell.textContent = sndPlayerStrategy.value.toString();
+            @* console.log(`${idDropdown1.value} | ${idDropdown2.value} | ${fthPlayerStratagy.value}  | ${sndPlayerStrategy.value}`); *@
+            var actionCell = row.insertCell(4);
+            var deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.addEventListener('click', function(){
+                tableBody.removeChild(row);
+            });
+            actionCell.appendChild(deleteButton);
+        }
+    }
+    function postData()
+    {
+        var tableRows = document.querySelectorAll('#strategiesTable tbody tr');
+        var dataToSend = [];
+
+
+        tableRows.forEach(row => {
+            var idDropdown1 = row.cells[0].textContent.toString();
+            var idDropdown2 = row.cells[1].textContent.toString();
+            var fthPlayerStrategy = row.cells[2].textContent.toString();
+            var sndPlayerStrategy = row.cells[3].textContent.toString();
+            
+            var rowData = {
+                FthPlayerID: idDropdown1,
+                SndPlayerID: idDropdown2,
+                FthPlayerStrategy: fthPlayerStrategy,
+                SndPlayerStrategy: sndPlayerStrategy,
+            };
+            dataToSend.push(rowData);            
+            console.log(rowData);
+        });
+
+        fetch('/TwoPlayersStrategies/PostStrategies', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dataToSend)
+        })
+        .then(response => {
+            if(!response.ok)
+            {
+                throw new Error('Network response was not ok.');
+            } else if (response.ok)
+            {
+                @* window.location.href = '/TwoPlayersStrategies'; *@
+            } else {
+                return response.json();
+            }
+        })
+        .catch(error => {
+            document.getElementById('createMessageError').innerHTML = `Error sending data: ${error}`;
+        })
+    }
+    function populateDropdown() {
+        fetch('/TwoPlayersStrategies/GetPlayersID') // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const dropdown1 = document.getElementById('idDropdown1');
+                const dropdown2 = document.getElementById('idDropdown2');
+                data.forEach(id => {
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.textContent = id;
+                    dropdown1.appendChild(option);
+                });
+                data.forEach(id => {
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.textContent = id;
+                    dropdown2.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    function populateTable() {
+        fetch('/TwoPlayersStrategies/GetPlayers') // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const tableBody = document.getElementById('playerTableBody');
+                data.forEach(player => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = player.id;
+                    row.insertCell().textContent = player.name;
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+
+    window.onload = function()
+    {
+        populateDropdown();
+        populateTable();
+    }
+    function updateCurrentTime()
+    {
+        var currentTimeInput = document.getElementById('currentTimeInput');
+        var currentTime = new Date();
+        var hours = currentTime.getHours();
+        var minutes = currentTime.getMinutes();
+        var seconds = currentTime.getSeconds();
+        var milliseconds = currentTime.getMilliseconds();
+
+        var formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}.${padZero(milliseconds, 3)}`;
+        currentTimeInput.value = formattedTime;
+    }
+    function padZero(number, width = 2)
+    {
+        var str = number.toString();
+        while(str.length < width)
+        {
+            str = '0' + str;
+        }
+        return str;
+    }
+    setInterval(updateCurrentTime, 100);
+    updateCurrentTime();
+</script>

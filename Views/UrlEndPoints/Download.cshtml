@@ -1,0 +1,236 @@
+@model ResourcesWebApplication.Models.Endpoints.EndPoint
+
+<style>
+    thead {
+        background-color: rgb(105, 105, 196);        
+        font-style: italic;
+        font-size: medium;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+    tbody {
+        background-color:  rgb(255, 239, 247);
+        font-style: oblique;
+        font-size: large;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+</style>
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Dataset</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            <label class="control-label">Local Address e.g: to save .csv file.</label>
+            <input class="form-control-plaintext" id="addressId" autocomplete="off" spellcheck="false"/>
+        </div>
+        <div class="form-group">
+            <label asp-for="Url" class="control-label"></label>
+            <input asp-for="Url" class="form-control-plaintext" id="urlId" autocomplete="off" spellcheck="false"/>
+            <span asp-validation-for="Url" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="CreatedAT" class="control-label"></label>
+            <input asp-for="CreatedAT" id="CreatedAT" type="datetime" class="form-control" autocomplete="off" readonly />
+            <span asp-validation-for="CreatedAT" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Create" class="btn btn-dark text-white btn-block btn-lg" id="btnId" onclick="loadDatasetMetadataAndEndpoints()" />
+        </div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <strong>EndPoints & Fetched Datasets.</strong>
+            </div>
+            <div class="card-body">
+                <strong>Dataset Metadata.</strong>
+                <hr>
+                <table class="table">
+                    <thead class="table text-white">
+                        <tr>
+                            <th>Id</th>
+                            <th>Name</th>
+                            <th>LastWriteTime</th>
+                            <th>LastAccessTime</th>
+                            <th>Length</th>
+                            <th>CreatedAT</th>
+                        </tr>
+                    </thead>
+                    <tbody id="datasetMetadataTableBody" class="table text-dark">
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-body">
+                <strong>Endpoints.</strong>
+                <hr>
+                <table class="table">
+                    <thead class="table text-white">
+                        <tr>
+                            <th>Id</th>
+                            <th>Url</th>
+                            <th>CreatedAT</th>
+                        </tr>
+                    </thead>
+                    <tbody id="endPointTableBody" class="table text-dark">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>        
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+    function setCreateAT()
+    {
+        var createdATInput = document.getElementById('CreatedAT');
+        var currentDate = new Date();
+        createdATInput.value = currentDate.toISOString();
+    }
+    setCreateAT();
+    function loadEndPoints()
+    {
+        const tableBody = document.getElementById('endPointTableBody');
+        fetch(`/UrlEndPoints/GetEndpoints`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                else if(response.ok)
+                {
+                    return response.json();
+                }
+            })
+            .then(data => {
+                console.log(data);
+                data.forEach(endpoint => {
+                    const row = tableBody.insertRow();                    
+                    row.insertCell().textContent = endpoint.id;
+                    row.insertCell().textContent = endpoint.url;
+                    row.insertCell().textContent = endpoint.createdAT;
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    loadEndPoints();
+    function loadDatasets()
+    {
+        const tableBody = document.getElementById('datasetMetadataTableBody');
+        fetch(`/UrlEndPoints/GetDatasets`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                else if(response.ok)
+                {
+                    return response.json();
+                }
+            })
+            .then(data => {
+                console.log(data);
+                data.forEach(dataset => {
+                    const row = tableBody.insertRow();                    
+                    row.insertCell().textContent = dataset.id;
+                    row.insertCell().textContent = dataset.name;
+                    row.insertCell().textContent = dataset.lastWriteTime;
+                    row.insertCell().textContent = dataset.lastAccessTime;
+                    row.insertCell().textContent = dataset.length;
+                    row.insertCell().textContent = dataset.createdAT;
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    loadDatasets();
+    function loadDatasetMetadataAndEndpoints()
+    {
+        
+    }
+    const btnId = document.getElementById('btnId');
+    btnId.addEventListener('click', () => {
+        btnId.disabled = true;
+
+        postGETEndPointRequests();        
+        postDatasetMetadataAndShowDocuments();
+        
+    });
+    
+    function postGETEndPointRequests()
+    {
+        const url = document.getElementById('urlId');
+        const createdAT = document.getElementById('CreatedAT');
+        const tableBody = document.getElementById('endPointTableBody');
+        if(url && createdAT)
+        {
+            fetch(`/UrlEndPoints/SaveEndPoint?url=${encodeURIComponent(url.value)}&createdAT=${encodeURIComponent(createdAT.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    data.forEach(endpoint => {
+                        const row = tableBody.insertRow();                    
+                        row.insertCell().textContent = endpoint.id;
+                        row.insertCell().textContent = endpoint.url;
+                        row.insertCell().textContent = endpoint.createdAT;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function postDatasetMetadataAndShowDocuments()
+    {
+
+        const url = document.getElementById('urlId');      
+        const address = document.getElementById('addressId');  
+        const tableBody = document.getElementById('datasetMetadataTableBody');
+        if(url && address)
+        {
+            fetch(`/UrlEndPoints/SaveDataset?url=${encodeURIComponent(url.value)}&address=${encodeURIComponent(address.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    data.forEach(dataset => {
+                        const row = tableBody.insertRow();                    
+                        row.insertCell().textContent = dataset.id;
+                        row.insertCell().textContent = dataset.name;
+                        row.insertCell().textContent = dataset.lastWriteTime;
+                        row.insertCell().textContent = dataset.lastAccessTime;
+                        row.insertCell().textContent = dataset.length;
+                        row.insertCell().textContent = dataset.createdAT;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+</script>

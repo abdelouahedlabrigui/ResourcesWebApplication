@@ -1,0 +1,66 @@
+@model ResourcesWebApplication.Models.Games.DualPlayers
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>DualPlayers</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="FthStrategy" class="control-label"></label>
+                <input asp-for="FthStrategy" class="form-control" />
+                <span asp-validation-for="FthStrategy" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SndStrategy" class="control-label"></label>
+                <input asp-for="SndStrategy" class="form-control" />
+                <span asp-validation-for="SndStrategy" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Sum" class="control-label"></label>
+                <input asp-for="Sum" class="form-control" />
+                <span asp-validation-for="Sum" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FthPreference" class="control-label"></label>
+                <input asp-for="FthPreference" class="form-control" />
+                <span asp-validation-for="FthPreference" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SndPreference" class="control-label"></label>
+                <input asp-for="SndPreference" class="form-control" />
+                <span asp-validation-for="SndPreference" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FthUtility" class="control-label"></label>
+                <input asp-for="FthUtility" class="form-control" />
+                <span asp-validation-for="FthUtility" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SndUtility" class="control-label"></label>
+                <input asp-for="SndUtility" class="form-control" />
+                <span asp-validation-for="SndUtility" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedAT" class="control-label"></label>
+                <input asp-for="CreatedAT" class="form-control" />
+                <span asp-validation-for="CreatedAT" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

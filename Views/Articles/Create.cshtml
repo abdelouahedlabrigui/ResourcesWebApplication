@@ -1,0 +1,508 @@
+@model ResourcesWebApplication.Models.Forensics.Article
+<style>
+    thead {
+        background-color:rgb(201, 15, 108); 
+        color: rgb(253, 246, 250);     
+        font-style: italic;
+        font-size: medium;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+
+    tbody {
+        background-color:  rgb(253, 246, 250);
+        color: rgb(201, 15, 108);
+        font-style: oblique;
+        font-size: medium;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+    
+</style>
+@{
+    ViewData["Title"] = "Create";
+}
+@{
+    string[] tables = {"Article", "Data Source"};
+}
+
+<h1>Create</h1>
+
+<h4>Article</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            <label class="control-label">Title</label>
+            <input id="idTitle" class="form-control-plaintext lead" autocomplete="off" spellcheck="false" />
+        </div>
+        <div class="form-group">
+            <label class="control-label">Url</label>
+            <input id="idUrl" class="form-control-plaintext lead" autocomplete="off" spellcheck="false" />
+        </div>
+        <div class="form-group">
+            <label class="control-label">CreatedAT</label>
+            <input id="idCreatedAT" class="form-control-plaintext lead" readonly />
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Create" class="btn btn-dark text-white btn-lg btn-block" onclick="addArticle()" />
+        </div>
+        <hr style="height: 1%; background-color: rgba(150, 98, 150, 0.753)">
+        <div class="row">
+            <div class="col form-group">
+                <label for="Article ID">Article ID</label>
+                <select id="idArticle" class="form-control-plaintext bg-dark text-white lead" onchange="getArticleByID()"></select>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label class="control-label">CreateAT</label>
+                    <input id="idDataCreatedAT" class="form-control-plaintext lead" readonly />
+                </div>                 
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <input type="submit" value="Add Data Address" class="btn btn-dark text-white btn-lg btn-block" onclick="addDataAddresses()" />
+                </div>
+            </div>
+        </div>
+        <hr style="height: 1%; background-color: rgba(150, 98, 150, 0.753)">
+        <div class="form-group">
+            <label class="control-label">Name</label>
+            <input id="idDataTitle" class="form-control-plaintext lead" autocomplete="off" spellcheck="false" />
+        </div>  
+        <hr style="height: 1%; background-color: rgba(150, 98, 150, 0.753)">
+        <div class="form-group">
+            <label class="control-label">Url</label>
+            <input id="idDataUrl" class="form-control-plaintext lead" autocomplete="off" spellcheck="false" />
+        </div>
+    </div>
+    <div class="col">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="Tables">Tables.</label>
+                    <select id="idSelectTable" class="form-control-plaintext bg-dark text-white lead" onchange="selectedTable()">
+                        @foreach(string table in tables)
+                        {
+                            <option value="@table">@table</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="Tables">Data Address By ID.</label>
+                    <select id="idDataAddressByID" class="form-control-plaintext bg-dark text-white lead" onchange="getDataAddressByID()"></select>
+                </div>
+            </div>
+            <div class="col">
+                <table class="table table-stripped" id="tableID">
+                    
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>        
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+    function getArticleByID()
+    {
+        const id = document.getElementById('idArticle');
+        const tableBody = document.querySelector('#tableID tbody');
+        tableBody.innerHTML = '';
+        if(id.value)
+        {
+            console.log(id.value);
+            fetch(`/Articles/GetArticleById?id=${encodeURIComponent(id.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {   
+                    const th = tableBody.insertRow();
+                    th.insertCell().textContent = 'Id';
+                    th.insertCell().textContent = 'Title';
+                    th.insertCell().textContent = 'Created AT';
+                    th.insertCell().textContent = 'Action';   
+
+                    data.forEach(article => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = article.id;
+                        const url = document.createElement('a');
+                        url.href = article.url;
+                        url.textContent = article.title;
+                        row.insertCell().appendChild(url);
+                        row.insertCell().textContent = article.createdAT;
+                        const edit = document.createElement('a');
+                        edit.href = `/Articles/Edit/${article.id}`;
+                        edit.textContent = 'Edit';
+                        const details = document.createElement('a');
+                        details.href = `/Articles/Details/${article.id}`;
+                        details.textContent = 'Details';
+                        const deleteItem = document.createElement('a');
+                        deleteItem.href = `/Articles/Delete/${article.id}`;
+                        deleteItem.textContent = 'Delete';
+                        const actionCell = row.insertCell();
+                        actionCell.appendChild(edit);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(details);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(deleteItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function getDataAddressByID()
+    {
+        const id = document.getElementById('idDataAddressByID');
+        const tableBody = document.querySelector('#tableID tbody');
+        tableBody.innerHTML = '';
+        if(id.value)
+        {
+            fetch(`/Articles/GetDataAddressById?id=${encodeURIComponent(id.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {   
+                    const th = tableBody.insertRow();
+                    th.insertCell().textContent = 'Id';
+                    th.insertCell().textContent = 'Article Id';
+                    th.insertCell().textContent = 'Name';
+                    th.insertCell().textContent = 'Created AT';  
+                    th.insertCell().textContent = 'Action';            
+                    data.forEach(dataAddress => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = dataAddress.id;
+                        row.insertCell().textContent = dataAddress.articleID;
+                        const url = document.createElement('a');
+                        url.href = dataAddress.url;
+                        url.textContent = dataAddress.name;
+                        row.insertCell().appendChild(url);
+                        row.insertCell().textContent = dataAddress.createdAT;
+                        const edit = document.createElement('a');
+                        edit.href = `/Articles/EditDataAddress/${dataAddress.id}`;
+                        edit.textContent = 'Edit';
+                        const details = document.createElement('a');
+                        details.href = `/Articles/DetailsDataAddress/${dataAddress.id}`;
+                        details.textContent = 'Details';
+                        const deleteItem = document.createElement('a');
+                        deleteItem.href = `/Articles/DeleteDataAddress/${dataAddress.id}`;
+                        deleteItem.textContent = 'Delete';
+                        const actionCell = row.insertCell();
+                        actionCell.appendChild(edit);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(details);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(deleteItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function getDataAddressIds()
+    {
+        const dropdown1 = document.getElementById('idDataAddressByID');
+        dropdown1.innerHTML = "";
+        fetch(`/Articles/GetDataAddressIds`) // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {                
+                data.forEach(id => {
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.textContent = id;
+                    dropdown1.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    getDataAddressIds();
+    function getArticleIds()
+    {
+        const dropdown1 = document.getElementById('idArticle');
+        dropdown1.innerHTML = "";
+        fetch(`/Articles/GetArticlesIds`) // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {                
+                data.forEach(id => {
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.textContent = id;
+                    dropdown1.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    getArticleIds();
+    function getArticles()
+    {
+        @* const tableBody = document.getElementById('articlesTableBody'); *@
+        const tableBody = document.querySelector('#tableID tbody');
+        tableBody.innerHTML = '';
+        
+        fetch(`/Articles/ArticleIndex`) // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => { 
+                const th = tableBody.insertRow();
+                th.insertCell().textContent = 'Id';
+                th.insertCell().textContent = 'Title';
+                th.insertCell().textContent = 'Created AT';
+                th.insertCell().textContent = 'Action';
+
+                data.forEach(article => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = article.id;
+                    const url = document.createElement('a');
+                    url.href = article.url;
+                    url.textContent = article.title;
+                    row.insertCell().appendChild(url);
+                    row.insertCell().textContent = article.createdAT;
+                    const edit = document.createElement('a');
+                    edit.href = `/Articles/Edit/${article.id}`;
+                    edit.textContent = 'Edit';
+                    const details = document.createElement('a');
+                    details.href = `/Articles/Details/${article.id}`;
+                    details.textContent = 'Details';
+                    const deleteItem = document.createElement('a');
+                    deleteItem.href = `/Articles/Delete/${article.id}`;
+                    deleteItem.textContent = 'Delete';
+                    const actionCell = row.insertCell();
+                    actionCell.appendChild(edit);
+                    actionCell.appendChild(document.createTextNode(' | '));
+                    actionCell.appendChild(details);
+                    actionCell.appendChild(document.createTextNode(' | '));
+                    actionCell.appendChild(deleteItem);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    getArticles();
+    function getDataAddresses()
+    {
+        @* const tableBody = document.getElementById('dataAddressesTableBody'); *@
+        const tableBody = document.querySelector('#tableID tbody');
+        tableBody.innerHTML = '';       
+        fetch(`/Articles/DataIndex`) // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {                 
+                
+                const th = tableBody.insertRow();
+                th.insertCell().textContent = 'Id';
+                th.insertCell().textContent = 'Article Id';
+                th.insertCell().textContent = 'Name';
+                th.insertCell().textContent = 'Created AT';
+                th.insertCell().textContent = 'Action';
+                
+                data.forEach(dataAddress => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = dataAddress.id;
+                    row.insertCell().textContent = dataAddress.articleID;
+                    const url = document.createElement('a');
+                    url.href = dataAddress.url;
+                    url.textContent = dataAddress.name;
+                    row.insertCell().appendChild(url);
+                    row.insertCell().textContent = dataAddress.createdAT;
+                    const edit = document.createElement('a');
+                    edit.href = `/Articles/EditDataAddress/${dataAddress.id}`;
+                    edit.textContent = 'Edit';
+                    const details = document.createElement('a');
+                    details.href = `/Articles/DetailsDataAddress/${dataAddress.id}`;
+                    details.textContent = 'Details';
+                    const deleteItem = document.createElement('a');
+                    deleteItem.href = `/Articles/DeleteDataAddress/${dataAddress.id}`;
+                    deleteItem.textContent = 'Delete';
+                    const actionCell = row.insertCell();
+                    actionCell.appendChild(edit);
+                    actionCell.appendChild(document.createTextNode(' | '));
+                    actionCell.appendChild(details);
+                    actionCell.appendChild(document.createTextNode(' | '));
+                    actionCell.appendChild(deleteItem);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    @* getDataAddresses(); *@
+    function selectedTable()
+    {
+        const idSelectTable = document.getElementById('idSelectTable');
+        if(idSelectTable.value == "Article")
+        {
+            getArticles();
+        } else if (idSelectTable.value == "Data Source")
+        {
+            getDataAddresses(); 
+        }
+    }
+    function addDataAddresses()
+    {
+        const idArticle = document.getElementById('idArticle');
+        const idDataTitle = document.getElementById('idDataTitle');
+        const idDataUrl = document.getElementById('idDataUrl');
+        const idDataCreatedAT = document.getElementById('idDataCreatedAT');
+        const tableBody = document.querySelector('#tableID tbody');
+        tableBody.innerHTML = '';
+        if(idArticle.value && idDataTitle.value && idDataUrl.value && idDataCreatedAT.value)
+        {
+            fetch(`/Articles/DataAddressPoster?articleId=${encodeURIComponent(idArticle.value)}&name=${encodeURIComponent(idDataTitle.value)}&url=${encodeURIComponent(idDataUrl.value)}&createdAT=${encodeURIComponent(idDataCreatedAT.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {   
+                    const th = tableBody.insertRow();
+                    th.insertCell().textContent = 'Id';
+                    th.insertCell().textContent = 'Article Id';
+                    th.insertCell().textContent = 'Name';
+                    th.insertCell().textContent = 'Created AT';  
+                    th.insertCell().textContent = 'Action';            
+                    data.forEach(dataAddress => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = dataAddress.id;
+                        row.insertCell().textContent = dataAddress.articleID;
+                        const url = document.createElement('a');
+                        url.href = dataAddress.url;
+                        url.textContent = dataAddress.name;
+                        row.insertCell().appendChild(url);
+                        row.insertCell().textContent = dataAddress.createdAT;
+                        const edit = document.createElement('a');
+                        edit.href = `/Articles/EditDataAddress/${dataAddress.id}`;
+                        edit.textContent = 'Edit';
+                        const details = document.createElement('a');
+                        details.href = `/Articles/DetailsDataAddress/${dataAddress.id}`;
+                        details.textContent = 'Details';
+                        const deleteItem = document.createElement('a');
+                        deleteItem.href = `/Articles/DeleteDataAddress/${dataAddress.id}`;
+                        deleteItem.textContent = 'Delete';
+                        const actionCell = row.insertCell();
+                        actionCell.appendChild(edit);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(details);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(deleteItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function addArticle()
+    {
+        const idTitle = document.getElementById('idTitle');
+        const idUrl = document.getElementById('idUrl');
+        const idCreatedAT = document.getElementById('idCreatedAT');        
+        const tableBody = document.querySelector('#tableID tbody');
+        tableBody.innerHTML = '';
+        if(idTitle.value && idUrl.value && idCreatedAT.value)
+        {
+            fetch(`/Articles/ArticlePoster?title=${encodeURIComponent(idTitle.value)}&url=${encodeURIComponent(idUrl.value)}&createdAT=${encodeURIComponent(idCreatedAT.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {    
+                    const th = tableBody.insertRow();
+                    th.insertCell().textContent = 'Id';
+                    th.insertCell().textContent = 'Title';
+                    th.insertCell().textContent = 'Created AT';     
+                    th.insertCell().textContent = 'Action';        
+                    data.forEach(article => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = article.id;
+                        const url = document.createElement('a');
+                        url.href = article.url;
+                        url.textContent = article.title;
+                        row.insertCell().appendChild(url);
+                        row.insertCell().textContent = article.createdAT;
+                        const edit = document.createElement('a');
+                        edit.href = `/Articles/Edit/${article.id}`;
+                        edit.textContent = 'Edit';
+                        const details = document.createElement('a');
+                        details.href = `/Articles/Details/${article.id}`;
+                        details.textContent = 'Details';
+                        const deleteItem = document.createElement('a');
+                        deleteItem.href = `/Articles/Delete/${article.id}`;
+                        deleteItem.textContent = 'Delete';
+                        const actionCell = row.insertCell();
+                        actionCell.appendChild(edit);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(details);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(deleteItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function updateCurrentTime()
+    {
+        var currentTimeInput = document.getElementById('idCreatedAT');
+        const idDataCreatedAT = document.getElementById('idDataCreatedAT');
+        var currentTime = new Date();
+        var hours = currentTime.getHours();
+        var minutes = currentTime.getMinutes();
+        var seconds = currentTime.getSeconds();
+        var milliseconds = currentTime.getMilliseconds();
+
+        var formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}.${padZero(milliseconds, 3)}`;
+        currentTimeInput.value = formattedTime;
+        idDataCreatedAT.value = formattedTime;
+    }
+    function padZero(number, width = 2)
+    {
+        var str = number.toString();
+        while(str.length < width)
+        {
+            str = '0' + str;
+        }
+        return str;
+    }
+    setInterval(updateCurrentTime, 100);
+    updateCurrentTime();
+</script>

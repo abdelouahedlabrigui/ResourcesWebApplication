@@ -1,0 +1,61 @@
+@model IEnumerable<ResourcesWebApplication.Models.Forensics.Data>
+<style>
+    thead {
+        background-color:#ff2c96;        
+        font-style: italic;
+        font-size: medium;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+
+    tbody {
+        background-color:  rgb(253, 246, 250);
+        font-style: oblique;
+        font-size: medium;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+</style>
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ArticleID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedAT)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ArticleID)
+            </td>
+            <td>
+                <a href="@Html.DisplayFor(modelItem => item.Url)" class="text-danger">@Html.DisplayFor(modelItem => item.Name)</a>                
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedAT)
+            </td>
+            <td>
+                <a asp-action="EditDataAddress" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="DetailsDataAddress" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="DeleteDataAddress" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

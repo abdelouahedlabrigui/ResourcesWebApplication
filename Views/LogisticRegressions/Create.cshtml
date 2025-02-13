@@ -1,0 +1,149 @@
+@model ResourcesWebApplication.Models.MachineLearning.LogisticRegression
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>LogisticRegression</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label class="control-label">File Name</label>
+                    <input asp-for="FileName" class="form-control-plaintext" spellcheck="false" autocomplete="off" id="fileNameId" />
+                </div>
+                    </div>
+                    <div class="col">
+                <div class="form-group">
+                    <label class="control-label">Title</label>
+                    <input asp-for="Title" class="form-control-plaintext" spellcheck="false" autocomplete="off" id="titleId" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label class="control-label">Age Values. ex: ({1:37, 2:29, 3:24})</label>
+                    <input asp-for="AgeValues" class="form-control-plaintext" spellcheck="false" autocomplete="off" id="ageValuesId" />
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label class="control-label">Drop Column. ex: Cabin</label>
+                    <input asp-for="DropColumn" class="form-control-plaintext" spellcheck="false" autocomplete="off" id="dropColumnId" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label class="control-label">Drop Columns. ex: ['Sex', 'Embarked', 'Name', 'Ticket']</label>
+                    <input asp-for="DropColumns" class="form-control-plaintext" spellcheck="false" autocomplete="off" id="dropColumnsId" />
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label class="control-label">Dummy Columns. ex: ['Sex', 'Embarked']</label>
+                    <input asp-for="DummyColumns" class="form-control-plaintext" spellcheck="false" autocomplete="off" id="dummyColumnsId" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label class="control-label">Target Column. ex: Survived</label>
+                    <input asp-for="TargetColumn" class="form-control-plaintext" spellcheck="false" autocomplete="off" id="targetColumnId" />
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label class="control-label">Age PClass Columns. ex: ['Age','Pclass']</label>
+                    <input asp-for="AgePClassColumns" class="form-control-plaintext" spellcheck="false" autocomplete="off" id="agePClassColumnsId" />
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Create" class="btn btn-dark text-white btn-lg btn-block" onclick="postAndGetClassificationReport()" />
+        </div>
+    </div>
+    <div class="col">
+        <table class="table bg-dark text-white">
+            <thead class="table bg-danger text-white lead">
+                <tr>
+                    <th>Id</th>
+                    <th>Dataset Name</th>
+                    <th>Label</th>
+                    <th>Precision</th>
+                    <th>Recall</th>
+                    <th>F1 score</th>
+                    <th>Support</th>
+                    <th>Created AT</th>
+                </tr>
+            </thead>
+            <tbody id="classificationReportTableBody">
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+    function postAndGetClassificationReport()
+    {
+        const fileName = document.getElementById('fileNameId');
+        const title = document.getElementById('titleId');
+        const ageValues = document.getElementById('ageValuesId');
+        const dropColumn = document.getElementById('dropColumnId');
+        const dropColumns = document.getElementById('dropColumnsId');
+        const dummyColumns = document.getElementById('dummyColumnsId');
+        const targetColumn = document.getElementById('targetColumnId');
+        const agePClassColumns = document.getElementById('agePClassColumnsId');
+        const tableBody = document.getElementById('classificationReportTableBody');
+
+        tableBody.innerHTML = '';
+        if(fileName.value && title.value && ageValues.value && dropColumn.value && dropColumns.value && dummyColumns.value &&   targetColumn.value &&  agePClassColumns.value)
+        {
+            fetch(`/LogisticRegressions/LogisticRegressionPoster?fileName=${encodeURIComponent(fileName.value)}&title=${encodeURIComponent(title.value)}&ageValues=${encodeURIComponent(ageValues.value)}&dropColumn=${encodeURIComponent(dropColumn.value)}&dropColumns=${encodeURIComponent(dropColumns.value)}&dummyColumns=${encodeURIComponent(dummyColumns.value)}&targetColumn=${encodeURIComponent(targetColumn.value)}&agePClassColumns=${encodeURIComponent(agePClassColumns.value)}`) // Replace 'ControllerName' with the name of your controller
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {                    
+                    data.forEach(item => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = item.id;
+                        row.insertCell().textContent = item.datasetName;
+                        row.insertCell().textContent = item.label;
+                        row.insertCell().textContent = item.precision;
+                        row.insertCell().textContent = item.recall;
+                        row.insertCell().textContent = item.f1Score;
+                        row.insertCell().textContent = item.support;
+                        row.insertCell().textContent = item.createdAT;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+        setTimeout(() => {
+            fileName.value = '';
+            title.value = '';
+            ageValues.value = '';
+            dropColumn.value = '';
+            dropColumns.value = '';
+            dummyColumns.value = '';
+            targetColumn.value = '';
+            agePClassColumns.value = '';
+        }, 1900);
+    }
+</script>

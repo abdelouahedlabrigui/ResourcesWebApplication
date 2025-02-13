@@ -1,0 +1,64 @@
+@model ResourcesWebApplication.Models.Servers.Users.User
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>User</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h4>Create Rocky Virtual Machine User.</h4>
+            </div>
+            <div class="card-body bg-light">
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="Name" class="control-label"></label>
+                        <input asp-for="Name" class="form-control-plaintext bg-light text-dark" spellcheck="false" autocomplete="off" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="Password1" class="control-label"></label>
+                                <input asp-for="Password1" type="password"  class="form-control-plaintext bg-light text-dark" />
+                                <span asp-validation-for="Password1" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="Password2" class="control-label"></label>
+                                <input asp-for="Password2" type="password"  class="form-control-plaintext bg-light text-dark" />
+                                <span asp-validation-for="Password2" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="CreatedAT" class="control-label"></label>
+                                <input asp-for="CreatedAT" class="form-control-plaintext bg-light text-dark" readonly spellcheck="false" />
+                                <span asp-validation-for="CreatedAT" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <input type="submit" value="Create" class="btn btn-dark text-white btn-lg btn-block" />
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

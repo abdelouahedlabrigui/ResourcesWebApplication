@@ -1,0 +1,151 @@
+@{
+    ViewData["Title"] = "Linguistic Features";
+}
+
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h1>Linguistic Features</h1>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="control-label">Plain Text e.g. (*.txt)</label>
+                    <input id="plaintextFileName" class="form-control-plaintext" autocomplete="off" spellcheck="false" />
+                </div>            
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-lg btn-block bg-white text-dark" id="loadDatasetMetadataAndShowDocumentsBtnId" onclick="loadDatasetMetadataAndShowDocuments(event)">Generate</button>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                <h2>Data Shapes.</h2>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Tables</th>
+                                    <th>N° Rows</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Parts Of Speech</td>
+                                    <td><strong id="idPartsOfSpeech"></strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Noun Chunks</td>
+                                    <td><strong id="idNounChunks"></strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Parse Tree</td>
+                                    <td><strong id="idParseTree"></strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Local Tree</td>
+                                    <td><strong id="idLocalTree"></strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Entity Recognition</td>
+                                    <td><strong id="idEntityRecognition"></strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>                
+                </div>
+                <div class="col">
+                    <div class="card-body">
+                        <table class="table bg-dark text-white">
+                            <thead class="table bg-danger text-white lead">
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Name</th>
+                                    <th>LastWriteTime</th>
+                                    <th>LastAccessTime</th>
+                                    <th>Length</th>
+                                    <th>CreatedAT</th>
+                                </tr>
+                            </thead>
+                            <tbody id="datasetMetadataTableBody">
+
+                            </tbody>
+                        </table>
+                    </div>                
+                </div>
+            </div>                        
+        </div>
+    </div>
+</div>
+<script>
+    function getTableShapes(endpoint, id)
+    {
+        const cell = document.getElementById(id);
+        fetch(`/Documents/${endpoint}`) // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {                
+                data.forEach(count => {
+                    cell.innerHTML = count;
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    getTableShapes("POSTPartsOfSpeech", "idPartsOfSpeech");
+    getTableShapes("POSTNounChunks", "idNounChunks");
+    getTableShapes("POSTParseTree", "idParseTree");
+    getTableShapes("POSTLocalTree", "idLocalTree");
+    getTableShapes("POSTEntityRecognition", "idEntityRecognition");
+
+    function loadDatasetMetadataAndShowDocuments(event)
+    {
+        event.preventDefault();
+
+        document.querySelector('.btn').disabled = true;
+        document.getElementById('loadDatasetMetadataAndShowDocumentsBtnId').disabled = true;
+        const fullAddress = document.getElementById('plaintextFileName');
+        const tableBody = document.getElementById('datasetMetadataTableBody');
+        if(fullAddress.value)
+        {
+            fetch(`/Documents/ExecPythonFrenchLinguisticFeaturesScript?fullAddress=${encodeURIComponent(fullAddress.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const row = tableBody.insertRow();                    
+                    row.insertCell().textContent = data.id;
+                    row.insertCell().textContent = data.name;
+                    row.insertCell().textContent = data.lastWriteTime;
+                    row.insertCell().textContent = data.lastAccessTime;
+                    row.insertCell().textContent = data.length;
+                    row.insertCell().textContent = data.createdAT;
+
+                    document.getElementById('loadDatasetMetadataAndShowDocumentsBtnId').disabled = false;
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                    document.getElementById('loadDatasetMetadataAndShowDocumentsBtnId').disabled = true;
+                });
+            getTableShapes("POSTPartsOfSpeech", "idPartsOfSpeech");
+            getTableShapes("POSTNounChunks", "idNounChunks");
+            getTableShapes("POSTParseTree", "idParseTree");
+            getTableShapes("POSTLocalTree", "idLocalTree");
+            getTableShapes("POSTEntityRecognition", "idEntityRecognition");
+        }
+    }
+</script>

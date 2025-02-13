@@ -1,0 +1,333 @@
+@model ResourcesWebApplication.Models.Devops.ActiveConfiguration
+
+@{
+    ViewData["Title"] = "Active Configuration";
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="text-white">GET: Wazuh Agent by ID.</h5>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="AgentsIds">Agents Ids</label>
+                    <select id="agent_id" class="form-control-plaintext bg-dark text-white lead" style="font-size: large;">
+                        
+                    </select>
+                </div>
+            </div>
+            <div class="card-footer bg-dark">
+                <button class="btn btn block btn-lg bg-white text-dark" onclick="getAgentById()">
+                    GET.
+                </button>
+            </div>
+        </div>
+        <hr style="background-color: black">
+        <div class="card">
+            <div class="card-header bg-dark">
+                <strong class="text-white">Agent Id: </strong> <i id="agentIdValue" class="text-white"></i>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <strong>OS Name: </strong> <i id="oSNameValue"></i>
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Platform: </strong> <i id="platformValue"></i>                                
+                    </div>
+                </div>
+                <hr>
+                <strong>Agent IP: </strong> <i id="ip"></i>
+            </div>
+            <div class="card-footer bg-dark">
+                <strong class="text-white">Name: </strong> <i id="nameValue" class="text-white"></i>
+            </div>
+        </div>
+        <hr style="background-color: black">
+            <div class="card">
+                <div class="card-header bg-dark">
+                    <h5 class="text-white">Active Configuration Requested Json Object</h5>
+                </div>
+                <div class="card-body text-white table-hover form-control-plaintext">
+                    <pre id="activeConfigurationRequestedJsonObject" style="white-space: pre-wrap;"></pre>
+                </div>
+                <div class="card-footer bg-dark">
+                    <strong class="text-white">Date Time: @DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")</strong>
+                </div>
+            </div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="text-white">GET: Configurations & Active Configurations by Component.</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="Components">Components: </label>
+                            <select id="components" class="form-control-plaintext bg-dark text-white lead" style="font-size: large;" onchange="getDataFromActiveConfigurationsEntityByComponent()">
+                                
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="Configurations">Configurations: </label>
+                            <select id="configurations" class="form-control-plaintext bg-dark text-white lead" style="font-size: large;">
+                                
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <table class="bg-white text-dark table-striped table-hover">
+                            <thead class="bg-dark text-white">
+                                <tr>
+                                    <th>Components</th>
+                                    <th>Counts</th>
+                                </tr>
+                            </thead>
+                            <tbody id="componentsCountsTableBody">
+
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col" id="plotContainer">
+
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-dark">
+                <button class="btn btn block btn-lg bg-white text-dark" onclick="getJsonStringForActiveConfiguration()">
+                    Get Json String For Active Configuration.
+                </button>
+            </div>
+        </div>        
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+    function getActiveConfigurationPlotEncoding()
+    {
+        const plotContainer = document.getElementById('plotContainer');
+        plotContainer.innerHTML = '';
+        fetch(`/ActiveConfigurations/GetActiveConfigurationPlotEncoding`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(item => {                    
+                const card = document.createElement('div');
+                card.className = 'card';
+                const cardHeader = document.createElement('div');
+                cardHeader.className = 'card-header bg-dark text-white';
+                cardHeader.innerHTML = `<h3>Active Configuration - Components.</h3> | <strong>Logged AT: @DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")</strong>`;
+                card.appendChild(cardHeader);
+
+                const cardBody = document.createElement('div');
+                cardBody.className = 'card-body shadow-sm bg-dark';
+
+                const img = document.createElement('img');
+                img.src = `data:image/png;base64, ${item.encoding}`;
+                img.alt = 'Plot';
+                cardBody.appendChild(img);
+
+                card.appendChild(cardBody);
+                plotContainer.appendChild(card);
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    getActiveConfigurationPlotEncoding();
+    function getAgentById()
+    {
+        const agent_id = document.getElementById("agent_id");
+        const agentIdValue = document.getElementById('agentIdValue');
+        agentIdValue.innerHTML = "";
+        const oSNameValue = document.getElementById('oSNameValue');
+        oSNameValue.innerHTML = "";
+        const platformValue = document.getElementById('platformValue');
+        platformValue.innerHTML = "";
+        const nameValue = document.getElementById('nameValue');
+        nameValue.innerHTML = "";
+        const ip = document.getElementById('ip');
+        ip.innerHTML = "";
+        if (agent_id)
+        {
+            fetch(`/ActiveConfigurations/GetAgentById?agent_id=${encodeURIComponent(agent_id.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    data.forEach(item => {
+                        agentIdValue.innerHTML = item.agentId;
+                        oSNameValue.innerHTML = item.osName;
+                        ip.innerHTML = item.ip;
+                        platformValue.innerHTML = item.platform;
+                        nameValue.innerHTML = item.name;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                }); 
+        }
+    }
+    function getAgentsIds()
+    {
+        const agent_id = document.getElementById("agent_id");
+        agent_id.innerHTML = "";
+        fetch(`/ActiveConfigurations/GetAgentsIds`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                else if(response.ok)
+                {
+                    return response.json();
+                }
+            })
+            .then(data => {
+                console.log(data);
+                data.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item;
+                    option.textContent = item;
+                    agent_id.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            }); 
+    }
+    getAgentsIds();
+    function jsonToHtml(json) {
+        let html = '<ul>';
+        for (let key in json) {
+            if (typeof json[key] === 'object' && json[key] !== null) {
+                html += `<li class='form-control-plaintext table-hover'>${key}: ${jsonToHtml(json[key])}</li>`;
+            } else {
+                html += `<li class='form-control-plaintext table-hover'>${key}: ${json[key]}</li>`;
+            }
+        }
+        html += '</ul>';
+        return html;
+    }
+
+    function getJsonStringForActiveConfiguration() {
+        const components = document.getElementById("components");
+        const configurations = document.getElementById("configurations");
+        const agent_id = document.getElementById('agent_id');
+        const activeConfigurationRequestedJsonObject = document.getElementById('activeConfigurationRequestedJsonObject');
+        activeConfigurationRequestedJsonObject.innerHTML = "";
+
+        if (agent_id && configurations && components) {
+            fetch(`/ActiveConfigurations/GetJsonStringForActiveConfiguration?agent_id=${encodeURIComponent(agent_id.value)}&component=${encodeURIComponent(components.value)}&configuration=${encodeURIComponent(configurations.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                    const htmlString = jsonToHtml(data);
+                    activeConfigurationRequestedJsonObject.innerHTML = htmlString;
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                    activeConfigurationRequestedJsonObject.innerHTML = `Error: ${error.message}`;
+                });
+        } else {
+            activeConfigurationRequestedJsonObject.innerHTML = "Error: Missing input values.";
+        }
+    }
+
+
+    function getDataFromActiveConfigurationsEntityByComponent()
+    {
+        const components = document.getElementById("components");
+        if (components)
+        {
+            const configurations = document.getElementById("configurations");
+            configurations.innerHTML = "";
+            fetch(`/ActiveConfigurations/GetDataFromActiveConfigurationsEntityByComponent?component=${encodeURIComponent(components.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    data.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item.configuration;
+                        option.textContent = item.configuration;
+                        configurations.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }         
+    }
+    function getFromActiveConfigurationsEntityGroupedComponents()
+    {
+        const tableBody = document.getElementById('componentsCountsTableBody'); 
+        tableBody.innerHTML = "";
+
+        const components = document.getElementById("components");
+        components.innerHTML = "";
+        fetch(`/ActiveConfigurations/GetFromActiveConfigurationsEntityGroupedComponents`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                else if(response.ok)
+                {
+                    return response.json();
+                }
+            })
+            .then(data => {
+                console.log(data);
+                data.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.component;
+                    option.textContent = item.component;
+                    components.appendChild(option);
+                });
+                data.forEach(item => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = item.component;
+                    row.insertCell().textContent = item.count;
+                })
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            }); 
+    }
+    getFromActiveConfigurationsEntityGroupedComponents();
+
+    
+</script>

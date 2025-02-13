@@ -1,0 +1,108 @@
+@model IEnumerable<ResourcesWebApplication.Models.Knowledge.Skill>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a> | <a asp-action="CasesIndex" class="bg-dark text-white">Skill Descriptions</a>
+</p>
+<div class="row">
+    <div class="col-md-4">
+        @using(Html.BeginForm("SearchBySkill", "Skills", FormMethod.Get))
+        {
+            <form asp-action="SearchBySkill">
+                <div class="card">
+                    <div class="card-header">
+                        Search By Skill
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="InputSearch" name="title"  class="bg-dark text-white">Input Search</label>
+                            <input type="text" name="title" class="form-control-plaintext" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="card-footer form-group">
+                        <button class="btn bg-dark text-white">Search</button>                    
+                    </div>
+                </div>
+            </form>
+        }
+    </div>
+    <div class="col">
+        <div class="row table bg-dark text-white">
+            <div class="col">
+                @Html.DisplayNameFor(model => model.Category)
+            </div>
+            <div class="col">
+                @Html.DisplayNameFor(model => model.Title)
+            </div>
+            <div class="col">
+                @Html.DisplayNameFor(model => model.Detail)
+            </div>
+            <div class="col">
+                
+            </div>
+        </div>
+        <hr/>
+        <div class="table bg-white table-stripped text-dark">
+            @foreach (var item in Model) {
+                <div class="row">
+                    <div class="col">
+                        <strong style="background-color: whitesmoke; color: rgb(255, 30, 142)">@Html.DisplayFor(modelItem => item.Category)</strong>
+                    </div>
+                    <div class="col">
+                        <strong class="bg-dark text-white">@Html.DisplayFor(modelItem => item.Title)</strong>
+                    </div>
+                    <div class="col">
+                        <strong class="bg-dark text-white">@Html.DisplayFor(modelItem => item.Detail)</strong>
+                    </div>
+                    <div class="col">
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    </div>
+                </div>
+                <hr />
+            }
+        </div>
+        @* <table class="table bg-light table-hover">
+            <thead class="thead bg-dark text-white">
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Category)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Title)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Detail)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model) {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Category)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Title)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Detail)
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                            <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                            <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table> *@
+    </div>
+</div>

@@ -1,0 +1,133 @@
+@model IEnumerable<ResourcesWebApplication.Models.Commands.CiscoCommand>
+
+@{
+    ViewData["Title"] = "Laravel ENV";
+}
+
+<style>
+    thead{
+        background-color: lightgray;
+        color: black;
+    }
+    tbody{
+        background-color: white;
+        color: black;
+        font-size: medium;
+    }
+</style>
+
+
+<div class="card bg-light">
+    <div class="card-header bg-dark text-white">
+        <h1>Setting Up Laravel Development Environment with Docker</h1>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-dark text-white">
+                        <h3>Sections</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="table-container-titles">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <div class="card-header bg-dark text-white">
+                        <h3>Contents</h3>
+                        <div class="form-group container">
+                            <label for="groupBy" class="text-white">GROUP BY</label>
+                            <input type="text" id="groupByID" autocomplete="off" spellcheck="false" class="form-control-plaintext bg-light text-dark">
+                        </div>     
+                        <div class="bg-dark text-white form-group  container">                    
+                            <button class="btn btn-light text-dark btn-sm" onclick="loadLaravelENVContents()">Where to SELECT</button>
+                        </div>                   
+                    </div>
+                    <div class="card-body">
+                        <div id="table-container-contents">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+
+<script>
+    async function loadLaravelENVContents()
+    {
+        const groupByID = document.getElementById('groupByID');
+        if(groupByID.value)
+        {
+            const apiUrl = `https://localhost:3001/Commands/LaravelENVContents?clause=${encodeURIComponent(groupByID.value)}`;
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+            const container = document.getElementById('table-container-contents');
+
+            clearTable(container);
+            const table = document.createElement('table');
+            table.classList.add('table', 'table-dark');
+
+            const headerRow = table.createTHead().insertRow(0);
+            const descriptionCell = headerRow.insertCell(0);
+            const commandCell = headerRow.insertCell(1);
+
+            descriptionCell.innerHTML = '<b>Description</b>';
+            commandCell.innerHTML = '<b>Command</b>';
+
+            const tbody = table.createTBody();
+            data.forEach(item => {
+                const row = tbody.insertRow();
+                const description = row.insertCell(0);
+                const command = row.insertCell(1);
+                description.textContent = item.description;
+                command.textContent = item.command;
+            });
+            container.appendChild(table);
+        }
+    }
+    @* loadLaravelENVContents(); *@
+    async function loadLaravelENVTitles()
+    {
+        const apiUrl = "https://localhost:3001/Commands/LaravelENVTitles";
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        const container = document.getElementById('table-container-titles');
+        const table = document.createElement('table');
+        table.classList.add('table', 'table-dark');
+
+        const headerRow = table.createTHead().insertRow(0);
+        const titleCell = headerRow.insertCell(0);
+
+        titleCell.innerHTML = '<b>Title</b>';
+
+        const tbody = table.createTBody();
+        data.forEach(item => {
+            const row = tbody.insertRow();
+            const title = row.insertCell(0);
+            title.textContent = item.title;
+        });
+        container.appendChild(table);
+    }
+    loadLaravelENVTitles();
+    function clearTable(container)
+    {
+        while(container.firstChild)
+        {
+            container.removeChild(container.firstChild);
+        }
+    }
+
+</script>

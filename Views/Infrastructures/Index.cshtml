@@ -1,0 +1,121 @@
+@model IEnumerable<ResourcesWebApplication.Models.Infrastractures.CriticalInfrastructure>
+
+@{
+    ViewData["Title"] = "Index";
+    string[] decisions = {"Document", "Category"};
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a> | <strong>SOURCE: <a href="https://nvlpubs.nist.gov/nistpubs/cswp/nist.cswp.04162018.pdf">Framework for Improving Critical Infrastructure Cybersecurity Version 1.1 National Institute of Standards and Technology April 16, 2018</a></strong>
+</p>
+<div class="row">            
+    <div class="col">                
+        @using(Html.BeginForm("SearchByCategory", "Infrastructures", FormMethod.Get))
+        {
+            <form asp-action="SearchByCategory">
+                <div class="card">
+                    <div class="card-header">
+                        Search By Category
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="category"  class="bg-dark text-white">Category</label>
+                            <select id="categoryID" name="category" class="form-control-plaintext bg-dark text-white lead"></select>
+                        </div>
+                    </div>
+                    <div class="card-footer form-group">
+                        <button class="btn bg-dark text-white">Search</button>                    
+                    </div>
+                </div>
+            </form>
+        }
+    </div>
+    <div class="col">                
+        @using(Html.BeginForm("SearchByTitle", "Infrastructures", FormMethod.Get))
+        {
+            <form asp-action="SearchByTitle">
+                <div class="card">
+                    <div class="card-header">
+                        Search By Document
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="title" name="title"  class="bg-dark text-white">Title</label>
+                            <input type="text" name="title" class="form-control-plaintext" autocomplete="off" spellcheck="false" />
+                        </div>
+                    </div>
+                    <div class="card-footer form-group">
+                        <button class="btn bg-dark text-white btn-lg btn-block lead">Search</button>                    
+                    </div>
+                </div>
+            </form>
+        }
+    </div>
+</div>   
+<table class="table bg-white text-dark table-stripped">
+    <thead class="table bg-primary text-white">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Category)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Document)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Category)
+            </td>
+            <td>
+                <a 
+                    style="color: rgb(90, 34, 34);"
+                    href="@Html.DisplayFor(modelItem => item.Document)">@Html.DisplayFor(modelItem => item.Title)</a>
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+<script>
+    function getCategories()
+    {
+        const category = document.getElementById('categoryID');
+        
+        fetch(`/Infrastructures/GetCategories`) // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                data.forEach(categoryString => {
+                    const option = document.createElement('option');
+                    option.value = categoryString;
+                    option.textContent = categoryString;
+                    category.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+        
+    }
+    getCategories();
+</script>

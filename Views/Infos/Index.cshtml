@@ -1,0 +1,103 @@
+@model IEnumerable<ResourcesWebApplication.Models.MachineLearning.Info>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h3>Get Dataset Information by Dataset Name</h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="DatasetName">Dataset Name</label>
+                            <select id="datasetNamesId" class="form-control-plaintext" ></select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <button class="btn btn-lg btn-block bg-dark text-white" onclick="getInfo()">Get Info</button>
+                        </div>
+                    </div>
+                </div>            
+            </div>
+            <div class="col">
+                <table class="table bg-dark text-white">
+                    <thead class="table bg-danger text-white">
+                        <tr>
+                            <th>Dataset Name</th>
+                            <th>Infomation</th>
+                            <th>Created AT</th>
+                        </tr>
+                    </thead>
+                    <tbody id="infoTableBody">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getInfo()
+    {
+        const dropdown1 = document.getElementById('datasetNamesId');
+        const tableBody = document.getElementById('infoTableBody');
+        tableBody.innerHTML = '';
+        if(dropdown1.value)
+        {
+            fetch(`/Infos/GetInfo?datasetName=${encodeURIComponent(dropdown1.value)}`) // Replace 'ControllerName' with the name of your controller
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {                    
+                    data.forEach(item => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = item.datasetName,
+                        row.insertCell().textContent = item.information,
+                        row.insertCell().textContent = item.createdAT;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function getDatasetNames()
+    {
+        const dropdown1 = document.getElementById('datasetNamesId');
+        dropdown1.innerHTML = "";
+        fetch(`/Infos/GetDatasetNames`) // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {                
+                data.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    dropdown1.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    getDatasetNames();
+</script>

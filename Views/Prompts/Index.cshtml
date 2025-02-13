@@ -1,0 +1,101 @@
+@model IEnumerable<ResourcesWebApplication.Models.Prompts.Prompt>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+<hr>
+<div class="card">
+    <div class="card-header bg-dark">
+        <div class="form-group">	
+            <label for="Filter" class="bg-white text-dark">Filter</label>
+            <input id="filter" type="text" class="form-control-plaintext bg-dark text-white" autocomplete="off" spellcheck="false">
+            <hr>
+            <button style="background-color: white; color: black;" class="btn form-control-plaintext" onclick="filterPrompt()">Filter</button>
+        </div>
+    </div>
+    <div class="card-body">
+        <table class="table table-striped bg-white" id="tableID">
+            <thead class="table" style="background-color: black; color: white;">
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Title)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.CreatedAT)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+        @foreach (var item in Model) {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Title)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CreatedAT)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+        }
+            </tbody>
+        </table>
+
+    </div>
+</div>
+<script>
+    function filterPrompt()
+    {
+        const filter = document.getElementById('filter');
+        const tableBody = document.querySelector('#tableID tbody');
+        tableBody.innerHTML = '';
+        if(filter)
+        {
+            fetch(`/Prompts/FilterPrompt?filter=${encodeURIComponent(filter.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {   
+                    const th = tableBody.insertRow();         
+                    data.forEach(item => {
+                        console.log(data);
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = item.id;
+                        row.insertCell().textContent = item.title;
+                        const edit = document.createElement('a');
+                        edit.href = `/Prompts/Edit/${item.id}`;
+                        edit.textContent = 'Edit';
+                        const details = document.createElement('a');
+                        details.href = `/Prompts/Details/${item.id}`;
+                        details.textContent = 'Details';
+                        const deleteItem = document.createElement('a');
+                        deleteItem.href = `/Prompts/Delete/${item.id}`;
+                        deleteItem.textContent = 'Delete';
+                        const actionCell = row.insertCell();
+                        actionCell.appendChild(edit);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(details);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(deleteItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+</script>

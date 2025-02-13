@@ -1,0 +1,51 @@
+@model ResourcesWebApplication.Models.Devops.Auth
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Auth</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="IPAddress" class="control-label"></label>
+                <input asp-for="IPAddress" class="form-control-plaintext" spellcheck="false" autocomplete="off" />
+                <span asp-validation-for="IPAddress" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Username" class="control-label"></label>
+                <input asp-for="Username" class="form-control-plaintext" spellcheck="false" autocomplete="off" />
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" class="form-control-plaintext" spellcheck="false" autocomplete="off" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="JwtToken" class="control-label"></label>
+                <input asp-for="JwtToken" class="form-control-plaintext" spellcheck="false" autocomplete="off" />
+                <span asp-validation-for="JwtToken" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedAT" class="control-label"></label>
+                <input asp-for="CreatedAT" class="form-control-plaintext" spellcheck="false" autocomplete="off" readonly />
+                <span asp-validation-for="CreatedAT" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-dark btn-block btn-lg" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

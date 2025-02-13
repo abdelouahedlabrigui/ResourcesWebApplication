@@ -1,0 +1,55 @@
+@model ResourcesWebApplication.Models.Accounting.RegularisationDesStocks.Information_ex1
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Information_ex1</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Entreprise" class="control-label"></label>
+                <input asp-for="Entreprise" class="form-control" />
+                <span asp-validation-for="Entreprise" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DateAu" class="control-label"></label>
+                <input asp-for="DateAu" class="form-control" />
+                <span asp-validation-for="DateAu" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Elements" class="control-label"></label>
+                <input asp-for="Elements" class="form-control" />
+                <span asp-validation-for="Elements" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Marchandises" class="control-label"></label>
+                <input asp-for="Marchandises" class="form-control" />
+                <span asp-validation-for="Marchandises" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MatieresPremieres" class="control-label"></label>
+                <input asp-for="MatieresPremieres" class="form-control" />
+                <span asp-validation-for="MatieresPremieres" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ProduitFinis" class="control-label"></label>
+                <input asp-for="ProduitFinis" class="form-control" />
+                <span asp-validation-for="ProduitFinis" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

@@ -1,0 +1,48 @@
+@model IEnumerable<ResourcesWebApplication.Models.Knowledge.Case>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<table class="table bg-light table-hover">
+    <thead class="thead bg-dark text-white">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedAT)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model) {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedAT)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-controller="Documents" asp-route-id="@item.DocumentID">Details Document</a> |
+                    <a asp-action="Details" asp-controller="Skills" asp-route-id="@item.SkillID">Details Skill</a> |
+                    <a asp-action="Details" asp-controller="Codes" asp-route-id="@item.CodeID">Details Code</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="container">
+    <a asp-action="Index" class="text-dark">Back to List</a>
+</div>

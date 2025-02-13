@@ -1,0 +1,437 @@
+@model ResourcesWebApplication.Models.Endpoints.EndpointMetadata
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>EndpointMetadata</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h3>Controller Names, Action Names, HTTP Methods and Route Templates (Details)</h3>
+            </div>
+            <div class="card-body">                
+                <div class="row">
+                    <div class="col form-group">
+                        <select id="idByControllerName" class="form-control-plaintext bg-dark text-white lead" onchange="filterByControllerName()" style="font-size: small;"></select>
+                    </div>
+                    <div class="col form-group">
+                        <select id="idByActionName" class="form-control-plaintext bg-dark text-white lead" style="font-size: small;"></select>
+                    </div>
+                    <div class="col form-group">
+                        <select id="idByHttpMethod" class="form-control-plaintext bg-dark text-white lead" style="font-size: small;"></select>
+                    </div>
+                    <div class="col form-group">
+                        <select id="idByRouteTemplate" class="form-control-plaintext bg-dark text-white lead" style="font-size: small;"></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col form-group">
+                        <button class="btn btn-dark text-white btn-block btn-lg" onclick="getByControllerName()">Controller Name</button>
+                    </div>
+                    <div class="col form-group">
+                        <button class="btn btn-dark text-white btn-block btn-lg" onclick="getByActionName()">Action Name</button>
+                    </div>
+                    <div class="col form-group">
+                        <button class="btn btn-dark text-white btn-block btn-lg" onclick="getByHttpMethod()">Http Method</button>
+                    </div>
+                    <div class="col form-group">
+                        <button class="btn btn-dark text-white btn-block btn-lg" onclick="getByRouteTemplate()">Route Template</button>
+                    </div>
+                </div>
+                <hr>
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        <h4>Controls to process python scripts</h4>
+                    </div>
+                    <div class="card-body bg-dark text-white">
+                        <div class="form-group">
+                            <label for="PrefixUrl">PrefixUrl</label>
+                            <input type="text" id="prefixUrlId" class="form-control-plaintext text-white" readonly value="http://localhost:3000/" />
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="ControllerName">Controller Name</label>
+                                    <input type="text" id="copyControllerNameId" class="form-control-plaintext text-white" readonly autocomplete="off" spellcheck="false"/>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="ActionName">Action Name</label>
+                                    <input type="text" id="copyActionNameId" class="form-control-plaintext text-white" readonly autocomplete="off" spellcheck="false"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-danger text-white">
+                        <button class="btn btn-dark text-white btn-lg btn-block">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <table class="table bg-white text-dark table-stripped">
+                    <thead class="table bg-dark text-white">
+                        <tr>
+                            <th>Controller Name</th>
+                            <th>-</th>
+                            <th>Action Name</th>
+                            <th>-</th>
+                            <th>Parameter Name</th>
+                            <th>Parameter Type</th>
+                            <th>Http Method</th>
+                            <th>Route Template</th>
+                        </tr>
+                    </thead>
+                    <tbody id="endpointsTableBody" style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; color: rgb(255, 24, 139); font-size: 127%;">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+    function endpointPoster()
+    {
+        const urlPrefix = document.getElementById('prefixUrlId');
+        const controllerName = document.getElementById('copyControllerNameId');
+        const actionName = document.getElementById('copyActionNameId');
+
+        if(urlPrefix.value && controllerName.value && actionName.value)
+        {
+            var url = urlPrefix.value + '' + controllerName + '/' + actionName;
+            fetch(`/UrlEndPoints/EndPointPoster?url=${encodeURIComponent(url)}`) // Replace 'ControllerName' with the name of your controller
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {                
+                    window.location.href = '/Chronometers';
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function getByControllerName()
+    {
+        const dropdown1 = document.getElementById('idByControllerName');
+        const tableBody = document.getElementById('endpointsTableBody');
+        const copyControllerName = document.getElementById('copyControllerNameId');
+        const copyActionName = document.getElementById('copyActionNameId');
+        tableBody.innerHTML = '';
+        if(dropdown1.value)
+        {
+            fetch(`/UrlEndPoints/GetByControllerName?controllerName=${encodeURIComponent(dropdown1.value)}`) // Replace 'ControllerName' with the name of your controller
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {                 
+                    data.forEach(player => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = player.controllerName;
+
+                        var copyCell1 = row.insertCell(1);
+                        var copyButton1 = document.createElement('button');
+                        copyButton1.textContent = 'Copy';
+                        copyButton1.addEventListener('click', function(){
+                            copyControllerName.value = player.controllerName;
+                        });
+                        copyCell1.appendChild(copyButton1);
+
+                        row.insertCell().textContent = player.actionName;
+                        var copyCell2 = row.insertCell(3);
+                        var copyButton2 = document.createElement('button');
+                        copyButton2.textContent = 'Copy';
+                        copyButton2.addEventListener('click', function(){
+                            copyActionName.value = player.actionName;
+                        });
+                        copyCell2.appendChild(copyButton2);
+                        row.insertCell().textContent = player.methodParameterName,
+                        row.insertCell().textContent = player.methodParameterType,
+                        row.insertCell().textContent = player.httpMethod;
+                        row.insertCell().textContent = player.routeTemplate;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function getByActionName()
+    {
+        const dropdown1 = document.getElementById('idByActionName');
+        const dropdown2 = document.getElementById('idByControllerName');
+        const copyControllerName = document.getElementById('copyControllerNameId');
+        const copyActionName = document.getElementById('copyActionNameId');
+        const tableBody = document.getElementById('endpointsTableBody');
+        tableBody.innerHTML = '';
+        if(dropdown1.value && dropdown2.value)
+        {
+            fetch(`/UrlEndPoints/GetByActionName?controllerName=${encodeURIComponent(dropdown2.value)}&actionName=${encodeURIComponent(dropdown1.value)}`) // Replace 'ControllerName' with the name of your controller
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {                    
+                    data.forEach(player => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = player.controllerName;
+                        var copyCell1 = row.insertCell(1);
+                        var copyButton1 = document.createElement('button');
+                        copyButton1.textContent = 'Copy';
+                        copyButton1.addEventListener('click', function(){
+                            copyControllerName.value = player.controllerName;
+                        });
+                        copyCell1.appendChild(copyButton1);
+                        row.insertCell().textContent = player.actionName;
+                        var copyCell2 = row.insertCell(3);
+                        var copyButton2 = document.createElement('button');
+                        copyButton2.textContent = 'Copy';
+                        copyButton2.addEventListener('click', function(){
+                            copyActionName.value = player.actionName;
+                        });
+                        copyCell2.appendChild(copyButton2);
+                        row.insertCell().textContent = player.methodParameterName,
+                        row.insertCell().textContent = player.methodParameterType,
+                        row.insertCell().textContent = player.httpMethod;
+                        row.insertCell().textContent = player.routeTemplate;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function getByHttpMethod()
+    {
+        const dropdown1 = document.getElementById('idByHttpMethod');
+        const dropdown2 = document.getElementById('idByControllerName');
+        const copyControllerName = document.getElementById('copyControllerNameId');
+        const copyActionName = document.getElementById('copyActionNameId');
+        const tableBody = document.getElementById('endpointsTableBody');
+        tableBody.innerHTML = '';
+        if(dropdown1.value && dropdown2.value)
+        {
+            fetch(`/UrlEndPoints/GetByHttpMethod?controllerName=${encodeURIComponent(dropdown2.value)}&httpMethod=${encodeURIComponent(dropdown1.value)}`) // Replace 'ControllerName' with the name of your controller
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    data.forEach(player => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = player.controllerName;
+                        var copyCell1 = row.insertCell(1);
+                        var copyButton1 = document.createElement('button');
+                        copyButton1.textContent = 'Copy';
+                        copyButton1.addEventListener('click', function(){
+                            copyControllerName.value = player.controllerName;
+                        });
+                        copyCell1.appendChild(copyButton1);
+                        row.insertCell().textContent = player.actionName;
+                        var copyCell2 = row.insertCell(3);
+                        var copyButton2 = document.createElement('button');
+                        copyButton2.textContent = 'Copy';
+                        copyButton2.addEventListener('click', function(){
+                            copyActionName.value = player.actionName;
+                        });
+                        copyCell2.appendChild(copyButton2);
+                        row.insertCell().textContent = player.methodParameterName,
+                        row.insertCell().textContent = player.methodParameterType,
+                        row.insertCell().textContent = player.httpMethod;
+                        row.insertCell().textContent = player.routeTemplate;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function getByRouteTemplate()
+    {
+        const dropdown1 = document.getElementById('idByRouteTemplate');
+        const dropdown2 = document.getElementById('idByControllerName');
+        const copyControllerName = document.getElementById('copyControllerNameId');
+        const copyActionName = document.getElementById('copyActionNameId');
+        const tableBody = document.getElementById('endpointsTableBody');
+        tableBody.innerHTML = '';
+        if(dropdown1.value && dropdown2.value)
+        {
+            fetch(`/UrlEndPoints/GetByRouteTemplate?controllerName=${encodeURIComponent(dropdown2.value)}&routeTemplate=${encodeURIComponent(dropdown1.value)}`) // Replace 'ControllerName' with the name of your controller
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {                    
+
+                    data.forEach(player => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = player.controllerName;
+                        var copyCell1 = row.insertCell(1);
+                        var copyButton1 = document.createElement('button');
+                        copyButton1.textContent = 'Copy';
+                        copyButton1.addEventListener('click', function(){
+                            copyControllerName.value = player.controllerName;
+                        });
+                        copyCell1.appendChild(copyButton1);
+                        row.insertCell().textContent = player.actionName;
+                        var copyCell2 = row.insertCell(3);
+                        var copyButton2 = document.createElement('button');
+                        copyButton2.textContent = 'Copy';
+                        copyButton2.addEventListener('click', function(){
+                            copyActionName.value = player.actionName;
+                        });
+                        copyCell2.appendChild(copyButton2);
+                        row.insertCell().textContent = player.methodParameterName,
+                        row.insertCell().textContent = player.methodParameterType,
+                        row.insertCell().textContent = player.httpMethod;
+                        row.insertCell().textContent = player.routeTemplate;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function getControllerName()
+    {
+        const dropdown1 = document.getElementById('idByControllerName');
+        dropdown1.innerHTML = "";
+        fetch(`/UrlEndPoints/GetControllerName`) // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {                
+                data.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    dropdown1.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    getControllerName();
+    function getActionName()
+    {
+        const controllerName = document.getElementById('idByControllerName');
+        const dropdown1 = document.getElementById('idByActionName');
+        dropdown1.innerHTML = "";
+        if(controllerName.value)
+        {
+            fetch(`/UrlEndPoints/GetActionName?controllerName=${encodeURIComponent(controllerName.value)}`) // Replace 'ControllerName' with the name of your controller
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    
+                    data.forEach(name => {
+                        const option = document.createElement('option');
+                        option.value = name;
+                        option.textContent = name;
+                        dropdown1.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    
+    function getHttpMethod()
+    {
+        const controllerName = document.getElementById('idByControllerName');
+        const dropdown1 = document.getElementById('idByHttpMethod');
+        dropdown1.innerHTML = "";
+        if(controllerName.value)
+        {            
+            fetch(`/UrlEndPoints/GetHttpMethod?controllerName=${encodeURIComponent(controllerName.value)}`) // Replace 'ControllerName' with the name of your controller
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {                    
+                    data.forEach(name => {
+                        const option = document.createElement('option');
+                        option.value = name;
+                        option.textContent = name;
+                        dropdown1.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function getRouteTemplate()
+    {
+        const controllerName = document.getElementById('idByControllerName');
+        const dropdown1 = document.getElementById('idByRouteTemplate');
+        dropdown1.innerHTML = "";
+        if(controllerName.value)
+        {            
+            fetch(`/UrlEndPoints/GetRouteTemplate?controllerName=${encodeURIComponent(controllerName.value)}`) // Replace 'ControllerName' with the name of your controller
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    data.forEach(name => {
+                        const option = document.createElement('option');
+                        option.value = name;
+                        option.textContent = name;
+                        dropdown1.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    
+    function filterByControllerName()
+    {
+        getActionName();
+        getHttpMethod();
+        getRouteTemplate();
+    }
+</script>

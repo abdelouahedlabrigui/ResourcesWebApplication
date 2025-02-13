@@ -1,0 +1,49 @@
+@model ResourcesWebApplication.Models.Devops.Auth
+
+<style>
+    h1{
+        color: white;
+    }
+    h4 {
+        background-color: black;
+        color: white;
+    }    
+</style>
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<div class="card">
+    <div class="card-header bg-dark text-white">
+        <h1>Details</h1>
+        <hr>
+        <strong class="text-white">@Html.DisplayNameFor(model => model.CreatedAT): </strong> <h4>@Html.DisplayFor(model => model.CreatedAT)</h4>
+    </div>
+    <div class="card-body container bg-light">
+        <div class="row">
+            <div class="col">
+                <strong>@Html.DisplayNameFor(model => model.Username): </strong> <h4>@Html.DisplayFor(model => model.Username)</h4>
+            </div>
+            <div class="col">
+                <strong>@Html.DisplayNameFor(model => model.Password): </strong> <h4>@Html.DisplayFor(model => model.Password)</h4>
+            </div>
+        </div>        
+    </div>
+    <div class="card-body container bg-light">
+        <div class="row">
+            <div class="col">
+                <strong>@Html.DisplayNameFor(model => model.IPAddress): </strong> <h4>@Html.DisplayFor(model => model.JwtToken)</h4>
+            </div>
+            <div class="col">
+                <strong>@Html.DisplayNameFor(model => model.JwtToken): </strong> <i>@Html.DisplayFor(model => model.IPAddress)</i>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer bg-dark text-white">
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="badge bg-white text-dark">Edit</a> |
+            <a asp-action="Index" class="badge bg-white text-dark">Back to List</a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,76 @@
+@model IEnumerable<ResourcesWebApplication.Models.Commands.Cli>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a> | <a asp-controller="CiscoCommands" asp-action="Create">Create New Cisco Commands</a> |
+    <a asp-controller="Commands" asp-action="LaravelENV">Docker Laravel</a>
+</p>
+<div class="row">
+    <div class="col-md-4">
+        @using(Html.BeginForm("SearchByCommand", "Commands", FormMethod.Get))
+        {
+            <form asp-action="SearchById">
+                <div class="card">
+                    <div class="card-header">
+                        Search By Command
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="InputSearch" name="Command"  class="bg-dark text-white">Input Search</label>
+                            <input type="text" name="Command" class="form-control-plaintext" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="card-footer form-group">
+                        <button class="btn bg-dark text-white">Search</button>                    
+                    </div>
+                </div>
+            </form>
+        }
+    </div>
+    <div class="col">
+        
+        <table class="table bg-dark text-white">
+            <thead class="table bg-white text-dark">
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Title)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Command)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.CreatedAT)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+        @foreach (var item in Model) {
+                <tr>
+                    <td>
+                        <strong class="text-white">@Html.DisplayFor(modelItem => item.Title)</strong>
+                    </td>
+                    <td>
+                        <strong>@Html.DisplayFor(modelItem => item.Command)</strong>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CreatedAT)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="badge bg-white text-dark">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.Id" class="badge bg-white text-dark">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="badge bg-white text-dark">Delete</a>
+                    </td>
+                </tr>
+        }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+

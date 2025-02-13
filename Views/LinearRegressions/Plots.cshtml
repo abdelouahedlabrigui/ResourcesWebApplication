@@ -1,0 +1,194 @@
+@model IEnumerable<ResourcesWebApplication.Models.MachineLearning.LinearRegression>
+
+<p>
+    <a asp-action="Index">Back to List</a>
+</p>
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h3>Get Dataset Coefficent by Dataset Name</h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="Id">Id</label>
+                            <select id="plotId" class="form-control-plaintext" ></select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="PlotTable">Plot Table.</label>
+                            <select id="plotTableId" class="form-control-plaintext" onchange="changePlotID()">
+                                <option value="Plot by column.">Plot by column.</option>
+                                <option value="Plot.">Plot.</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <button class="btn btn-lg btn-block bg-dark text-white" onclick="showPlots()" id="getPlotID">Get Plot</button>
+                        </div>
+                    </div>
+                </div>            
+            </div>
+            <div class="col" id="plotContainer">
+                
+            </div>
+        </div>
+        
+    </div>
+</div>
+<script>
+    function getPlotID()
+    {
+        const dropdown1 = document.getElementById('plotId');
+        dropdown1.innerHTML = "";
+        fetch(`/LinearRegressions/GetPlotId`) // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {                
+                data.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item;
+                    option.textContent = item;
+                    dropdown1.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    function getPlotIdByColumn()
+    {
+        const dropdown1 = document.getElementById('plotId');
+        dropdown1.innerHTML = "";
+        fetch(`/LinearRegressions/GetPlotIdByColumn`) // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {                
+                data.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item;
+                    option.textContent = item;
+                    dropdown1.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    function changePlotID()
+    {
+        const plotTableId = document.getElementById('plotTableId');
+        if(plotTableId.value == "Plot by column.")
+        {
+            getPlotIdByColumn();
+        } else if(plotTableId.value == "Plot.") {
+            getPlotID();
+        }
+    }    
+    
+    function showPlot()
+    {
+        const plotId = document.getElementById('plotId');
+        const plotTableId = document.getElementById('plotTableId');
+        const plotContainer = document.getElementById('plotContainer');
+        plotContainer.innerHTML = '';
+        if(plotId.value)
+        {
+            fetch(`/LinearRegressions/GetPlots?id=${encodeURIComponent(plotId.value)}`) // Replace 'ControllerName' with the name of your controller
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {                    
+                    data.forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        const cardHeader = document.createElement('div');
+                        cardHeader.className = 'card-header bg-danger text-white';
+                        cardHeader.innerHTML = `<h3>${item.title || 'N/A'}</h3> | <i>Created AT: ${item.createdAT || 'N/A'}</i> <p>Dataset Name: ${item.datasetName || 'N/A'}</p>`;
+                        card.appendChild(cardHeader);
+
+                        const cardBody = document.createElement('div');
+                        cardBody.className = 'card-body shadow-sm bg-dark';
+
+                        const img = document.createElement('img');
+                        img.src = `data:image/png;base64, ${item.encoding}`;
+                        img.alt = 'Plot';
+                        cardBody.appendChild(img);
+
+                        card.appendChild(cardBody);
+                        plotContainer.appendChild(card);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function showPlotByColumn()
+    {
+        const plotId = document.getElementById('plotId');
+        const plotContainer = document.getElementById('plotContainer');
+        plotContainer.innerHTML = '';
+
+        if(plotId.value)
+        {
+            fetch(`/LinearRegressions/GetPlotByColumn?id=${encodeURIComponent(plotId.value)}`) // Replace 'ControllerName' with the name of your controller
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {                    
+                    data.forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        const cardHeader = document.createElement('div');
+                        cardHeader.className = 'card-header bg-danger text-white';
+                        cardHeader.innerHTML = `<h3>${item.title || 'N/A'}</h3> | <strong>${item.column || 'N/A'}</strong> | <i>Created AT: ${item.createdAT || 'N/A'}</i> <p>Dataset Name: ${item.datasetName || 'N/A'}</p>`;
+                        card.appendChild(cardHeader);
+
+                        const cardBody = document.createElement('div');
+                        cardBody.className = 'card-body shadow-sm bg-dark';
+
+                        const img = document.createElement('img');
+                        img.src = `data:image/png;base64, ${item.encoding}`;
+                        img.alt = 'Plot';
+                        cardBody.appendChild(img);
+
+                        card.appendChild(cardBody);
+                        plotContainer.appendChild(card);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function showPlots()
+    {
+        const plotTableId = document.getElementById('plotTableId');
+        if(plotTableId.value == "Plot by column.")
+        {
+            showPlotByColumn();
+        } else if(plotTableId.value == "Plot.") {
+            showPlot();
+        }
+    }
+</script>

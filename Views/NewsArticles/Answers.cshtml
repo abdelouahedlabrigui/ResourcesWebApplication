@@ -1,0 +1,57 @@
+@model IEnumerable<ResourcesWebApplication.Models.News.Question>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+
+<div class="">
+    <div class="card">
+        <div class="card-header bg-dark text-white">
+            <h1 class="text-white">Index</h1> | <a asp-action="Create" class="badge bg-white text-dark">Create New</a> | <a asp-controller="NewsArticles"asp-action="Questions" class="badge bg-primary text-white">Questions</a> | <a class="badge bg-primary text-white" asp-area="" asp-controller="Agents" asp-action="Index">Agents</a>
+        </div>
+        <div class="card-body">
+            <table class="table bg-white table-striped">
+                <thead class="table bg-dark text-white">
+                    <tr>
+                        <th>
+                            <h3 class="text-white">Log at: @DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")</h3>
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+            @foreach (var item in Model) {
+                    <tr>
+                        <td>
+                            <div class="card">
+                                <div class="card-header form-control-plaintext bg-dark text-white">
+                                    Id: @Html.DisplayFor(modelItem => item.Id) | Title: @Html.DisplayFor(modelItem => item.ArticleTitle)
+                                </div>
+                                <div class="card-body form-control-plaintext">
+                                    <div class="form-group container">
+                                        <label class="control-label">@Html.DisplayNameFor(modelItem => item.ArticleTitle)</label>
+                                        <textarea id="answer" rows="10" class="form-control-plaintext bg-light text-dark" style="font-size: small;" spellcheck="false" readonly>
+                                            @Html.DisplayFor(modelItem => item.Answer)
+                                        </textarea>
+                                    </div>
+                                </div>
+                                <div class="card-footer form-control-plaintext bg-dark text-white">
+                                    <strong class="text-white">@Html.DisplayFor(modelItem => item.CreatedAT)</strong>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <a asp-controller="NewsArticles"asp-action="AnswerDetails" asp-route-id="@item.Id" class="badge bg-white text-dark">Details</a> |
+                            <a asp-controller="NewsArticles" asp-action="AnswerDelete" asp-route-id="@item.Id" class="badge bg-white text-dark">Delete</a>                     
+                        </td>
+                    </tr>
+            }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+

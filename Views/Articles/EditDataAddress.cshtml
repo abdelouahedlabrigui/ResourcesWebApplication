@@ -1,0 +1,86 @@
+@model ResourcesWebApplication.Models.Forensics.Data
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Article</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            <label for="Article ID">Article ID</label>
+            <select id="idArticle" class="form-control-plaintext bg-dark text-white lead"></select>
+        </div>
+        <div class="form-group">
+            <label asp-for="Name" class="control-label"></label>
+            <input asp-for="Name" id="idName" class="form-control" autocomplete="off" spellcheck="false"  />
+        </div>
+        <div class="form-group">
+            <label asp-for="Url" class="control-label"></label>
+            <input asp-for="Url" id="idUrl" class="form-control" autocomplete="off" spellcheck="false"  />
+        </div>
+        <div class="form-group">
+            <label asp-for="CreatedAT" class="control-label"></label>
+            <input asp-for="CreatedAT" id="idCreatedAT" class="form-control" autocomplete="off" spellcheck="false"  />
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Save" class="btn btn-dark text-white btn-lg btn-block" />
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+    function getArticleIds()
+    {
+        const dropdown1 = document.getElementById('idArticle');
+        dropdown1.innerHTML = "";
+        fetch(`/Articles/GetArticlesIds`) // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {                
+                data.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    dropdown1.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    function updateCurrentTime()
+    {
+        var idCreatedAT = document.getElementById('idCreatedAT');
+        var currentTime = new Date();
+        var hours = currentTime.getHours();
+        var minutes = currentTime.getMinutes();
+        var seconds = currentTime.getSeconds();
+        var milliseconds = currentTime.getMilliseconds();
+
+        var formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}.${padZero(milliseconds, 3)}`;
+        idCreatedAT.value = formattedTime;
+    }
+    function padZero(number, width = 2)
+    {
+        var str = number.toString();
+        while(str.length < width)
+        {
+            str = '0' + str;
+        }
+        return str;
+    }
+    setInterval(updateCurrentTime, 100);
+    updateCurrentTime();
+</script>

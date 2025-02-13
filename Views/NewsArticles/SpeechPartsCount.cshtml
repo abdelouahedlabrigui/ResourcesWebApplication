@@ -1,0 +1,478 @@
+@* @model ResourcesWebApplication.Models.News.Question *@
+
+@{
+    ViewData["Title"] = "N°Speech Parts.";
+}
+
+<style>    
+    td {
+        font-size: larger;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: purple;
+        font-style: italic;
+        background-color: rgb(255, 249, 249);
+    }
+</style>
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h4 class="text-white">Selected questions by Id, to display Speech Parts Counts, Speech Parts Dependencies Counts.</h4>
+                <hr>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="speechPartsCounts" class="form-control-plaintext badge bg-white text-dark">N° Speech Parts.</label>
+                            <select id="answersRecordsIds" class="form-control-plaintext bg-dark text-white lead" onchange="requestSpeechPartsCount()" style="font-size: small;"></select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="speechPartsCounts" class="form-control-plaintext badge bg-white text-dark">N° Speech Parts.</label>
+                            <select id="answersRecordsPosDepIds" class="form-control-plaintext bg-dark text-white lead" onchange="requestSpeechPartsByDependenciesCount()" style="font-size: small;"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="labelsSpeechPartsCounts" class="form-control-plaintext badge bg-white text-dark">Labels - Speech Parts.</label>
+                                    <select id="labelsSpeechPartsCounts" class="form-control-plaintext bg-dark text-white lead" onchange="requestPartsOfSpeechByPosTag()" style="font-size: small;"></select>
+                                </div>                               
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="speechPartsCounts" class="form-control-plaintext badge bg-white text-dark">N° Speech Parts e.g: SELECT Pos Table.</label>
+                                    <select id="answersRecordsIdsSelectPosTable" class="form-control-plaintext bg-dark text-white lead" style="font-size: small;"></select>
+                                </div>
+                            </div>
+                        </div>                        
+                    </div>
+                    <div class="col">
+
+                    </div>
+                </div>
+                
+                @* <div class="col form-group">
+                    <button class="btn btn-lg btn-block bg-white text-dark" onclick="generateAnswer()">Generate Answer.</button>
+                </div> *@
+            </div>
+            <div class="card-body bg-white text-dark">
+                <table class="table table-striped bg-white text-dark">
+                    <tbody id="speechPartsCountsTableBody">
+                        
+                    </tbody>
+                </table>                
+            </div>
+        </div>
+    </div>
+    <div class="col">        
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h4 class="form-control-plaintext text-white">Lemma By Speech Parts Count | Logged AT: @DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")</h4>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped bg-white text-dark">
+                    <tbody id="partsOfSpeechGroupByTableBody">
+                        
+                    </tbody>
+                </table>                
+            </div>
+            <div class="card-footer bg-dark text-white">
+                <strong class="form-control-plaintext text-white">@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")</strong>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4>Get Lemma By Speech Parts Sentence Matcher.</h4>
+                    </div>
+                    <div class="card-body bg-dark text-white">
+                        <div class="container">
+                            <div class="form-group">
+                                <label for="Matcher">Matcher.</label>
+                                <input type="text" id="matcher" class="form-control-plaintext text-dark bg-light" readonly autocomplete="off" spellcheck="false"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-primary text-white">
+                        <button class="btn btn-dark text-white btn-lg btn-block" onclick="requestGetLemmaBySpeechPartSentenceMatchDisplay()">Match</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <div class="card-header bg-dark text-white">
+                        <h4 class="form-control-plaintext text-white">Get Lemma By Speech Part Sentence Match | Logged AT: @DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")</h4>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped bg-white text-dark">
+                            <tbody id="lemmaBySpeechPartSentenceMatchTableBody">
+                                
+                            </tbody>
+                        </table>                
+                    </div>
+                    <div class="card-footer bg-dark text-white">
+                        <strong class="form-control-plaintext text-white">@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class=""><a asp-action="Index">Back to List</a></div>
+<script>
+    
+    function get_AnswersRecordsId()
+    {
+        const dropdown1 = document.getElementById('answersRecordsIds');
+        const answersRecordsPosDepIds = document.getElementById('answersRecordsPosDepIds');
+        
+        const answersRecordsIdsSelectPosTable = document.getElementById('answersRecordsIdsSelectPosTable');
+        answersRecordsIdsSelectPosTable.innerHTML = "";
+
+        dropdown1.innerHTML = "";
+        answersRecordsPosDepIds.innerHTML = "";
+
+        fetch(`/NewsArticles/QuestionRecordsId`) // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                data.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    dropdown1.appendChild(option);
+
+                    const optionX = document.createElement('option');
+                    optionX.value = name;
+                    optionX.textContent = name;
+                    answersRecordsPosDepIds.appendChild(optionX);
+
+                    const optionY = document.createElement('option');
+                    optionY.value = name;
+                    optionY.textContent = name;
+                    answersRecordsIdsSelectPosTable.appendChild(optionY);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    get_AnswersRecordsId();
+    function getLemmaBySpeechPartSentenceMatch(matcher)
+    {
+        if(id)
+        {
+            const tableBody = document.getElementById('speechPartsCountsTableBody');
+            tableBody.innerHTML = "";
+            fetch(`/NewsArticles/GetSpeechPartsByDependenciesCount?id=${encodeURIComponent(id)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+
+                    const rowX = tableBody.insertRow();
+                    rowX.insertCell().textContent = "Dataset Name";
+                    rowX.insertCell().textContent = "Speech Tags";
+                    rowX.insertCell().textContent = "Dependencies";
+                    rowX.insertCell().textContent = "Speech Tags & Dependency Count";
+
+                    data.forEach(item => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = item.datasetName;
+                        row.insertCell().textContent = item.pos_;
+                        row.insertCell().textContent = item.dep_;
+                        row.insertCell().textContent = item.speechParts_DepsCounts;
+                    })
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });        
+        }
+    }
+    function getSpeechPartsByDependenciesCount(id)
+    {
+        if(id)
+        {
+            const tableBody = document.getElementById('speechPartsCountsTableBody');
+            tableBody.innerHTML = "";
+            fetch(`/NewsArticles/GetSpeechPartsByDependenciesCount?id=${encodeURIComponent(id)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+
+                    const rowX = tableBody.insertRow();
+                    rowX.insertCell().textContent = "Dataset Name";
+                    rowX.insertCell().textContent = "Speech Tags";
+                    rowX.insertCell().textContent = "Dependencies";
+                    rowX.insertCell().textContent = "Speech Tags & Dependency Count";
+
+                    data.forEach(item => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = item.datasetName;
+                        row.insertCell().textContent = item.pos_;
+                        row.insertCell().textContent = item.dep_;
+                        row.insertCell().textContent = item.speechParts_DepsCounts;
+                    })
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });        
+        }
+    }
+    function getPartsOfSpeechByPosTag(id, tag)
+    {
+        if(id && tag)
+        {
+            const tableBody = document.getElementById('partsOfSpeechTableBody');
+            tableBody.innerHTML = "";
+            fetch(`/NewsArticles/GetPartsOfSpeechByPosTag?id=${encodeURIComponent(id)}&tag=${encodeURIComponent(tag)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    const rowX = tableBody.insertRow();
+                    rowX.insertCell().textContent = "Id";
+                    rowX.insertCell().textContent = "DatasetName";
+                    rowX.insertCell().textContent = "Text_";
+                    rowX.insertCell().textContent = "Lemma_";
+                    rowX.insertCell().textContent = "Pos_";
+                    rowX.insertCell().textContent = "Tag_";
+                    rowX.insertCell().textContent = "Dep_";
+                    rowX.insertCell().textContent = "Shape_";
+                    rowX.insertCell().textContent = "Is_Alpha";
+                    rowX.insertCell().textContent = "Is_Stop";
+                    rowX.insertCell().textContent = "CreatedAT";
+
+                    data.forEach(item => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = item.id;
+                        row.insertCell().textContent = item.datasetName;
+                        row.insertCell().textContent = item.text_;
+                        row.insertCell().textContent = item.lemma_;
+                        row.insertCell().textContent = item.pos_;
+                        row.insertCell().textContent = item.tag_;
+                        row.insertCell().textContent = item.dep_;
+                        row.insertCell().textContent = item.shape_;
+                        row.insertCell().textContent = item.is_Alpha;
+                        row.insertCell().textContent = item.is_Stop;
+                        row.insertCell().textContent = item.createdAT;
+                    })
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });        
+        }
+    }
+    function getLemmaBySpeechPartSentenceMatchDisplay(id, matcher)
+    {
+        const tableBody = document.getElementById('lemmaBySpeechPartSentenceMatchTableBody');
+        tableBody.innerHTML = "";
+        
+        if(matcher && id)
+        {
+            fetch(`/NewsArticles/GetLemmaBySpeechPartSentenceMatchDisplay?id=${encodeURIComponent(id)}&matcher=${encodeURIComponent(matcher)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    const rowX = tableBody.insertRow();
+                    rowX.insertCell().textContent = "Id";
+                    rowX.insertCell().textContent = "DatasetName";
+                    rowX.insertCell().textContent = "Sentence";                    
+                    rowX.insertCell().textContent = "Sentiments";
+
+                    data.forEach(item => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = item.id;
+                        row.insertCell().textContent = item.datasetName;
+                        row.insertCell().textContent = item.sentence;
+
+                        row.insertCell().textContent = `Pos: ${item.positive} | Neg: ${item.negative} | Neu: ${item.neutral} | Com: ${item.compound}`;
+                    })
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });        
+        }
+    }
+    function getGroupByPartsOfSpeechByPosTag(id, tag)
+    {
+        const tableBody = document.getElementById('partsOfSpeechGroupByTableBody');
+        tableBody.innerHTML = "";
+        const matcherInput = document.getElementById('matcher');
+        if(tag && id && matcherInput)
+        {
+            fetch(`/NewsArticles/GetGroupByPartsOfSpeechByPosTag?id=${encodeURIComponent(id)}&tag=${encodeURIComponent(tag)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    const rowX = tableBody.insertRow();
+                    rowX.insertCell().textContent = "DatasetName";
+                    rowX.insertCell().textContent = "Text_";
+                    rowX.insertCell().textContent = "Lemma_";
+                    rowX.insertCell().textContent = "Pos_";
+                    rowX.insertCell().textContent = "Tag_";
+                    rowX.insertCell().textContent = "Dep_";
+                    rowX.insertCell().textContent = "Shape_";
+                    rowX.insertCell().textContent = "Is_Alpha";
+                    rowX.insertCell().textContent = "Is_Stop";
+                    rowX.insertCell().textContent = "CountLemma_";
+
+                    data.forEach(item => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = item.datasetName;
+                        row.insertCell().textContent = item.text_;
+                        row.insertCell().textContent = item.lemma_;
+
+                        var copyCell1 = row.insertCell(3);
+                        var copyButton1 = document.createElement('button');
+                        copyButton1.textContent = 'Copy Lemma';
+                        copyButton1.addEventListener('click', function(){
+                            matcherInput.value = item.lemma_;
+                        });
+                        copyCell1.appendChild(copyButton1);
+
+                        row.insertCell().textContent = item.pos_;
+                        row.insertCell().textContent = item.tag_;
+                        row.insertCell().textContent = item.dep_;
+                        row.insertCell().textContent = item.shape_;
+                        row.insertCell().textContent = item.is_Alpha;
+                        row.insertCell().textContent = item.is_Stop;
+                        row.insertCell().textContent = item.countLemma_;
+
+                        
+                    })
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });        
+        }
+    }
+    function getSpeechPartsCount(id)
+    {
+        if(id)
+        {
+            const labelsSpeechPartsCounts = document.getElementById('labelsSpeechPartsCounts');
+            labelsSpeechPartsCounts.innerHTML = "";
+
+            const tableBody = document.getElementById('speechPartsCountsTableBody');
+            tableBody.innerHTML = "";
+            
+            fetch(`/NewsArticles/GetSpeechPartsCount?id=${encodeURIComponent(id)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    
+                    const rowX = tableBody.insertRow();
+                    rowX.insertCell().textContent = "Dataset Name";
+                    rowX.insertCell().textContent = "Speech Tags";
+                    rowX.insertCell().textContent = "Speech Tags Count";
+
+                    data.forEach(item => {
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = item.datasetName;
+                        row.insertCell().textContent = item.pos_;
+                        row.insertCell().textContent = item.speechPartsCounts;
+                    });
+
+                    data.forEach(tag => {
+                        const optionX = document.createElement('option');
+                        optionX.value = tag.pos_;
+                        optionX.textContent = tag.pos_;
+                        labelsSpeechPartsCounts.appendChild(optionX);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });        
+        }
+    }
+
+    function requestSpeechPartsCount()
+    {
+        const answersRecordsIds = document.getElementById("answersRecordsIds");
+        if(answersRecordsIds)
+        {
+            getSpeechPartsCount(answersRecordsIds.value);
+        }
+    }
+    function requestSpeechPartsByDependenciesCount()
+    {
+        const answersRecordsPosDepIds = document.getElementById("answersRecordsPosDepIds");
+        if(answersRecordsPosDepIds)
+        {
+            getSpeechPartsByDependenciesCount(answersRecordsPosDepIds.value);
+        }
+    }    
+    function requestPartsOfSpeechByPosTag()
+    {
+        const labelsSpeechPartsCounts = document.getElementById("labelsSpeechPartsCounts");
+        const answersRecordsIdsSelectPosTable = document.getElementById('answersRecordsIdsSelectPosTable');
+        if(labelsSpeechPartsCounts && answersRecordsIdsSelectPosTable)
+        {
+            @* getPartsOfSpeechByPosTag(answersRecordsIdsSelectPosTable.value, labelsSpeechPartsCounts.value); *@
+            getGroupByPartsOfSpeechByPosTag(answersRecordsIdsSelectPosTable.value, labelsSpeechPartsCounts.value);
+        }
+    }
+    function requestGetLemmaBySpeechPartSentenceMatchDisplay()
+    {
+        const matcher = document.getElementById('matcher');
+        const answersRecordsIds = document.getElementById('answersRecordsIds');
+        if(matcher && answersRecordsIds)
+        {
+            getLemmaBySpeechPartSentenceMatchDisplay(answersRecordsIds.value, matcher.value);
+        }
+    }
+</script>

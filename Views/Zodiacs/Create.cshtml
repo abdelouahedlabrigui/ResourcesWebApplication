@@ -1,0 +1,110 @@
+@model ResourcesWebApplication.Models.Astrology.Zodiac
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+@{
+    string[] startDate = {
+        "March 21",
+        "April 20",
+        "May 21",
+        "June 22",
+        "July 23",
+        "August 23",
+        "September 23",
+        "October 24",
+        "November 22",
+        "December 22",
+        "January 20",
+        "February 19",
+    };
+}
+@{
+
+    string[] endDate = {
+        "April 19",
+        "May 20",
+        "June 21",
+        "July 22",
+        "August 22",
+        "September 22",
+        "October 23",
+        "November 21",
+        "December 21",
+        "January 19",
+        "February 18",
+        "March 20",
+    };
+}
+@{
+    string[] names = {
+        "Aries",
+        "Taurus",
+        "Gemini",
+        "Cancer",
+        "Leo",
+        "Virgo",
+        "Libra",
+        "Scorpius",
+        "Sagittarius",
+        "Capricornus",
+        "Aquarius",
+        "Pisces",
+    };
+
+}
+
+<h1>Create</h1>
+
+<h4>Zodiac</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <select asp-for="Name" class="form-control-plaintext">
+                    @foreach (string sign in names)
+                    {
+                        <option value="@sign">@sign</option>
+                    }
+                </select>
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label asp-for="StartDate" class="control-label"></label>
+                        <select asp-for="StartDate" class="form-control-plaintext">
+                            @foreach (string sign in startDate)
+                            {
+                                <option value="@sign">@sign</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label asp-for="EndDate" class="control-label"></label>
+                        <select asp-for="EndDate" class="form-control-plaintext">
+                            @foreach (string sign in endDate)
+                            {
+                                <option value="@sign">@sign</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

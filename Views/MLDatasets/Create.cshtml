@@ -1,0 +1,86 @@
+@model ResourcesWebApplication.Models.MachineLearning.Datasets.Dataset
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Dataset</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label asp-for="FullAddress" class="control-label"></label>
+                    <input asp-for="FullAddress" class="form-control-plaintext" id="fullAddressId" autocomplete="off" spellcheck="false"/>
+                    <span asp-validation-for="FullAddress" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-dark text-white btn-block btn-lg" id="loadDatasetMetadataAndShowDocumentsBtnId" onclick="loadDatasetMetadataAndShowDocuments(event)" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <table class="table bg-dark text-white">
+            <thead class="table bg-danger text-white lead">
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>LastWriteTime</th>
+                    <th>LastAccessTime</th>
+                    <th>Length</th>
+                    <th>CreatedAT</th>
+                </tr>
+            </thead>
+            <tbody id="datasetMetadataTableBody">
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+    function loadDatasetMetadataAndShowDocuments(event)
+    {
+        event.preventDefault();
+
+        document.querySelector('.btn').disabled = true;
+        document.getElementById('loadDatasetMetadataAndShowDocumentsBtnId').disabled = true;
+        const fullAddress = document.getElementById('fullAddressId');
+        const tableBody = document.getElementById('datasetMetadataTableBody');
+        if(fullAddress.value)
+        {
+            fetch(`/MLDatasets/LoadDatasetFileMetadata?fullAddress=${encodeURIComponent(fullAddress.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const row = tableBody.insertRow();                    
+                    row.insertCell().textContent = data.id;
+                    row.insertCell().textContent = data.name;
+                    row.insertCell().textContent = data.lastWriteTime;
+                    row.insertCell().textContent = data.lastAccessTime;
+                    row.insertCell().textContent = data.length;
+                    row.insertCell().textContent = data.createdAT;
+
+                    document.getElementById('loadDatasetMetadataAndShowDocumentsBtnId').disabled = false;
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                    document.getElementById('loadDatasetMetadataAndShowDocumentsBtnId').disabled = true;
+                });
+        }
+    }
+</script>

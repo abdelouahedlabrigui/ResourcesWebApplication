@@ -1,0 +1,63 @@
+@model IEnumerable<ResourcesWebApplication.Models.Games.TwoPlayers.PlayersDataset>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Players | <a asp-action="DeleteAllPlays">Delete All Plays</a></h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.FthPlayer)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SndPlayer)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FthStrategy)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SndStrategy)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Sum)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FthPreference)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SndPreference)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.FthPlayer)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SndPlayer)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FthStrategy)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SndStrategy)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Sum)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FthPreference)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SndPreference)
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -1,0 +1,456 @@
+@model ResourcesWebApplication.Models.MachineLearning.Describe
+
+<style>
+    thead {
+        background-color: #ff2c96;
+        font-style: italic;
+        font-size: medium;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+    #btnId
+    {
+        background-color: #ff2c96;        
+        font-style: italic;
+        font-size: large;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+    tbody {
+        background-color:  rgb(255, 255, 255);
+        font-style: oblique;
+        font-size: medium;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+    select {
+        background-color:  rgb(255, 255, 255);
+        font-style: oblique;
+        font-size: large;        
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+</style>
+
+@{
+    ViewData["Title"] = "Description";
+}
+
+<div class="card">
+    <div class="card-header">
+        <strong>Datasets by Information, Description & Column Names: e.g. ML.</strong> | <select id="datasetID" class="form-control-plaintext text-dark lead" onchange="loadUnderstanding()"></select>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card-header">
+                <div class="form-group">
+                    <label for="datasetAddress" class="control-label">Dataset Address</label>
+                    <input id="addressID" class="form-control-plaintext bg-white text-danger" autocomplete="off" spellcheck="false" required />
+                </div>
+                <hr>
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-md text-white" id="btnId" />
+                </div>    
+            </div>
+        </div>
+        <div class="col">
+            <div class="card-body">
+                <strong>Dataset Description.</strong>
+                <hr>
+                <table class="table">
+                    <thead class="table text-white">
+                        <tr>
+                            <th>DatasetName</th>
+                            <th>Column</th>
+                            <th>Count</th>
+                            <th>Mean</th>
+                            <th>Std</th>
+                            <th>Min</th>
+                            <th>25%</th>
+                            <th>50%</th>
+                            <th>75%</th>
+                            <th>Max</th>
+                            <th>CreatedAT</th>
+                        </tr>
+                    </thead>
+                    <tbody id="descriptionsTableBody" class="table text-dark">
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card-body">
+                        <strong>Dataset Columns.</strong>
+                        <hr>
+                        <table class="table">
+                            <thead class="table text-white">
+                                <tr>
+                                    <th>Column</th>
+                                    <th>CreatedAT</th>
+                                </tr>
+                            </thead>
+                            <tbody id="columnsTableBody" class="table text-dark">
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card-body">
+                        <strong>Dataset Information.</strong>
+                        <hr>
+                        <table class="table">
+                            <thead class="table text-white">
+                                <tr>
+                                    <th>Information</th>
+                                    <th>CreatedAT</th>
+                                </tr>
+                            </thead>
+                            <tbody id="infosTableBody" class="table text-dark">
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+<script>
+    const btnId = document.getElementById('btnId');
+
+    btnId.addEventListener('click', async () => {
+        // Disable the button to prevent multiple clicks
+        btnId.disabled = true;
+
+        // Execute the script
+        await executeDescriptionPyScript();
+        await executeColumnPyScript();
+        await executeInfoPyScript();
+
+        // Re-enable the button after the operation is completed
+        btnId.disabled = false;
+
+    });
+    async function executeColumnPyScript() {
+        const tableBody = document.getElementById('columnsTableBody');
+        const address = document.getElementById('addressID');
+
+        tableBody.innerHTML = "";
+        
+        if (address) {
+            fetch(`/Documents/ExecuteColumnsPyScript?datasetName=${encodeURIComponent(address.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    data.forEach(col => {
+                        const row = tableBody.insertRow();                    
+                        row.insertCell().textContent = col.column;
+                        row.insertCell().textContent = col.createdAT;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function loadColumns()
+    {
+        const tableBody = document.getElementById('columnsTableBody');
+        const columns = document.getElementById('datasetID');
+        tableBody.innerHTML = "";
+        if(columns)
+        {
+            fetch(`/Documents/GetDocumentColumns?datasetName=${encodeURIComponent(columns.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    data.forEach(col => {
+                        const row = tableBody.insertRow();                    
+                        row.insertCell().textContent = col.column;
+                        row.insertCell().textContent = col.createdAT;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }    
+    function getColumns()
+    {
+        const tableBody = document.getElementById('columnsTableBody');
+        tableBody.innerHTML = "";
+        fetch(`/Documents/GetColumns`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    data.forEach(col => {
+                        const row = tableBody.insertRow();                    
+                        row.insertCell().textContent = col.column;
+                        row.insertCell().textContent = col.createdAT;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+    }
+    getColumns();
+    async function executeInfoPyScript() {
+        const tableBody = document.getElementById('infosTableBody');
+        const address = document.getElementById('addressID');
+
+        tableBody.innerHTML = "";
+        
+        if (address) {
+            fetch(`/Documents/ExecuteInfoPyScript?datasetName=${encodeURIComponent(address.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    data.forEach(info => {
+                        const row = tableBody.insertRow();                    
+                        row.insertCell().textContent = info.information;
+                        row.insertCell().textContent = info.createdAT;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function loadInfos()
+    {
+        const tableBody = document.getElementById('infosTableBody');
+        const info = document.getElementById('datasetID');
+        tableBody.innerHTML = "";
+        if(info)
+        {
+            fetch(`/Documents/GetDocumentInfos?datasetName=${encodeURIComponent(info.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    data.forEach(info => {
+                        const row = tableBody.insertRow();                    
+                        row.insertCell().textContent = info.information;
+                        row.insertCell().textContent = info.createdAT;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }    
+    function getInfos()
+    {
+        const tableBody = document.getElementById('infosTableBody');
+        tableBody.innerHTML = "";
+        fetch(`/Documents/GetInfos`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    data.forEach(info => {
+                        const row = tableBody.insertRow();                    
+                        row.insertCell().textContent = info.information;
+                        row.insertCell().textContent = info.createdAT;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+    }
+    getInfos();
+    async function executeDescriptionPyScript() {
+        const tableBody = document.getElementById('descriptionsTableBody');
+        const address = document.getElementById('addressID');
+
+        tableBody.innerHTML = "";
+        
+        if (address) {
+            fetch(`/Documents/ExecuteDescriptionPyScript?datasetName=${encodeURIComponent(address.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    data.forEach(description => {
+                        const row = tableBody.insertRow();                    
+                        row.insertCell().textContent = description.datasetName;
+                        row.insertCell().textContent = description.column;
+                        row.insertCell().textContent = description.count;
+                        row.insertCell().textContent = description.mean;
+                        row.insertCell().textContent = description.std;
+                        row.insertCell().textContent = description.min;
+                        row.insertCell().textContent = description.twentyFivePercent;
+                        row.insertCell().textContent = description.fiftyPercent;
+                        row.insertCell().textContent = description.seventyFivePercent;
+                        row.insertCell().textContent = description.max;
+                        row.insertCell().textContent = description.createdAT;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+
+    function getDatasetNames()
+    {
+        const descriptions = document.getElementById('datasetID');
+        descriptions.innerHTML = "";
+        fetch(`/Documents/GetDocumentDescriptionDatasetNames`) // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {                
+                data.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    descriptions.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    getDatasetNames();
+
+
+    function loadUnderstanding()
+    {
+        loaddescriptions();
+        loadColumns();
+        loadInfos();
+    }
+    function loaddescriptions()
+    {
+        const tableBody = document.getElementById('descriptionsTableBody');
+        const description = document.getElementById('datasetID');
+        tableBody.innerHTML = "";
+        if(description)
+        {
+            fetch(`/Documents/GetDocumentDescription?datasetName=${encodeURIComponent(description.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    data.forEach(description => {
+                        const row = tableBody.insertRow();                    
+                        row.insertCell().textContent = description.datasetName;
+                        row.insertCell().textContent = description.column;
+                        row.insertCell().textContent = description.count;
+                        row.insertCell().textContent = description.mean;
+                        row.insertCell().textContent = description.std;
+                        row.insertCell().textContent = description.min;
+                        row.insertCell().textContent = description.twentyFivePercent;
+                        row.insertCell().textContent = description.fiftyPercent;
+                        row.insertCell().textContent = description.seventyFivePercent;
+                        row.insertCell().textContent = description.max;
+                        row.insertCell().textContent = description.createdAT;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }    
+    
+    function getdescriptions()
+    {
+        const tableBody = document.getElementById('descriptionsTableBody');
+        tableBody.innerHTML = "";
+        fetch(`/Documents/GetDescriptions`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    data.forEach(description => {
+                        const row = tableBody.insertRow();                    
+                        row.insertCell().textContent = description.datasetName;
+                        row.insertCell().textContent = description.column;
+                        row.insertCell().textContent = description.count;
+                        row.insertCell().textContent = description.mean;
+                        row.insertCell().textContent = description.std;
+                        row.insertCell().textContent = description.min;
+                        row.insertCell().textContent = description.twentyFivePercent;
+                        row.insertCell().textContent = description.fiftyPercent;
+                        row.insertCell().textContent = description.seventyFivePercent;
+                        row.insertCell().textContent = description.max;
+                        row.insertCell().textContent = description.createdAT;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+    }
+    getdescriptions();
+</script>

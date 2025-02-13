@@ -1,0 +1,37 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+
+    <div class="row">
+        <div class="col">
+            <table class="table bg-white text-dark">
+                <thead class="table bg-dark text-white">
+                    <tr>
+                        <th>Game frames and games.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><a class="text-dark" asp-area="" asp-controller="Player" asp-action="Index">Player</a></td>
+                    </tr>
+                    <tr>
+                        <td><a class="text-dark" asp-area="" asp-controller="TwoPlayersPreferences" asp-action="Index">Preference</a></td>
+                    </tr>
+                    <tr>
+                        <td><a class="text-dark" asp-area="" asp-controller="TwoPlayersStrategies" asp-action="Index">Strategies</a></td>
+                    </tr>
+                    <tr>
+                        <td><a class="text-dark" asp-area="" asp-controller="Rules" asp-action="Index">Rules</a></td>
+                    </tr>
+                    <tr>
+                        <td><a class="text-dark" asp-area="" asp-controller="DualPlayers" asp-action="Index">Dual Players</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>

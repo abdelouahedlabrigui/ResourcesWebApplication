@@ -1,0 +1,555 @@
+@model ResourcesWebApplication.Models.Plaintext
+<style>
+    thead {
+        background-color:#ff2c96;        
+        font-style: italic;
+        font-size: medium;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+
+    tbody {
+        background-color:  rgb(253, 246, 250);
+        font-style: oblique;
+        font-size: medium;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+</style>
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Plaintext</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="FullAddress" class="control-label"></label>
+                <input
+                    type="text"
+                    asp-for="FullAddress"
+                    class="form-control"
+                    id="fileInput"
+                    autocomplete="off"
+                    onchange="loadFileContent()"
+                    />
+                <span asp-validation-for="FullAddress" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Content" class="control-label"></label>
+                @* <input asp-for="Content" class="form-control" /> *@
+                <textarea
+                    asp-for="Content"
+                    id="fileContent"
+                    cols="30" rows="7"
+                    class="form-control-plaintext text-white"
+                    readonly
+                ></textarea>
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedAT" class="control-label"></label>
+                <input asp-for="CreatedAT" class="form-control" id="CreatedAT" readonly />
+                <span asp-validation-for="CreatedAT" class="text-danger"></span>
+            </div>
+            @* <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div> *@
+        </form>
+        <hr>
+
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header form-group">
+                <label for="directory" class="bg-dark text-white">Directory</label>
+                <input type="text" id="directory" class="form-control-plaintext">
+                <button class="btn btn-dark text-white" onclick="loadDirectoryMetadata()">Load</button>
+            </div>
+            <div class="card-body container">
+                <table class="table" id="plaintextTable" style="font-size: large; height: 50%;">
+                    <thead class="thead text-white">
+                        <tr>
+                            <th>Name</th>
+                            <th>Last Write Time</th>
+                            <th>Last Access Time</th>
+                            <th>Length</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-dark">
+
+                    </tbody>
+                </table>
+                <div class="row">
+                    <div class="col">
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="rate">Rate:</label>
+                                    <input class="form-control-plaintext" type="range" id="rate" min="0" max="10" step="1" value="1" onload="getRateValue()"> 
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                Rate value: <strong id="rateValue"></strong>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="volume">Volume:</label>
+                            <input class="form-control-plaintext" type="range" id="volume" min="0" max="10" step="1" value="1">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="Language" class="badge badge-danger text-white">Language</label>
+                            <select id="my_language" class="form-control-plaintext bg-dark text-white">
+                                <option value="en-EN">en-EN</option>
+                                <option value="fr-FR">fr-FR</option>
+                                <option value="es-ES">es-ES</option>
+                                <option value="de-DE">de-DE</option>
+                                <option value="pt-BR">pt-PT</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group container">
+                            <button id="speakButton" class="btn btn-dark text-white btn-block btn-lg form-control">Speak</button>
+                            <hr>
+                            <button id="resumeButton" class="btn btn-dark text-white btn-block btn-lg form-control">Resume</button>
+                            <hr>
+                            <button id="pauseButton"  class="btn btn-dark text-white btn-block btn-lg form-control">Pause</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <pre id="directoryMetadataError"></pre>
+            </div>
+        </div>
+
+    </div>
+</div>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header text-white" style="background-color: #ff2c96;">
+                <pre><strong id="title" class="text-white lead"></strong></pre>
+            </div>
+            <div class="card-body bg-white shadow-lg">
+                <div id="barChartContainer">
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+        </div>        
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header text-white" style="background-color: #ff2c96;">
+                <strong class="form-control-plaintext text-white" id="currentTimeInput"></strong>
+            </div>
+            <div class="card-body bg-white shadow-sm">
+                <strong style="text-align: justify; font-size:200%;  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; background-color: #ff2c96; " class="text-white" id="sentence" strong>
+            </div>
+            <div class="card-body">
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label class="control-label">Question</label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="question"
+                                    autocomplete="off"
+                                    spellcheck="false"
+                                    />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <br>
+                                <button class="btn btn block btn-lg bg-dark text-white" onclick="postAnswer()">
+                                    Ask Ollama: use orca-mini model
+                                </button>
+                            </div>
+                        </div>
+                    </div>                                      
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="card" style="text-align: justify; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; background-color: #ff2c96; ">
+                    <div class="card-header text-white">
+                        <strong class="text-white form-control-plaintext-lead" id="questionStr">
+
+                        </strong>
+                    </div>
+                    <div class="card-body table-hover" style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; background-color: #ff2c96;">
+                        <strong class="form-control-plaintext-lead" id="answer" style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; background-color: white; color: #ff2c96;">
+
+                        </strong>
+                    </div>
+                    <div class="card-footer">
+                        <strong class="text-white form-control-plaintext-lead" id="createdAT">
+
+                        </strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script class="text/javascript">
+    function postAnswer()
+    {
+        const question = document.getElementById('question');
+        if(question)
+        {
+            @* const tableBody = document.getElementById('authsTableBody'); *@
+            const answer = document.getElementById('answer');
+            const createdAT = document.getElementById("createdAT");
+            const questionStr = document.getElementById("questionStr");
+            @* tableBody.innerHTML = ""; *@
+            fetch(`/Plaintexts/PostAnswer?question=${encodeURIComponent(question.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    data.forEach(item => {       
+                        questionStr.innerHTML = item.questionStr;                 
+                        answer.innerHTML = item.answerStr;
+                        createdAT.innerHTML = item.createdAT;
+                    }) 
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });        
+        }
+    }
+    function getAnswer()
+    {
+        @* tableBody.innerHTML = ""; *@
+        fetch(`/Plaintexts/GetNlpQuestion`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                else if(response.ok)
+                {
+                    return response.json();
+                }
+            })
+            .then(data => {
+                console.log(data);
+                data.forEach(item => {       
+                    questionStr.innerHTML = item.questionStr;                 
+                    answer.innerHTML = item.answerStr;
+                    createdAT.innerHTML = item.createdAT;
+                }) 
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            }); 
+    }
+    const rateControl = document.getElementById('rate');
+    function getRateValue()
+    {
+        const rateValue = document.getElementById('rateValue');
+
+        rateValue.innerText = rateControl.value;        
+    }
+    rateControl.addEventListener('click', () => {       
+        getRateValue(); 
+    });
+    const barChart = document.getElementById('barChart');
+
+    function loadFileContent()
+    {
+        var fileInput = document.getElementById('fileInput');
+        var fileContentTextarea = document.getElementById('fileContent');
+        if(fileInput.value)
+        {
+            fetch(`/Plaintexts/LoadFile?filePath=${encodeURIComponent(fileInput.value)}`)
+                .then(response => {
+                    if(!response.ok)
+                    {
+                        throw new Error('Network response was not ok.');
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    fileContentTextarea.value = data;
+                })
+                .catch(error => {
+                    console.error(`Error loading file: ${error}`);
+                    fileContentTextarea.value = 'Error loading file.';
+                })
+        } else {
+            fileContentTextarea.value = 'No file selected.';
+        }
+    }
+    function loadDirectoryMetadata()
+    {
+        var directory = document.getElementById('directory');
+        if(directory.value)
+        {
+            fetch(`/Plaintexts/FileMetadata?filePath=${encodeURIComponent(directory.value)}`)
+                .then(response => {
+                    if(!response.ok)
+                    {
+                        throw new Error('Network response was not ok.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayPlaintextsTable(data);
+                })
+                .catch(error => {
+                    console.error(`Error loading file: ${error}`);
+                    directoryMetadataError.innerHTML = 'Error loading files metadata.';
+                })
+        } else {
+            directoryMetadataError.innerHTML = 'No directory selected.';
+        }
+    }
+
+    function displayPlaintextsTable(data)
+    {
+        var tableBody = document.querySelector('#plaintextTable tbody');
+        tableBody.innerHTML = '';
+
+        data.forEach(plaintext => {
+            var row = tableBody.insertRow();
+            var name = row.insertCell(0);
+            var lastWriteTime = row.insertCell(1);
+            var lastAccessTime = row.insertCell(2);
+            var length = row.insertCell(3);
+
+
+            name.textContent = plaintext.name || 'N/A';
+            lastWriteTime.textContent = plaintext.lastWriteTime || 'N/A';
+            lastAccessTime.textContent = plaintext.lastAccessTime || 'N/A';
+            length.textContent = plaintext.length || 'N/A';
+        })
+    }
+
+    function setCreateAT()
+    {
+        var createdATInput = document.getElementById('CreatedAT');
+        var currentDate = new Date();
+        createdATInput.value = currentDate.toISOString();
+    }
+
+    setCreateAT();
+    function updateCurrentTime()
+    {
+        var currentTimeInput = document.getElementById('currentTimeInput');
+        var currentTime = new Date();
+        var hours = currentTime.getHours();
+        var minutes = currentTime.getMinutes();
+        var seconds = currentTime.getSeconds();
+        var milliseconds = currentTime.getMilliseconds();
+
+        var formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}.${padZero(milliseconds, 3)}`;
+        currentTimeInput.innerHTML = formattedTime;
+    }
+    function padZero(number, width = 2)
+    {
+        var str = number.toString();
+        while(str.length < width)
+        {
+            str = '0' + str;
+        }
+        return str;
+    }
+    setInterval(updateCurrentTime, 100);
+    updateCurrentTime();
+    
+    const textInput = document.getElementById('fileContent');
+    const speakButton = document.getElementById('speakButton');
+    const rateInput = document.getElementById('rate');
+    const volumeInput = document.getElementById('volume');
+    const paragraph = document.getElementById('sentence');
+    const synth = window.speechSynthesis;
+
+    let isPaused = false; // Variable to track whether speech is paused
+    
+    function speechOptions()
+    {
+        const speakOptions = document.getElementById('speakOptions');
+        if(speakOptions.value == "1")
+        {
+            const textToSpeak = textInput.value.trim() || '';
+            if (textToSpeak) {
+                speakText(textToSpeak);
+            }
+        } else if (speakOptions.value == "2")
+        {
+            loadTextAsync(); 
+            speakButton.disabled = true;
+        }
+    }
+    
+    
+    
+    
+    function speaker() {
+        const sentences = textInput.value.split('\n');
+        const lang = document.getElementById("my_language").value;
+        const rate = parseFloat(rateInput.value);
+        const volume = parseFloat(volumeInput.value);
+        const paragraph = document.getElementById('sentence');
+
+        let currentIndex = 0;
+
+        function speakNextSentence() {
+            if (currentIndex < sentences.length) {
+                const parts = sentences[currentIndex].trim().split('|');
+                const sentence = parts[0];
+
+                const sentimentData = {
+                    positive, negative, neutral, compound
+                };
+
+                if (sentence) {
+
+                    const utterance = new SpeechSynthesisUtterance(sentence);
+                    utterance.rate = rate;
+                    utterance.volume = volume;
+                    utterance.lang = lang;
+
+                    synth.speak(utterance);
+
+                    utterance.onend = () => {
+                        currentIndex++;
+                        speakNextWord();
+                    };
+                } else {
+                    currentIndex++; // Skip empty sentences
+                    speakNextSentence(); // Call the next sentence
+                }
+            }
+        }
+
+        speakNextSentence(); // Start speaking the first sentence
+    }
+
+    function speakText(text) {
+        const sentences = text.split('\n');
+        const lang = document.getElementById("my_language").value;
+        const rate = parseFloat(rateInput.value);
+        const volume = parseFloat(volumeInput.value);
+        const paragraph = document.getElementById('sentence');
+        const title = document.getElementById('title');
+        let currentIndex = 0;
+
+        function speakNextSentence() {
+            if (currentIndex < sentences.length) {
+                const parts = sentences[currentIndex].trim().split('|');
+                const sentence = parts[0];
+                const positive = parts[1];
+                const negative = parts[2];
+                const neutral = parts[3];
+                const compound = parts[4];
+
+                const sentimentData = {
+                    positive, negative, neutral, compound
+                };
+
+                if (sentence && sentence.length >= 45) {
+
+                    const utterance = new SpeechSynthesisUtterance(sentence);
+                    utterance.rate = rate;
+                    utterance.volume = volume;
+                    utterance.lang = lang;
+                    paragraph.innerHTML = sentence;
+                    
+                    synth.speak(utterance);
+                    utterance.onend = () => {
+                        currentIndex++;
+                        speakNextSentence();
+                    };
+                } else {
+                    currentIndex++; // Skip empty sentences
+                    speakNextSentence(); // Call the next sentence
+                }
+
+                const chartContainer = document.getElementById('barChart');
+                const canvas = document.createElement('canvas');
+                chartContainer.innerHTML = '';
+                chartContainer.appendChild(canvas);
+
+                if(window.myChart)
+                {
+                    window.myChart.destroy();
+                }
+
+                const _positive = parseFloat(positive.replace(',','').replace('"',''));
+                const _negative = parseFloat(negative.replace(',','').replace('"',''));
+                const _neutral = parseFloat(neutral.replace(',','').replace('"',''));
+                const _compound = parseFloat(compound.replace(',','').replace('"',''));
+                
+                if(_positive <= _negative)
+                {
+                    title.innerText = `Length: ${sentence.length}, Word Counts: ${sentence.split(" ").length}, Negative ${_negative}`;
+                }
+                else if(_positive >= _negative)
+                {
+                    title.innerText = `Length: ${sentence.length}, Word Counts: ${sentence.split(" ").length}, Positive ${_positive}`;
+                }
+                else 
+                {
+                    title.innerText = `Length: ${sentence.length}, Word Counts: ${sentence.split(" ").length}, Positive ${_positive}, Negative: ${_negative}`;
+                }
+                window.myChart = new Chart("barChart", {
+                    type: 'bar',
+                    data: {
+                        labels: ["Pos","Neg", "Neu", "Comp"],
+                        datasets: [{                    
+                            backgroundColor: ["navy", "red", "magenta", "yellow"],
+                            borderColor: ['white', 'black', 'black', 'black'],
+                            borderWidth: 3,
+                            data: [_positive,_negative,_neutral,_compound]
+                        }]
+                    }
+                });
+            }
+        }
+
+        speakNextSentence(); // Start speaking the first sentence
+    }
+
+    speakButton.addEventListener('click', () => {
+        const textToSpeak = textInput.value.trim() || '';
+        if (textToSpeak) {
+            speakButton.disabled = true;
+            speakText(textToSpeak);
+        }
+    });
+
+    pauseButton.addEventListener('click', () => {
+        synth.pause();
+    });
+
+    resumeButton.addEventListener('click', () => {
+        synth.resume();
+    });
+
+    
+</script>

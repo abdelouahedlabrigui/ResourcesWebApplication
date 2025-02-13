@@ -1,0 +1,126 @@
+@model ResourcesWebApplication.Models.News.Question
+
+@{
+    ViewData["Title"] = $"Question answer.";
+}
+
+<div class="card">
+    <div class="card-header bg-light">
+        <div class="row">
+            <div class="col form-control-plaintext">
+                <h1>Details for Question with @Html.DisplayFor(model => model.Id) ID.</h1>
+            </div>
+            <div class="col form-control-plaintext">
+                <div class="form-group">
+                    <label for="@Html.DisplayNameFor(model => model.Id)" class="text-dark">@Html.DisplayNameFor(model => model.Id)</label>
+                    <select class="form-control-plaintext bg-light text-dark" id="answer_id">
+                        <option value="@Html.DisplayNameFor(model => model.Id)">@Html.DisplayNameFor(model => model.Id)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-dark text-white btn-block btn-lg" onclick="generateNLPData()">Generate NLP data.</button>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-dark text-white btn-block btn-lg" onclick="getAnswerByIdYPostToAnswerSentiments()">Generate Answer Sentiments</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header form-control-plaintext bg-dark text-white">
+                        Id: @Html.DisplayFor(model => model.Id) | Title: @Html.DisplayFor(model => model.ArticleTitle)
+                    </div>
+                    <div class="card-body form-control-plaintext">
+                        <div class="form-group container">
+                            <label class="control-label">@Html.DisplayNameFor(model => model.ArticleTitle)</label>
+                            <hr />
+                            <i class="bg-light form-control-plaintext" style="background-color: rgb(71, 4, 71);" id="paragraph">@Html.DisplayFor(model => model.Answer)</i>
+                        </div>
+                    </div>
+                    <div class="card-footer form-control-plaintext bg-dark text-white">
+                        <strong class="text-white">@Html.DisplayFor(model => model.CreatedAT)</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+
+            </div>
+        </div>        
+    </div>
+    <div class="card-footer">
+        <div class="container">
+            <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+            <a asp-action="Index">Back to List</a>
+        </div>
+    </div>
+</div>
+<script>
+    function getQuestionRecordsId()
+    {
+        const dropdown1 = document.getElementById('answer_id');
+        dropdown1.innerHTML = "";
+        fetch(`/NewsArticles/AnswersRecordsId`) // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                data.forEach(name => {                
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    dropdown1.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    getQuestionRecordsId();
+    function generateNLPData()
+    {
+        const answer_id = document.getElementById("answer_id");
+        const paragraph = document.getElementById("paragraph");
+        if(answer_id && paragraph)
+        {
+            fetch(`/NewsArticles/ExecuteGenerateAnswerNLP?answer_id=${encodeURIComponent(answer_id.value)}&paragraph=${encodeURIComponent(paragraph.innerText)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function getAnswerByIdYPostToAnswerSentiments()
+    {
+        const answer_id = document.getElementById("answer_id");
+        if(answer_id)
+        {
+            fetch(`/NewsArticles/GetAnswerByIdYPostToAnswerSentiments?answerId=${encodeURIComponent(answer_id.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+</script>

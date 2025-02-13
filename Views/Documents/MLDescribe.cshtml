@@ -1,0 +1,245 @@
+@model ResourcesWebApplication.Models.MachineLearning.Describe
+
+<style>
+    thead {
+        background-color: rgb(105, 105, 196);        
+        font-style: italic;
+        font-size: medium;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+    #btnId
+    {
+        background-color: rgb(105, 105, 196);        
+        font-style: italic;
+        font-size: large;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+    tbody {
+        background-color:  rgb(253, 246, 250);
+        font-style: oblique;
+        font-size: medium;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+    select {
+        background-color:  rgb(253, 246, 250);
+        font-style: oblique;
+        font-size: large;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+</style>
+
+@{
+    ViewData["Title"] = "Description";
+}
+
+<div class="card">
+    <div class="card-header">
+        <strong>Datasets Described: e.g. ML.</strong> | <select id="descriptionsID" class="text-dark lead" onchange="descriptions()" style="font-size: small;"></select> | <strong class="bg-danger text-white" id="message"></strong>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card-header">
+                <div class="form-group">
+                    <label for="datasetAddress" class="control-label">Dataset Address</label>
+                    <input id="addressID" class="form-control-plaintext bg-white text-danger" autocomplete="off" spellcheck="false" required />
+                </div>
+                <hr>
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-md text-white" id="btnId" onclick="executedescriptionPyScript()" />
+                </div>    
+            </div>
+        </div>
+        <div class="col">
+            <div class="card-body">
+                <strong>Endpoints.</strong>
+                <hr>
+                <table class="table">
+                    <thead class="table text-white">
+                        <tr>
+                            <th>DatasetName</th>
+                            <th>Column</th>
+                            <th>Count</th>
+                            <th>Mean</th>
+                            <th>Std</th>
+                            <th>Min</th>
+                            <th>25%</th>
+                            <th>50%</th>
+                            <th>75%</th>
+                            <th>Max</th>
+                            <th>CreatedAT</th>
+                        </tr>
+                    </thead>
+                    <tbody id="descriptionsTableBody" class="table text-dark">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+<script>
+    const btnId = document.getElementById('btnId');
+
+    btnId.addEventListener('click', async () => {
+        // Disable the button to prevent multiple clicks
+        btnId.disabled = true;
+
+        // Execute the script
+        await executedescriptionPyScript();
+
+        // Re-enable the button after the operation is completed
+        btnId.disabled = false;
+
+    });
+
+    async function executedescriptionPyScript() {
+        const tableBody = document.getElementById('descriptionsTableBody');
+        const address = document.getElementById('addressID');
+
+        tableBody.innerHTML = "";
+        const message = document.getElementById('message');
+        if (address) {
+            fetch(`/Documents/ExecuteDescriptionPyScript?datasetName=${encodeURIComponent(address.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    data.forEach(description => {
+                        const row = tableBody.insertRow();                    
+                        row.insertCell().textContent = description.datasetName;
+                        row.insertCell().textContent = description.column;
+                        row.insertCell().textContent = description.count;
+                        row.insertCell().textContent = description.mean;
+                        row.insertCell().textContent = description.std;
+                        row.insertCell().textContent = description.min;
+                        row.insertCell().textContent = description.twentyFivePercent;
+                        row.insertCell().textContent = description.fiftyPercent;
+                        row.insertCell().textContent = description.seventyFivePercent;
+                        row.insertCell().textContent = description.max;
+                        row.insertCell().textContent = description.createdAT;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+
+    function getDatasetNames()
+    {
+        const descriptions = document.getElementById('descriptionsID');
+        descriptions.innerHTML = "";
+        fetch(`/Documents/GetDocumentDescriptionDatasetNames`) // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {                
+                data.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    descriptions.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    getDatasetNames();
+
+
+    function descriptions()
+    {
+        loaddescriptions();
+    }
+    function loaddescriptions()
+    {
+        const tableBody = document.getElementById('descriptionsTableBody');
+        const description = document.getElementById('descriptionsID');
+        tableBody.innerHTML = "";
+        if(description)
+        {
+            fetch(`/Documents/GetDocumentDescription?datasetName=${encodeURIComponent(description.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    data.forEach(description => {
+                        const row = tableBody.insertRow();                    
+                        row.insertCell().textContent = description.datasetName;
+                        row.insertCell().textContent = description.column;
+                        row.insertCell().textContent = description.count;
+                        row.insertCell().textContent = description.mean;
+                        row.insertCell().textContent = description.std;
+                        row.insertCell().textContent = description.min;
+                        row.insertCell().textContent = description.twentyFivePercent;
+                        row.insertCell().textContent = description.fiftyPercent;
+                        row.insertCell().textContent = description.seventyFivePercent;
+                        row.insertCell().textContent = description.max;
+                        row.insertCell().textContent = description.createdAT;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }    
+    
+    function getdescriptions()
+    {
+        const tableBody = document.getElementById('descriptionsTableBody');
+        tableBody.innerHTML = "";
+        fetch(`/Documents/GetDescriptions`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    data.forEach(description => {
+                        const row = tableBody.insertRow();                    
+                        row.insertCell().textContent = description.datasetName;
+                        row.insertCell().textContent = description.column;
+                        row.insertCell().textContent = description.count;
+                        row.insertCell().textContent = description.mean;
+                        row.insertCell().textContent = description.std;
+                        row.insertCell().textContent = description.min;
+                        row.insertCell().textContent = description.twentyFivePercent;
+                        row.insertCell().textContent = description.fiftyPercent;
+                        row.insertCell().textContent = description.seventyFivePercent;
+                        row.insertCell().textContent = description.max;
+                        row.insertCell().textContent = description.createdAT;
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+    }
+    getdescriptions();
+</script>

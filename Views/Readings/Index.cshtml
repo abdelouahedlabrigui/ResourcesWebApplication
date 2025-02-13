@@ -1,0 +1,141 @@
+@model IEnumerable<ResourcesWebApplication.Models.Documents.Reading>
+<style>
+    thead {
+        background-color:#ff2c96;        
+        font-style: italic;
+        font-size: medium;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+    #btnId
+    {
+        background-color: #ff2c96;        
+        font-style: italic;
+        font-size: large;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+    tbody {
+        background-color:  rgb(248, 248, 248);
+        font-style: oblique;
+        font-size: medium;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+    .card-header
+    {
+        background-color: #ff2c96;        
+        font-style: italic;
+        font-size: large;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+</style>
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<div class="row">
+    <div class="col-md-4">
+        @using(Html.BeginForm("SearchById", "Readings", FormMethod.Get))
+        {
+            <form asp-action="SearchByTitle">
+                <div class="card">
+                    <div class="card-header text-white">
+                        Search By Id
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="InputSearch" name="Id"  class="bg-dark text-white">Input Search</label>
+                            <input type="text" name="Id" id="top" class="form-control-plaintext" autocomplete="off" spellcheck="false" />
+                        </div>
+                    </div>
+                    <div class="card-footer form-group">
+                        <button class="btn bg-dark text-white" id="btnId">Search</button>                    
+                    </div>
+                </div>
+            </form>
+        }
+    </div>
+    <div class="col">
+        <table class="table">
+            <thead class="thead text-white">
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.DocumentID)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.DateAT)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.StartAT)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.EndAT)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.CreatedAT)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+        @foreach (var item in Model) {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DocumentID)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DateAT)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.StartAT)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EndAT)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CreatedAT)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                        <a asp-action="Delays" asp-route-id="@item.Id">Delays</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+        }
+            </tbody>
+        </table>
+
+    </div>
+</div>
+<hr>
+<script>
+    
+    function getDOCUMENTNames()
+    {
+        fetch(`/Readings/GetDocumentNames`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                else if(response.ok)
+                {
+                    return response.json();
+                }
+            })
+            .then(data => {
+                console.log(data);
+                const row = tableBody.insertRow();
+                data.forEach(webPage => {           
+                    row.insertCell().textContent = webPage.id;
+                    
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+</script>

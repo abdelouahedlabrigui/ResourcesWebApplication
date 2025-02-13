@@ -1,0 +1,258 @@
+@model ResourcesWebApplication.Models.MachineLearning.ColumnDescription
+
+@{
+    ViewData["Title"] = "Column Description";
+}
+
+<style>
+    thead {
+        background-color: #ff2c96;
+        font-style: italic;
+        font-size: medium;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+    #btnId
+    {
+        background-color: #ff2c96;        
+        font-style: italic;
+        font-size: large;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+    tbody {
+        background-color:  rgb(255, 255, 255);
+        font-style: oblique;
+        font-size: medium;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+</style>
+
+<h1>Create</h1>
+
+
+<hr />
+<div class="card">
+    <div class="card-header">
+        <h4>Column Description</h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="form-group">
+                            <label asp-for="DatasetName" class="control-label"></label>
+                            <select asp-for="DatasetName"  id="datasetID" class="form-control-plaintext text-dark lead" onchange="getColumnDescriptionByDatasetNames()"></select>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="datasetAddress" class="control-label">Dataset Address</label>
+                            <input id="addressID" class="form-control-plaintext bg-white text-danger" autocomplete="off" spellcheck="false" required />
+                        </div>
+                        <hr>
+                        <div class="form-group">
+                            <input type="submit" value="Create" class="btn btn-md text-white" id="btnId" />
+                        </div>    
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                    <div class="card-body">
+                        <strong>Dataset Information.</strong>
+                        <hr>
+                        <table class="table">
+                            <thead class="table text-white">
+                                <tr>
+                                    <th>Dataset Name</th>
+                                    <th>Column</th>
+                                    <th>Description</th>
+                                    <th>CreatedAT</th>
+                                    <th>-</th>
+                                </tr>
+                            </thead>
+                            <tbody id="columnDescriptionTableBody" class="table text-dark">
+
+                            </tbody>
+                        </table>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+    async function getColumnDescriptions() {
+        const tableBody = document.getElementById('columnDescriptionTableBody');
+        const address = document.getElementById('addressID');
+        tableBody.innerHTML = "";        
+        if (address) {
+            fetch(`/Documents/GetEntityDescriptions`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    data.forEach(col => {
+                        const row = tableBody.insertRow();                    
+                        
+                        row.insertCell().textContent = col.datasetName;
+                        row.insertCell().textContent = col.column;
+                        row.insertCell().textContent = col.description;
+                        row.insertCell().textContent = col.createdAT;
+                        const details = document.createElement('a');
+                        details.href = `/Documents/ColumnDescriptionDetails/${col.id}`;
+                        details.textContent = 'Details';
+                        const deleteItem = document.createElement('a');
+                        deleteItem.href = `/Documents/ColumnDescriptionDetails/${col.id}`;
+                        deleteItem.textContent = 'Delete';
+                        const actionCell = row.insertCell();
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(details);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(deleteItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    window.onload = async function()
+    {
+        await getColumnDescriptions();
+    }
+    async function getColumnDescriptionByDatasetNames() {
+        const tableBody = document.getElementById('columnDescriptionTableBody');
+        const descriptions = document.getElementById('datasetID');
+        tableBody.innerHTML = "";        
+        if (descriptions) {
+            fetch(`/Documents/GetColumnDescriptionGroupByDatasetNames?datasetName=${encodeURIComponent(descriptions.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    data.forEach(col => {
+                        const row = tableBody.insertRow();                    
+                        
+                        row.insertCell().textContent = col.datasetName;
+                        row.insertCell().textContent = col.column;
+                        row.insertCell().textContent = col.description;
+                        row.insertCell().textContent = col.createdAT;
+                        const details = document.createElement('a');
+                        details.href = `/Documents/ColumnDescriptionDetails/${col.id}`;
+                        details.textContent = 'Details';
+                        const deleteItem = document.createElement('a');
+                        deleteItem.href = `/Documents/ColumnDescriptionDetails/${col.id}`;
+                        deleteItem.textContent = 'Delete';
+                        const actionCell = row.insertCell();
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(details);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(deleteItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });             
+        }
+    }
+    const btnId = document.getElementById('btnId');
+
+    btnId.addEventListener('click', async () => {
+        // Disable the button to prevent multiple clicks
+        btnId.disabled = true;
+
+        // Execute the script
+        await executeColumnDescriptionPyScript();
+
+        // Re-enable the button after the operation is completed
+        btnId.disabled = false;
+
+    });
+    async function executeColumnDescriptionPyScript() {
+        const tableBody = document.getElementById('columnDescriptionTableBody');
+        const address = document.getElementById('addressID');
+        const descriptions = document.getElementById('datasetID');
+        tableBody.innerHTML = "";        
+        if (address && descriptions) {
+            fetch(`/Documents/ExecuteColumnDescriptionPyScript?filename=${encodeURIComponent(address.value)}&datasetName=${encodeURIComponent(descriptions.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    data.forEach(col => {
+                        const row = tableBody.insertRow();                    
+                        row.insertCell().textContent = col.id;
+                        
+                        row.insertCell().textContent = col.datasetName;
+                        row.insertCell().textContent = col.column;
+                        row.insertCell().textContent = col.description;
+                        row.insertCell().textContent = col.createdAT;
+                        
+                        const details = document.createElement('a');
+                        details.href = `/Documents/ColumnDescriptionDetails/${col.id}`;
+                        details.textContent = 'Details';
+                        const deleteItem = document.createElement('a');
+                        deleteItem.href = `/Documents/ColumnDescriptionDetails/${col.id}`;
+                        deleteItem.textContent = 'Delete';
+                        const actionCell = row.insertCell();
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(details);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(deleteItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function getDatasetNames()
+    {
+        const descriptions = document.getElementById('datasetID');
+        descriptions.innerHTML = "";
+        fetch(`/Documents/GetDocumentDescriptionDatasetNames`) // Replace 'ControllerName' with the name of your controller
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {                
+                data.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    descriptions.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+    }
+    getDatasetNames()
+    
+</script>

@@ -1,0 +1,94 @@
+@model IEnumerable<ResourcesWebApplication.Models.Documents.Document>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p style="font-size: small;">
+    <a asp-action="Create">Create New</a> | <a class="lead bg-dark text-white" asp-area="" asp-controller="Documents" asp-action="TimezoneTimer">Timezones</a> | <a class="lead bg-dark text-white" asp-area="" asp-controller="Documentations" asp-action="ForgeHelpIndex">Forge Help</a> | <a class="lead bg-dark text-white" asp-area="" asp-controller="Documentations" asp-action="Index">Documentation Link</a> | <a asp-action="Performance" class="lead bg-dark text-white">Performance</a> | <strong> <a asp-action="MLInfo" class="lead bg-dark text-white">Datasets Info.</a></strong> | <strong> <a asp-action="MLDescribe" class="lead bg-dark text-white">Datasets Description.</a> | <strong> <a asp-action="RegressionPlot" class="lead bg-dark text-white">Regression Plot.</a></strong> | <strong> <a asp-action="LinearRegressionPlot" class="lead bg-dark text-white">Linear Regression Plot.</a></strong> | <strong> <a asp-action="Conceptual" class="lead bg-dark text-white">Conceptual Dataset Information.</a> | <strong> <a asp-action="ColumnDescription" class="lead bg-dark text-white">Dataset Column Descriptions.</a></strong> | <strong> <a asp-action="Execute" class="lead bg-dark text-white">Linguistic Features.</a></strong>
+</p>
+<div class="row">
+    <div class="col-md-4">
+        @using(Html.BeginForm("SearchByTitle", "Documents", FormMethod.Get))
+        {
+            <form asp-action="SearchByTitle">
+                <div class="card">
+                    <div class="card-header text-white" style="background-color: #ff2c96;">
+                        Search By Title
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="InputSearch" name="title"  class="bg-dark text-white">Input Search</label>
+                            <input type="text" name="title" class="form-control-plaintext" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="card-footer form-group">
+                        <button class="btn text-white" style="background-color: #ff2c96;">Search</button>                    
+                    </div>
+                </div>
+            </form>
+        }
+        @using(Html.BeginForm("SearchById", "Documents", FormMethod.Get))
+        {
+            <form asp-action="SearchById">
+                <div class="card">
+                    <div class="card-header text-white" style="background-color: #ff2c96;">
+                        Search By Id
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="InputSearch" name="id"  class="bg-dark text-white">ID: Input Search</label>
+                            <input type="text" name="id" class="form-control-plaintext" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="card-footer form-group">
+                        <button class="btn text-white" style="background-color: #ff2c96;">Search</button>                    
+                    </div>
+                </div>
+            </form>
+        }
+    </div>
+    <div class="col">
+        <table class="table table-light table-hover" id="documentsTable">
+            <thead class="thead text-white" style="background-color: #ff2c96;">
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Id)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Title)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.CreatedAT)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+        @foreach (var item in Model) {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+                    <td>
+                        <a 
+                            style="color: black;"
+                            href="@Html.DisplayFor(modelItem => item.Url)">@Html.DisplayFor(modelItem => item.Title)</a>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CreatedAT)
+                    </td>
+                    <td>
+                        <a class="text-dark" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a class="text-dark" asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                        <a class="text-dark" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+        }
+            </tbody>
+        </table>
+    </div>
+</div>
+<hr>

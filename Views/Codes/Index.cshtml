@@ -1,0 +1,37 @@
+@model IEnumerable<ResourcesWebApplication.Models.Documents.Code>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a> | <a class="lead bg-dark text-white" asp-area="" asp-controller="Passwords" asp-action="Index">Password</a>
+</p>
+<div class="row">
+    <div class="col">
+        @Html.DisplayNameFor(model => model.Title)
+    </div>
+    <div class="col-md-4">
+        @Html.DisplayNameFor(model => model.CreatedAT)    
+    </div>
+    <div class="col-md-4">
+
+    </div>
+</div>
+@foreach (var item in Model) {
+    <div class="row">
+        <div class="col">
+            <h3><a class="text-dark" href="@Html.DisplayFor(modelItem => item.Url)">@Html.DisplayFor(modelItem => item.Title)</a></h3>
+        </div>
+        <div class="col">
+            <h5 class="badge text-dark">@Html.DisplayFor(modelItem => item.CreatedAT)</h5>
+        </div>
+        <div class="col">
+            <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+            <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+            <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+        </div>
+    </div>
+}

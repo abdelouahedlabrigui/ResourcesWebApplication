@@ -1,0 +1,311 @@
+@model ResourcesWebApplication.Models.Plaintext
+<style>
+    tbody{
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;        
+        color: black;
+        text-decoration: solid;
+        font-size: large;
+        background-color: rgb(255, 255, 244);
+    }
+    thead{
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        font-style: italic;
+    }
+    
+</style>
+@{
+    ViewData["Title"] = "Tutorial";
+}
+
+<h1>Create</h1>
+
+<h4>Plaintext</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="FullAddress" class="control-label"></label>
+                <input 
+                    type="text"
+                    asp-for="FullAddress" 
+                    class="form-control" 
+                    id="fileInput"
+                    autocomplete="off"
+                    onchange="loadFileContent()"
+                    />
+                <span asp-validation-for="FullAddress" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Content" class="control-label"></label>
+                @* <input asp-for="Content" class="form-control" /> *@
+                <textarea 
+                    id="fileContent" 
+                    cols="30" rows="7" 
+                    class="form-control-plaintext"
+                    readonly
+                ></textarea>
+                <input asp-for="Content" class="form-control-plaintext text-white" value="-" readonly />
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedAT" class="control-label"></label>
+                <input asp-for="CreatedAT" class="form-control" id="CreatedAT" readonly />
+                <span asp-validation-for="CreatedAT" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+        <hr>
+        <div class="card-body container">
+            <div class="shadow-lg lead bg-white">
+                <div class="row">
+                    <div class="col container">
+                        <div class="form-group">
+                            <label for="rate">Rate:</label>
+                            <input class="form-control-plaintext" type="range" id="rate" min="1" max="10" step="1" value="1">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="volume">Volume:</label>
+                            <input class="form-control-plaintext" type="range" id="volume" min="0" max="1" step="0.01" value="1">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col container">
+                        <div class="form-group container">
+                            <label for="Language" class="badge badge-danger text-white">Language</label>
+                            <select id="my_language" class="form-control-plaintext bg-dark text-white">
+                                <option value="fr-FR">fr-FR</option>
+                                <option value="en-EN">en-EN</option>
+                                <option value="es-ES">es-ES</option>
+                                <option value="de-DE">de-DE</option>  
+                                <option value="pt-BR">pt-PT</option>                                
+                            </select>
+                        </div>
+                        <div class="form-group container">
+                            <div class="row">
+                                <div class="col">
+                                    <button id="speakButton" class="btn btn-dark btn-hover text-white btn-block btn-lg form-control">Speak</button>
+                                </div>
+                                <div class="col form-group">
+                                    <button id="resumeButton" class="btn btn-dark text-white btn-block btn-lg form-control">Resume</button>
+                                </div>
+                                <div class="col form-group">
+                                    <button id="pauseButton"  class="btn btn-dark text-white btn-block btn-lg form-control">Pause</button>
+                                </div>
+                            </div>                            
+                        </div>
+                    </div>
+                </div>      
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header form-group">
+                <label for="directory" class="bg-dark text-white">Directory</label>
+                <input type="text" id="directory" class="form-control-plaintext">
+                <button class="btn btn-dark text-white" onclick="loadDirectoryMetadata()">Load</button>
+            </div>
+            <div class="card-body">
+                <table class="table" id="plaintextTable" style="font-size: smaller; height: 50%;">
+                    <thead class="thead text-white" style="background-color: #ff2c96;">
+                        <tr>
+                            <th>Name</th>
+                            <th>Last Write Time</th>
+                            <th>Last Access Time</th>
+                            <th>Length</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>                    
+                </table>
+            </div>
+            <div class="card-footer">
+                <pre id="directoryMetadataError"></pre>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card" style="margin-top: 50%;">
+    <div class="card-header text-white" style="background-color: #ff2c96;">
+        <strong class="form-control-plaintext text-white" style="font-size: 180%;" id="currentTimeInput"></strong>
+    </div>
+    <div class="card-body bg-white shadow-sm">
+        <strong style="text-align: justify; font-size:200%;  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; background-color: #ff2c96; " class="text-white" id="sentence" strong>
+    </div>
+</div>
+<div class="" style="margin-bottom: 50%;"></div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script class="text/javascript">
+    function loadFileContent()
+    {
+        var fileInput = document.getElementById('fileInput');
+        var fileContentTextarea = document.getElementById('fileContent');
+        if(fileInput.value)
+        {
+            fetch(`/Plaintexts/LoadFile?filePath=${encodeURIComponent(fileInput.value)}`)
+                .then(response => {
+                    if(!response.ok)
+                    {
+                        throw new Error('Network response was not ok.');
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    fileContentTextarea.value = data;
+                })
+                .catch(error => {
+                    console.error(`Error loading file: ${error}`);
+                    fileContentTextarea.value = 'Error loading file.';
+                })
+        } else {
+            fileContentTextarea.value = 'No file selected.';
+        }
+    }
+    function loadDirectoryMetadata()
+    {
+        var directory = document.getElementById('directory');
+        if(directory.value)
+        {
+            fetch(`/Plaintexts/FileMetadata?filePath=${encodeURIComponent(directory.value)}`)
+                .then(response => {
+                    if(!response.ok)
+                    {
+                        throw new Error('Network response was not ok.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayPlaintextsTable(data);
+                })
+                .catch(error => {
+                    console.error(`Error loading file: ${error}`);
+                    directoryMetadataError.innerHTML = 'Error loading files metadata.';
+                })
+        } else {
+            directoryMetadataError.innerHTML = 'No directory selected.';
+        }
+    }
+
+    function displayPlaintextsTable(data)
+    {
+        var tableBody = document.querySelector('#plaintextTable tbody');
+        tableBody.innerHTML = '';
+        
+        data.forEach(plaintext => {
+            var row = tableBody.insertRow();
+            var name = row.insertCell(0);
+            var lastWriteTime = row.insertCell(1);
+            var lastAccessTime = row.insertCell(2);
+            var length = row.insertCell(3);
+
+
+            name.textContent = plaintext.name || 'N/A';
+            lastWriteTime.textContent = plaintext.lastWriteTime || 'N/A';
+            lastAccessTime.textContent = plaintext.lastAccessTime || 'N/A';
+            length.textContent = plaintext.length || 'N/A';
+        })
+    }
+
+    function setCreateAT()
+    {
+        var createdATInput = document.getElementById('CreatedAT');
+        var currentDate = new Date();
+        createdATInput.value = currentDate.toISOString();
+    }
+    
+    setCreateAT();
+    function updateCurrentTime()
+    {
+        var currentTimeInput = document.getElementById('currentTimeInput');
+        var currentTime = new Date();
+        var hours = currentTime.getHours();
+        var minutes = currentTime.getMinutes();
+        var seconds = currentTime.getSeconds();
+        var milliseconds = currentTime.getMilliseconds();
+
+        var formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}.${padZero(milliseconds, 3)}`;
+        currentTimeInput.innerHTML = formattedTime;
+    }
+    function padZero(number, width = 2)
+    {
+        var str = number.toString();
+        while(str.length < width)
+        {
+            str = '0' + str;
+        }
+        return str;
+    }
+    setInterval(updateCurrentTime, 100);
+    updateCurrentTime();
+
+    @* const fileInput = document.getElementById('fileInput'); *@
+    const textInput = document.getElementById('fileContent');
+    const speakButton = document.getElementById('speakButton');
+    const rateInput = document.getElementById('rate');
+    const volumeInput = document.getElementById('volume');
+    const paragraph = document.getElementById('sentence');
+    const synth = window.speechSynthesis;
+
+    function speakText(text) {
+        const sentences = text.split('.');
+        const lang = document.getElementById("my_language").value;
+        const rate = parseFloat(rateInput.value);
+        const volume = parseFloat(volumeInput.value);
+        // const paragraph = document.getElementById('paragraph'); // Assuming you have a paragraph element with id 'paragraph'
+
+        let currentIndex = 0;
+
+        function speakNextSentence() {
+            if (currentIndex < sentences.length) {
+                const sentence = sentences[currentIndex].trim();
+                if (sentence && sentence.length > 25) {
+                    const utterance = new SpeechSynthesisUtterance(sentence);
+                    utterance.rate = rate;
+                    utterance.volume = volume;
+                    utterance.lang = lang;
+                    paragraph.innerHTML = sentence;
+
+                    // Speak the sentence
+                    synth.speak(utterance);
+
+                    // Move to the next sentence after it's spoken
+                    utterance.onend = () => {
+                        currentIndex++;
+                        speakNextSentence(); // Call the next sentence
+                    };
+                } else {
+                    currentIndex++; // Skip empty sentences
+                    speakNextSentence(); // Call the next sentence
+                }
+            }
+        }
+
+        speakNextSentence(); // Start speaking the first sentence
+    }
+    speakButton.addEventListener('click', () => {
+        const textToSpeak = textInput.value.trim() || '';
+        if (textToSpeak) {
+            speakText(textToSpeak);
+        }
+    });
+    pauseButton.addEventListener('click', () => {
+        synth.pause();
+    });
+
+    resumeButton.addEventListener('click', () => {
+        synth.resume();
+    });
+
+</script>

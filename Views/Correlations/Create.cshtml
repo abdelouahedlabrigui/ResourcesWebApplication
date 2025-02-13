@@ -1,0 +1,65 @@
+@model ResourcesWebApplication.Models.MachineLearning.Correlation
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Correlation</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="DatasetName" class="control-label"></label>
+                <input asp-for="DatasetName" class="form-control" />
+                <span asp-validation-for="DatasetName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AvgAreaIncome" class="control-label"></label>
+                <input asp-for="AvgAreaIncome" class="form-control" />
+                <span asp-validation-for="AvgAreaIncome" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AvgAreaHouseAge" class="control-label"></label>
+                <input asp-for="AvgAreaHouseAge" class="form-control" />
+                <span asp-validation-for="AvgAreaHouseAge" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AvgAreaNumberofRooms" class="control-label"></label>
+                <input asp-for="AvgAreaNumberofRooms" class="form-control" />
+                <span asp-validation-for="AvgAreaNumberofRooms" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AvgAreaNumberofBedrooms" class="control-label"></label>
+                <input asp-for="AvgAreaNumberofBedrooms" class="form-control" />
+                <span asp-validation-for="AvgAreaNumberofBedrooms" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AreaPopulation" class="control-label"></label>
+                <input asp-for="AreaPopulation" class="form-control" />
+                <span asp-validation-for="AreaPopulation" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Price" class="control-label"></label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedAT" class="control-label"></label>
+                <input asp-for="CreatedAT" class="form-control" />
+                <span asp-validation-for="CreatedAT" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

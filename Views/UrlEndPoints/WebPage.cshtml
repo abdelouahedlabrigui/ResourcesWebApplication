@@ -1,0 +1,471 @@
+@model ResourcesWebApplication.Models.Endpoints.WebPage
+<style>
+    tbody{
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;        
+        color: black;
+        text-decoration: solid;
+        font-size: medium;
+        background-color: rgb(255, 255, 244);
+    }
+    thead{
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        font-style: normal;
+        font-size: 90%;
+    }
+    .action-link {
+        margin-right: 5px; /* Adjust the margin as needed */
+    }
+
+    
+</style>
+@{
+    ViewData["Title"] = "@Web Pages";
+}
+@{
+    string[] topORWhere = {"TOP", "WHERE", "ALL", "CONTAIN"};
+}
+
+<h1>Create</h1>
+
+<h4>webPage</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form >            
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" id="title" class="form-control-plaintext bg-light text-dark" spellcheck="false" autocomplete="off" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Url" class="control-label"></label>
+                <input asp-for="Url" id="url" class="form-control"  autocomplete="off" spellcheck="false" />
+                <span asp-validation-for="Url" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="Time" class="bg-dark text-white">Time</label>
+                <input 
+                    type="datetime" 
+                    id="createdAT" 
+                    class="form-control-plaintext bg-white text-dark" readonly
+                    style="font-size: 140%;"                    
+                />
+            </div>
+            <div class="form-group">
+                <pre id="createMessageError"></pre>
+            </div>
+        </form>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">                    
+                            <button class="btn text-white btn-lg btn-block" style="background-color: #ff2c96;" onclick="addWebPage()">Add Web Page</button>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">                    
+                            <button class="btn text-white btn-lg btn-block" style="background-color: #ff2c96;" onclick="postData()" >Fetch</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <table class="table bg-white text-dark" id="webPagePreFetchTable">
+                    <thead class="text-white" style="text-align: justify; font-family: Arial, Helvetica, sans-serif; background-color: black;">
+                        <tr>
+                            <th>Title</th>
+                            <th>Created AT</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card">
+    <div class="card-header">
+        <strong>Web Pages Data: </strong>
+    </div>
+    <div class="card-body">
+        <div class="card">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card-header text-white" style="background-color: #ff2c96;">
+                        Select TOP Number (or) WHERE Web Page Title.
+                        <select name="" id="topORWhereOptions" class="form-control-plaintext bg-white text-dark">
+                            @foreach(string select in topORWhere)
+                            {
+                                <option value="@select">@select</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="InputSearch" name="Top" class="bg-dark text-white">Top or Where</label>
+                            <input type="text" id="topOrWhereInput" class="form-control-plaintext" required autocomplete="off" spellcheck="false" />
+                        </div>
+                    </div>
+                    <div class="card-footer form-group">
+                        <button class="btn text-white" style="background-color: black;" onclick="getWebPagesByTOPOrWhereOrAllOrContains()" >API Call.</button>                    
+                    </div>
+                </div>
+                <div class="col">
+                    <table class="table bg-white text-dark" id="webPageTable">
+                        <thead class="text-white" style="text-align: justify; font-family: Arial, Helvetica, sans-serif; background-color: black;">
+                            <tr>
+                                <th>Id</th>
+                                <th>Title</th>
+                                <th>Created AT</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>            
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script type="text/javascript">
+    function setCreateAT()
+    {
+        var createdATInput = document.getElementById('createdAT');
+        var currentDate = new Date();
+        createdATInput.value = currentDate.toISOString();
+    }
+    setCreateAT();
+    function getWebPagesByTOPOrWhereOrAllOrContains()
+    {
+        const topORWhereOptions = document.getElementById('topORWhereOptions');
+        const topOrWhereInput = document.getElementById('topOrWhereInput');
+        var tableBody = document.querySelector('#webPageTable tbody');
+        tableBody.innerHTML = "";        
+        if(topORWhereOptions.value == "TOP" && topOrWhereInput && topORWhereOptions)
+        {
+            fetch(`/UrlEndPoints/GetWebPageBytopOrWhereOrContain?topOrWhereOrContain=${encodeURIComponent(topORWhereOptions.value)}&indice=${encodeURIComponent(topOrWhereInput.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    const row = tableBody.insertRow();
+                    data.forEach(webPage => {
+                        const row = document.createElement('tr');
+                        
+                        // Insert the ID cell
+                        const idCell = row.insertCell();
+                        idCell.textContent = webPage.id;
+                        
+                        // Insert the title cell with a link
+                        const title = document.createElement('a');
+                        title.href = webPage.url;
+                        title.textContent = webPage.title;
+                        const titleCell = row.insertCell();
+                        titleCell.appendChild(title);
+                        
+                        // Insert the createdAT cell
+                        const createdAtCell = row.insertCell();
+                        createdAtCell.textContent = webPage.createdAT;
+                        
+                        // Create the action links
+                        const edit = document.createElement('a');
+                        edit.href = `/UrlEndPoints/EditWebPage/${webPage.id}`;
+                        edit.textContent = 'Edit';
+                        edit.classList.add('action-link'); // Add a class to style the edit link
+                        
+                        const details = document.createElement('a');
+                        details.href = `/UrlEndPoints/DetailsWebPage/${webPage.id}`;
+                        details.textContent = 'Details';
+                        details.classList.add('action-link'); // Add a class to style the details link
+                        
+                        const deleteItem = document.createElement('a');
+                        deleteItem.href = `/UrlEndPoints/DeleteWebPage/${webPage.id}`;
+                        deleteItem.textContent = 'Delete';
+                        deleteItem.classList.add('action-link'); // Add a class to style the delete link
+                        
+                        // Create the action cell and add the links with separators
+                        const actionCell = row.insertCell();
+                        actionCell.appendChild(edit);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(details);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(deleteItem);
+                        
+                        // Append the row to the table body
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+        else if(topORWhereOptions.value == "WHERE" && topOrWhereInput && topORWhereOptions)
+        {
+            fetch(`/UrlEndPoints/GetWebPageBytopOrWhereOrContain?topOrWhereOrContain=${encodeURIComponent(topORWhereOptions.value)}&indice=${encodeURIComponent(topOrWhereInput.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    const row = tableBody.insertRow();
+                    data.forEach(webPage => {         
+                        row.insertCell().textContent = webPage.id;
+                        const title = document.createElement('a');
+                        title.href = webPage.url;
+                        title.textContent = webPage.title;
+                        const titleCell = row.insertCell();
+                        titleCell.appendChild(title);
+                        row.insertCell().textContent = webPage.createdAT;
+                        
+                        const edit = document.createElement('a');
+                        edit.href = `/UrlEndPoints/EditWebPage/${webPage.id}`;
+                        edit.textContent = 'Edit';
+                        edit.classList.add('action-link'); // Add a class to style edit link
+                        const details = document.createElement('a');
+                        details.href = `/UrlEndPoints/DetailsWebPage/${webPage.id}`;
+                        details.textContent = 'Details';
+                        details.classList.add('action-link'); // Add a class to style details link
+                        const deleteItem = document.createElement('a');
+                        deleteItem.href = `/UrlEndPoints/DeleteWebPage/${webPage.id}`;
+                        deleteItem.textContent = 'Delete';
+                        deleteItem.classList.add('action-link'); // Add a class to style delete link
+                        const actionCell = row.insertCell();
+                        
+                        // Add the links to the action cell with separators
+                        actionCell.appendChild(edit);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(details);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(deleteItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+        else if(topORWhereOptions.value == "ALL")
+        {
+            fetch(`/UrlEndPoints/FetchWebDocuments`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    const row = tableBody.insertRow();
+                    data.forEach(webPage => {           
+                        row.insertCell().textContent = webPage.id;
+                        const title = document.createElement('a');
+                        title.href = webPage.url;
+                        title.textContent = webPage.title;
+                        const titleCell = row.insertCell();
+                        titleCell.appendChild(title);
+                        row.insertCell().textContent = webPage.createdAT;
+                        
+                        const edit = document.createElement('a');
+                        edit.href = `/UrlEndPoints/EditWebPage/${webPage.id}`;
+                        edit.textContent = 'Edit';
+                        edit.classList.add('action-link'); // Add a class to style edit link
+                        const details = document.createElement('a');
+                        details.href = `/UrlEndPoints/DetailsWebPage/${webPage.id}`;
+                        details.textContent = 'Details';
+                        details.classList.add('action-link'); // Add a class to style details link
+                        const deleteItem = document.createElement('a');
+                        deleteItem.href = `/UrlEndPoints/DeleteWebPage/${webPage.id}`;
+                        deleteItem.textContent = 'Delete';
+                        deleteItem.classList.add('action-link'); // Add a class to style delete link
+                        const actionCell = row.insertCell();
+                        
+                        // Add the links to the action cell with separators
+                        actionCell.appendChild(edit);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(details);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(deleteItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+        else if(topORWhereOptions.value == "CONTAIN" && topOrWhereInput && topORWhereOptions)
+        {
+            fetch(`/UrlEndPoints/GetWebPageBytopOrWhereOrContain?topOrWhereOrContain=${encodeURIComponent(topORWhereOptions.value)}&indice=${encodeURIComponent(topOrWhereInput.value)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    else if(response.ok)
+                    {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                    const row = tableBody.insertRow();          
+                    data.forEach(webPage => {
+                        row.insertCell().textContent = webPage.id;
+                        const title = document.createElement('a');
+                        title.href = webPage.url;
+                        title.textContent = webPage.title;
+                        const titleCell = row.insertCell();
+                        titleCell.appendChild(title);
+                        row.insertCell().textContent = webPage.createdAT;
+                        
+                        const edit = document.createElement('a');
+                        edit.href = `/UrlEndPoints/EditWebPage/${webPage.id}`;
+                        edit.textContent = 'Edit';
+                        edit.classList.add('action-link'); // Add a class to style edit link
+                        const details = document.createElement('a');
+                        details.href = `/UrlEndPoints/DetailsWebPage/${webPage.id}`;
+                        details.textContent = 'Details';
+                        details.classList.add('action-link'); // Add a class to style details link
+                        const deleteItem = document.createElement('a');
+                        deleteItem.href = `/UrlEndPoints/DeleteWebPage/${webPage.id}`;
+                        deleteItem.textContent = 'Delete';
+                        deleteItem.classList.add('action-link'); // Add a class to style delete link
+                        const actionCell = row.insertCell();
+                        
+                        // Add the links to the action cell with separators
+                        actionCell.appendChild(edit);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(details);
+                        actionCell.appendChild(document.createTextNode(' | '));
+                        actionCell.appendChild(deleteItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with your fetch operation:', error);
+                });
+        }
+    }
+    function addWebPage() {
+        var createdAT = document.getElementById('createdAT');
+        var title = document.getElementById('title');
+        var url = document.getElementById('url');
+        
+        var tableBody = document.querySelector('#webPagePreFetchTable tbody');
+        var row = tableBody.insertRow();
+        
+        const titleUrl = document.createElement('a');
+        titleUrl.href = url.value;
+        titleUrl.textContent = title.value;
+        
+        var titleCell = row.insertCell();
+        titleCell.appendChild(titleUrl);
+        
+        var createdATCell = row.insertCell();
+        createdATCell.textContent = createdAT.value; // Removed the comma after value
+
+        var actionCell = row.insertCell();
+        var deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.addEventListener('click', function() {
+            tableBody.removeChild(row);
+        });
+        actionCell.appendChild(deleteButton);
+    }
+
+    function postData() {
+        var tableRows = document.querySelectorAll('#webPagePreFetchTable tbody tr');
+        var dataToSend = [];
+
+        tableRows.forEach(row => {
+            var title = row.cells[0].textContent;
+            var url = row.cells[0].querySelector('a').href; // Corrected to get URL from anchor element
+            var createdAT = row.cells[1].textContent.toString();
+            console.log(url + "\t" + title)
+            var rowData = {
+                Title: title,
+                Url: url,
+                CreatedAT: createdAT,
+            };
+            dataToSend.push(rowData);
+        });
+
+        fetch('/UrlEndPoints/POSTWebPage', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dataToSend)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok.');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+            // Declare tableBody before usage
+            var tableBody = document.querySelector('#webPageTable tbody');
+            data.forEach(webPage => {
+                const row = tableBody.insertRow();           
+                row.insertCell().textContent = webPage.id;
+                const title = document.createElement('a');
+                title.href = webPage.url;
+                title.textContent = webPage.title;
+                const titleCell = row.insertCell();
+                titleCell.appendChild(title);
+                row.insertCell().textContent = webPage.createdAT;
+                
+                const edit = document.createElement('a');
+                edit.href = `/UrlEndPoints/EditWebPage/${webPage.id}`;
+                edit.textContent = 'Edit';
+                edit.classList.add('action-link'); // Add a class to style edit link
+                const details = document.createElement('a');
+                details.href = `/UrlEndPoints/DetailsWebPage/${webPage.id}`;
+                details.textContent = 'Details';
+                details.classList.add('action-link'); // Add a class to style details link
+                const deleteItem = document.createElement('a');
+                deleteItem.href = `/UrlEndPoints/DeleteWebPage/${webPage.id}`;
+                deleteItem.textContent = 'Delete';
+                deleteItem.classList.add('action-link'); // Add a class to style delete link
+                const actionCell = row.insertCell();
+                
+                // Add the links to the action cell with separators
+                actionCell.appendChild(edit);
+                actionCell.appendChild(document.createTextNode(' | '));
+                actionCell.appendChild(details);
+                actionCell.appendChild(document.createTextNode(' | '));
+                actionCell.appendChild(deleteItem);
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('createMessageError').innerHTML = `Error sending data: ${error.message}`;
+        });
+    }
+
+</script>

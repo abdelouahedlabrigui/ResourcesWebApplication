@@ -1,0 +1,119 @@
+@model ResourcesWebApplication.Models.Documents.Reading
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+@{
+    string date = DateTime.Now.ToString("ddd, dd MMM yyy HH':'ss 'GMT'");
+}
+
+<h1>Create</h1>
+
+<h4>Reading</h4>
+<hr />
+<div class="row">
+    <div class="col">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="DocumentID" class="control-label"></label>
+                <input asp-for="DocumentID" class="form-control-plaintext" autocomplete="off" spellcheck="false" id="documentID" />
+                <span asp-validation-for="DocumentID" class="text-danger"></span>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label asp-for="DateAT" class="control-label"></label>
+                        <input type="date" asp-for="DateAT" class="form-control-plaintext" autocomplete="off" spellcheck="false" />
+                        <span asp-validation-for="DateAT" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label asp-for="StartAT" class="control-label"></label>
+                        <input type="time" asp-for="StartAT" class="form-control-plaintext" autocomplete="off" spellcheck="false" />
+                        <span asp-validation-for="StartAT" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label asp-for="EndAT" class="control-label"></label>
+                        <input type="time" asp-for="EndAT" class="form-control-plaintext" autocomplete="off" spellcheck="false" />
+                        <span asp-validation-for="EndAT" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>            
+            <div class="form-group">
+                <label asp-for="CreatedAT" class="control-label"></label>
+                <input asp-for="CreatedAT" class="form-control-plaintext" id="createdAT" value="@date" readonly />
+                <span asp-validation-for="CreatedAT" class="text-danger"></span>
+            </div>            
+            <div class="form-group">
+                <input type="submit" value="Edit" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                Document | <button class="btn bg-light text-dark btn-sm" onclick="loadDocument()">GET</button> 
+            </div>
+            <div class="card-body">
+                <dl>
+                    <dt  class="text-dark">Title:</dt>
+                    <dd><a href="" class="text-dark" id="documentTitle"></a></dd>
+                </dl>
+            </div>
+            <div class="card-footer bg-dark">
+                <pre class="text-white" style="font-size: 140%;" id="documentCreatedAT"></pre>
+            </div>
+            <div class="card-footer">
+                <pre id="displayedDocumentError"></pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script type="text/javascript">
+    function loadDocument()
+    {
+        var id = document.getElementById("documentID");
+        var displayedDocumentError = document.getElementById('displayedDocumentError');
+        var documentTitle = document.getElementById('documentTitle');
+        var documentCreatedAT = document.getElementById('documentCreatedAT');
+
+        if(id.value)
+        {
+            fetch(`/Readings/FetchDocument?id=${encodeURIComponent(id.value)}`)
+                .then(response => {
+                    if(!response.ok)
+                    {
+                        throw new Error('Network response was not ok.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayDocument(data);
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.error(`Error loading document: ${error}`);
+                    displayedDocumentError.value = 'Error loading file.';
+                })
+        } else {
+            displayedDocumentError.innerHTML = 'No document selected.';
+        }
+    }
+    function displayDocument(data)
+    {
+        documentTitle.href = data.url;
+        documentTitle.innerHTML = data.title;
+        documentCreatedAT.innerHTML = data.createdAT;
+    }
+</script>

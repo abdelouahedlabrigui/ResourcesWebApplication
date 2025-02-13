@@ -1,0 +1,49 @@
+@model IEnumerable<ResourcesWebApplication.Models.Servers.Users.User>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<div class="card">
+    <div class="card-header bg-dark text-white">
+        <h4>Rocky Virtual Machine Saved Users.</h4>
+    </div>
+    <div class="card-body bg-light shadow-sm">
+        <table class="table bg-light text-dark table-hover" style="font-size: larger;">
+            <thead class="thead navbar-dark text-white">
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Name)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.CreatedAT)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model) {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.CreatedAT)
+                            </td>
+                            <td style="font-size: small;">
+                                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                            </td>
+                        </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+

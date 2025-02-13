@@ -1,0 +1,65 @@
+@model ResourcesWebApplication.Models.Servers.Users.Hash
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Hash</h4>
+    <hr />
+    <div class="card">
+        <div class="card-header bg-dark text-white table-hover">
+            <h3>Details Hashed Clear String.</h3>
+        </div>
+        <div class="card-body bg-light">
+            <div class="col">
+                <dl class="row">
+                    <dt class = "col-sm-2">
+                        @Html.DisplayNameFor(model => model.Value)
+                    </dt>
+                    <dd class = "col-sm-10">
+                        @Html.DisplayFor(model => model.Value)
+                    </dd>
+                </dl>
+                <dl class="row">
+                    <dt class = "col-sm-2">
+                        @Html.DisplayNameFor(model => model.CreatedAT)
+                    </dt>
+                    <dd class = "col-sm-10">
+                        @Html.DisplayFor(model => model.CreatedAT)
+                    </dd>
+                </dl>
+            </div>
+            <div class="col">
+                <dl class="row">
+                    <dt class = "col-sm-2">
+                        @Html.DisplayNameFor(model => model.Hashed)
+                    </dt>
+                    <dd class = "col-sm-10">
+                        @Html.DisplayFor(model => model.Hashed)
+                    </dd>
+                </dl>
+            </div>
+        </div>
+        <div class="card-footer">
+            <pre id="detailsAT"></pre>
+        </div>
+    </div>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
+
+
+<script type="text/javascript">
+    function setDetailsAT()
+    {
+        var detailsATInput = document.getElementById('detailsAT');
+        var currentDate = new Date();
+        detailsATInput.value = currentDate.toISOString();
+    }
+    setDetailsAT();
+</script>

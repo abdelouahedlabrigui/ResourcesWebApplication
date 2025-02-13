@@ -1,0 +1,40 @@
+@model ResourcesWebApplication.Models.Secrets.Password
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Password</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Technology" class="control-label"></label>
+                <input asp-for="Technology" class="form-control" spellcheck="false" autocomplete="off"/>
+                <span asp-validation-for="Technology" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="User" class="control-label"></label>
+                <input asp-for="User" class="form-control" spellcheck="false" autocomplete="off"/>
+                <span asp-validation-for="User" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PasswordInClear" class="control-label"></label>
+                <input asp-for="PasswordInClear" type="password" class="form-control" spellcheck="false" autocomplete="off"/>
+                <span asp-validation-for="PasswordInClear" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

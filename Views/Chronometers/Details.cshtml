@@ -1,0 +1,71 @@
+@model ResourcesWebApplication.Models.Chronometers.Chronometer
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Chronometer</h4>
+    <hr />
+    <div class="card">
+        <div class="card-header bg-dark text-white">
+            <div class="form-group">
+                <div class="row container">
+                    <div class="col-md-4">
+                        <h1 for="@Html.DisplayNameFor(model => model.Hour)">@Html.DisplayNameFor(model => model.Hour)</h1>
+                    </div>
+                    <div class="col">
+                        <h1>@Html.DisplayFor(model => model.Hour)</h1>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        <div class="card-body text-dark">
+            @Html.DisplayNameFor(model => model.Title)
+            <hr class="bg-white" style="height: 1%;">
+            <h1>@Html.DisplayFor(model => model.Title)</h1>
+        </div>
+        <div class="card-footer">
+            <input 
+                type="text" 
+                id="currentTimeInput" 
+                class="form-control-plaintext"
+                style="font-size: 240%; color: rgb(68, 0, 0);"                    
+            />
+        </div>
+    </div>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
+
+
+<script type="text/javascript">
+    function updateCurrentTime()
+    {
+        var currentTimeInput = document.getElementById('currentTimeInput');
+        var currentTime = new Date();
+        var hours = currentTime.getHours();
+        var minutes = currentTime.getMinutes();
+        var seconds = currentTime.getSeconds();
+        var milliseconds = currentTime.getMilliseconds();
+
+        var formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}.${padZero(milliseconds, 3)}`;
+        currentTimeInput.value = formattedTime;
+    }
+    function padZero(number, width = 2)
+    {
+        var str = number.toString();
+        while(str.length < width)
+        {
+            str = '0' + str;
+        }
+        return str;
+    }
+    setInterval(updateCurrentTime, 100);
+    updateCurrentTime();
+</script>
