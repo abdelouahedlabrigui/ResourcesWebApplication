@@ -45,13 +45,13 @@ dotnet run
 
 ```
 
-Access the API at http://localhost:5000 (or your configured port).
+Access the API at `http://localhost:5000` (or your configured port).
 
 ## Usage
 
 ## MachineLearningController Overview
 
-The MachineLearningController provides endpoints for machine learning and data analysis tasks, routed under [controller] (i.e., /MachineLearning). Below are key functionalities:
+The MachineLearningController provides endpoints for machine learning and data analysis tasks, routed under [controller] (i.e., `/MachineLearning`). Below are key functionalities:
 
 ### **1. Health Check Endpoints**
 
@@ -160,14 +160,14 @@ The MachineLearningController provides endpoints for machine learning and data a
 While not directly in MachineLearningController, the following controllers align with the project’s scope and are emphasized here:
 
 - **Documentations:** Likely stores API or system documentation related to machine learning processes.
-    * Example Use: Document endpoint usage (GET /MachineLearning/GetLinguisticFeatures).
+    * Example Use: Document endpoint usage (`GET /MachineLearning/GetLinguisticFeatures`).
 - **Documents:** Manages raw files (e.g., Amelia_Earhart.txt) processed by NLP endpoints.
-    * Example: GET /MachineLearning/GetEntities?filename=Amelia_Earhart.txt retrieves entities from a document.
+    * Example: GET `/MachineLearning/GetEntities?filename=Amelia_Earhart.txt` retrieves entities from a document.
 - **Marks:** Could tag or score machine learning outputs (e.g., accuracy of FeatureImportance).
 - **Readings:** Tracks reading or processing times for datasets, potentially linked to Chronometers.
-    * Example: Time taken to process GetPersonLifeByYearsByDatasetName.
+    * Example: Time taken to process `GetPersonLifeByYearsByDatasetName`.
 - **Prompts:** Manages input prompts for biography questions or NLP tasks.
-    * Example: POST /MachineLearning/PostPersonBiographyQuestions uses prompts.
+    * Example: POST `/MachineLearning/PostPersonBiographyQuestions` uses prompts.
 - **Plaintexts:** Stores unformatted text inputs for analysis (e.g., biography data).
     * Example: Source for LocalPostPersonLifeByYears.
 - **Chronometers:** Measures execution time for tasks like RequestAutomatePostingPersonsLivesByYears.
